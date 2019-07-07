@@ -1,26 +1,25 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Row, Col, Input, Button, Icon } from 'antd';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Welcome to Sledger 2.0
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <div className="App">
+            <Row>
+                <Col xs={10} md={6} offset={2}>
+                    <Input
+                        placeholder="Enter your username"
+                        prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                    />
+                    <Input.Password
+                        placeholder="Enter your password"
+                        prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                    />
+                    <Button icon="login" type="primary">Login</Button>
+                </Col>
+            </Row>
+        </div>
+    );
 }
 
 export default App;
