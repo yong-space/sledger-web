@@ -1,5 +1,6 @@
 import React from 'react';
-import { Row, Col, Input, Button, Icon } from 'antd';
+import { Row, Col } from 'antd';
+import Login from './Login';
 import './App.css';
 
 function App() {
@@ -7,15 +8,7 @@ function App() {
         <div className="App">
             <Row>
                 <Col xs={10} md={6} offset={2}>
-                    <Input
-                        placeholder="Enter your username"
-                        prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                    />
-                    <Input.Password
-                        placeholder="Enter your password"
-                        prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                    />
-                    <Button icon="login" type="primary">Login</Button>
+                    <Login />
                 </Col>
             </Row>
         </div>
