@@ -1,20 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Icon, Input } from 'antd';
 
-export default class Login extends React.Component {
-    baseUrl = process.env.REACT_APP_BASE_URL;
+export default function Login() {
+    const baseUrl = process.env.REACT_APP_BASE_URL;
+    const [ jwt, setJwt ] = useState(undefined);
+    const [ error, setError ] = useState(undefined);
+    const [ username, setUsername ] = useState(undefined);
+    const [ password, setPassword ] = useState(undefined);
 
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-
-    login = () => {
+    const login = () => {
         let formData = new FormData();
-        formData.append('username', this.state.username);
-        formData.append('password', this.state.password);
+        formData.append('username', username);
+        formData.append('password', password);
 
-        fetch(`${this.baseUrl}/api/authenticate`, {
+        fetch(`${baseUrl}/api/authenticate`, {
             method: 'POST',
             cache: 'no-cache',
             body: formData
@@ -24,34 +23,32 @@ export default class Login extends React.Component {
                 throw Error(res.statusText);
             return res.text();
         })
-        .then(res => this.setState({ jwt: res, error: undefined }))
-        .catch(() => this.setState({ jwt: undefined, error: 'Authentication Failed'}));
+        .then(res => setJwt(res))
+        .catch(() => setError('Authentication Failed'));
     };
 
-    renderMessage = () => {
-        if (!this.state.jwt && !this.state.error)
+    const renderMessage = () => {
+        if (!jwt && !error)
             return;
-        const message = this.state.error ? `Error: ${this.state.error}` : `JWT: ${this.state.jwt}`;
+        const message = error ? `Error: ${error}` : `JWT: ${jwt}`;
         return <div>{message}</div>;
     };
 
-    render() {
-        return (
-            <div>
-                <Input
-                    placeholder="Username"
-                    onChange={e => this.setState({ username: e.target.value })}
-                    prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                />
-                <Input.Password
-                    placeholder="Password"
-                    onChange={e => this.setState({ password: e.target.value })}
-                    prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                />
-                <Button icon="login" type="primary" onClick={this.login}>Login</Button>
+    return (
+        <div>
+            <Input
+                placeholder="Username"
+                onChange={e => setUsername(e.target.value)}
+                prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+            />
+            <Input.Password
+                placeholder="Password"
+                onChange={e => setPassword(e.target.value)}
+                prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+            />
+            <Button icon="login" type="primary" onClick={login}>Login</Button>
 
-                { this.renderMessage() }
-            </div>
-        );
-    }
+            { renderMessage() }
+        </div>
+    );
 }
