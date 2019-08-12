@@ -1,25 +1,46 @@
 import { useContext } from 'react';
-import { LoginContext } from "../LoginContext";
+import { LoginContext } from '../LoginContext';
+import { navigate } from 'hookrouter';
 
 export default () => {
+    const baseUrl = process.env.REACT_APP_BASE_URL;
     const [ state, setState ] = useContext(LoginContext);
 
-    const setLoginSuccess = (jwt) => {
-        setState({ jwt: parseJwt(jwt), error: undefined });
+    const login = async (username, password) => {
+        let formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        return await fetch(`${baseUrl}/api/authenticate`, {
+            method: 'POST',
+            cache: 'no-cache',
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok)
+                throw Error(res.statusText);
+            return res.text();
+        })
+        .then(jwt => {
+            const newState = { jwt, jwtObj: parseJwt(jwt) };
+            setState(newState);
+            return newState;
+        })
+        .catch(() => {
+            const newState = { error: 'Authentication Failed' };
+            setState(newState);
+            return newState;
+        });
     };
 
-    const setLoginError = (error) => {
-        setState({ error, jwt: undefined });
-    };
+    const isLoginValid = () =>  !(!state.jwtObj || Date.now() >= state.jwtObj.exp * 1000);
 
-    const isLoginValid = () => {
-        return !(!state.jwt || Date.now() >= state.jwt.exp * 1000);
-    };
-
-    const getUsername = () => (state.jwt && state.jwt.sub) || undefined;
+    const getUsername = () => (state.jwtObj && state.jwtObj.sub) || undefined;
 
     const logout = () => {
         setState({});
+        setTimeout(() => localStorage.clear(), 300);
+        navigate('/');
     };
 
     const parseJwt = (token) => {
@@ -34,10 +55,9 @@ export default () => {
     };
 
     return {
-        setLoginSuccess,
-        setLoginError,
+        login,
+        logout,
         isLoginValid,
         getUsername,
-        logout,
     }
 };
