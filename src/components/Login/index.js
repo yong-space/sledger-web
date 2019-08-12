@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Button, Icon, Input } from 'antd';
+import useLogin from '../LoginHook';
 
-export default function Login() {
+export default (props) => {
     const baseUrl = process.env.REACT_APP_BASE_URL;
-    const [ jwt, setJwt ] = useState(undefined);
-    const [ error, setError ] = useState(undefined);
-    const [ username, setUsername ] = useState(undefined);
-    const [ password, setPassword ] = useState(undefined);
+    const { setLoginSuccess, setLoginError } = useLogin();
+    const [ username, setUsername ] = useState('');
+    const [ password, setPassword ] = useState('');
 
     const login = () => {
+        if (username.length + password.length === 0) {
+            return;
+        }
         let formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
@@ -23,15 +26,14 @@ export default function Login() {
                 throw Error(res.statusText);
             return res.text();
         })
-        .then(res => setJwt(res))
-        .catch(() => setError('Authentication Failed'));
-    };
-
-    const renderMessage = () => {
-        if (!jwt && !error)
-            return;
-        const message = error ? `Error: ${error}` : `JWT: ${jwt}`;
-        return <div>{message}</div>;
+        .then(token => {
+            setLoginSuccess(token);
+            props.history.push('/dashboard');
+        })
+        .catch(e => {
+            console.log(e);
+            setLoginError('Authentication Failed');
+        });
     };
 
     return (
@@ -47,8 +49,6 @@ export default function Login() {
                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
             />
             <Button icon="login" type="primary" onClick={login}>Login</Button>
-
-            { renderMessage() }
         </div>
     );
 }
