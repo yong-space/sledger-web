@@ -2,8 +2,8 @@ import React from 'react';
 
 export default () => {
     return (
-        <div>
-            Dashboard
-        </div>
+        <>
+            This is the Dashboard
+        </>
     );
 }
