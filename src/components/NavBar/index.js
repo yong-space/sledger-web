@@ -2,7 +2,7 @@ import React from 'react';
 import {Button, Layout, Menu} from 'antd';
 import useLogin from '../LoginHook';
 import logoWhite from '../../assets/logo-white.svg';
-import logoBlack from '../../assets/logo-black.svg';
+//import logoBlack from '../../assets/logo-black.svg';
 
 export default () => {
     const { isLoginValid, getUsername, logout } = useLogin();
@@ -36,15 +36,6 @@ export default () => {
 
     return (
         <Layout.Header style={{ height: '46px', padding: 0 }}>
-            {/*
-            <div style={{
-                width: '120px',
-                height: '31px',
-                background: 'rgba(255, 255, 255, 0.2)',
-                float: 'left',
-                margin: '7px 20px'
-            }} />
-            */}
             <img
                 src={logoWhite} alt='Sledger Logo'
                 style={{
