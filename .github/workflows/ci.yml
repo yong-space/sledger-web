@@ -1,0 +1,29 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Sledger Web CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+    - name: npm install
+      run: npm ci
+    - name: npm build
+      run: npm run build
+    - name: Derive tag from package.json version
+      run: |
+        export PACKAGE_VERSION=`sed -n 's/\s\+"version": "\([0-9.]\+\)",/\1/p' package.json`
+        echo "::set-env name=VERSION_TAG::$PACKAGE_VERSION"
+    - name: Set full image name
+      run: |
+        export IMAGE_NAME="${{ SECRETS.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
+        echo "::set-env name=FULL_IMAGE_NAME::$IMAGE_NAME"
+    - name: Build main Docker image
+      run: docker build -t ${{ env.FULL_IMAGE_NAME }} .
+    - name: Push main Docker image
+      run: docker push ${{ env.FULL_IMAGE_NAME }}
+      
