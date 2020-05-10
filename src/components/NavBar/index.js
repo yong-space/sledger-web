@@ -1,7 +1,9 @@
 import React from 'react';
 import {Button, Layout, Menu} from 'antd';
+import { LogoutOutlined } from '@ant-design/icons';
 import useLogin from '../LoginHook';
 import logoWhite from '../../assets/logo-white.svg';
+import './NavBar.css'
 //import logoBlack from '../../assets/logo-black.svg';
 
 export default () => {
@@ -24,7 +26,7 @@ export default () => {
             return (
                 <>
                     Logged in as {getUsername()}
-                    <Button icon="logout" type="danger" onClick={logout} style={{ marginLeft: '10px', fontWeight: 'bold' }}>
+                    <Button type="danger" icon={<LogoutOutlined />} onClick={logout} style={{ marginLeft: '10px', fontWeight: 'bold' }}>
                         Logout
                     </Button>
                 </>
@@ -35,15 +37,8 @@ export default () => {
     };
 
     return (
-        <Layout.Header style={{ height: '46px', padding: 0 }}>
-            <img
-                src={logoWhite} alt='Sledger Logo'
-                style={{
-                    float: 'left',
-                    height: '24px',
-                    margin: '14px 25px'
-                }}
-            />
+        <Layout.Header>
+            <img src={logoWhite} alt='Sledger Logo' className="logo" />
             <div style={{
                 margin: '6px',
                 lineHeight: '32px',

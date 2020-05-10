@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import {Breadcrumb, Icon, Layout, Menu} from 'antd';
+import {Breadcrumb, Layout, Menu} from 'antd';
+import {
+    PieChartOutlined, DesktopOutlined, UserOutlined, TeamOutlined, FileOutlined
+} from '@ant-design/icons';
 import NavBar from '../NavBar';
 import {LoginProvider} from '../LoginContext';
 import Routes from '../Routes';
@@ -20,16 +23,16 @@ export default () => {
                         <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                             <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                                 <Menu.Item key="1">
-                                    <Icon type="pie-chart" />
+                                    <PieChartOutlined />
                                     <span>Option 1</span>
                                 </Menu.Item>
                                 <Menu.Item key="2">
-                                    <Icon type="desktop" />
+                                    <DesktopOutlined />
                                     <span>Option 2</span>
                                 </Menu.Item>
                                 <SubMenu
                                     key="sub1"
-                                    title={<span><Icon type="user" /> <span>User</span></span>}
+                                    title={<span><UserOutlined /> <span>User</span></span>}
                                 >
                                     <Menu.Item key="3">Tom</Menu.Item>
                                     <Menu.Item key="4">Bill</Menu.Item>
@@ -37,13 +40,13 @@ export default () => {
                                 </SubMenu>
                                 <SubMenu
                                     key="sub2"
-                                    title={<span><Icon type="team" /> <span>Team</span></span>}
+                                    title={<span><TeamOutlined /> <span>Team</span></span>}
                                 >
                                     <Menu.Item key="6">Team 1</Menu.Item>
                                     <Menu.Item key="8">Team 2</Menu.Item>
                                 </SubMenu>
                                 <Menu.Item key="9">
-                                    <Icon type="file" />
+                                    <FileOutlined />
                                     <span>File</span>
                                 </Menu.Item>
                             </Menu>

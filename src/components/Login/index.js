@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Button, Icon, Input } from 'antd';
+import { Button, Input } from 'antd';
 import useLogin from '../LoginHook';
 import { navigate } from "hookrouter";
+import {
+    LoginOutlined, UserOutlined, LockOutlined
+} from '@ant-design/icons';
 
 export default () => {
     const { login } = useLogin();
@@ -33,15 +36,17 @@ export default () => {
                     autoComplete='username'
                     placeholder='Username'
                     onChange={e => setUsername(e.target.value)}
-                    prefix={<Icon type='user' style={{ color: 'rgba(0,0,0,.25)' }} />}
+                    prefix={<UserOutlined />}
                 />
                 <Input.Password
                     autoComplete='password'
                     placeholder='Password'
                     onChange={e => setPassword(e.target.value)}
-                    prefix={<Icon type='lock' style={{ color: 'rgba(0,0,0,.25)' }} />}
+                    prefix={<LockOutlined />}
                 />
-                <Button icon='login' type='primary' onClick={submitLogin}>Login</Button>
+                <Button type="primary" icon={<LoginOutlined />} onClick={submitLogin}>
+                    Login
+                </Button>
             </form>
             <div>{showErrors()}</div>
         </div>
