@@ -12,6 +12,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: npm install
       run: npm ci
+    - name: Create Environment
+      run: echo "BROWSER=NONE\\nREACT_APP_BASE_URL=/" > .env
     - name: npm build
       run: npm run build
     - name: Derive tag from package.json version
@@ -26,4 +28,6 @@ jobs:
       run: docker build -t ${{ env.FULL_IMAGE_NAME }} .
     - name: Push main Docker image
       run: docker push ${{ env.FULL_IMAGE_NAME }}
-      
+    - name: Perform rolling update
+      run: kubectl set image deployments/${{ SECRETS.DEPLOYMENT_NAME }} ${{ SECRETS.DEPLOYMENT_NAME }}=${{ env.FULL_IMAGE_NAME }}
+  
