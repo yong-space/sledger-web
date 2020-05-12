@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { useHistory } from "react-router-dom";
 import { Button, Input } from 'antd';
 import useLogin from '../LoginHook';
-import { navigate } from "hookrouter";
 import {
     LoginOutlined, UserOutlined, LockOutlined
 } from '@ant-design/icons';
@@ -11,6 +11,7 @@ export default () => {
     const [ username, setUsername ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ errors, setErrors ] = useState();
+    const history = useHistory();
 
     const submitLogin = async () => {
         if (username.length + password.length === 0) {
@@ -19,7 +20,7 @@ export default () => {
         }
         const state = await login(username, password);
         if (state.jwt && !state.error) {
-            navigate('/dashboard');
+            history.push('/dash');
         } else {
             setErrors(state.error);
         }
@@ -30,7 +31,7 @@ export default () => {
     };
 
     return (
-        <div>
+        <>
             <form>
                 <Input
                     autoComplete='username'
@@ -49,6 +50,6 @@ export default () => {
                 </Button>
             </form>
             <div>{showErrors()}</div>
-        </div>
+        </>
     );
 }

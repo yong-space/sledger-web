@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { LoginContext } from '../LoginContext';
-import { navigate } from 'hookrouter';
 
 export default () => {
     const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -33,14 +32,14 @@ export default () => {
         });
     };
 
-    const isLoginValid = () =>  !(!state.jwtObj || Date.now() >= state.jwtObj.exp * 1000);
+    const isLoginValid = () => !!(state.jwtObj && (state.jwtObj.exp * 1000) > Date.now());
 
     const getUsername = () => (state.jwtObj && state.jwtObj.sub) || undefined;
 
     const logout = () => {
         setState({});
         setTimeout(() => localStorage.clear(), 300);
-        navigate('/');
+        window.location.replace('/');
     };
 
     const parseJwt = (token) => {

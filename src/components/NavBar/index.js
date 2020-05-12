@@ -4,7 +4,6 @@ import { LogoutOutlined } from '@ant-design/icons';
 import useLogin from '../LoginHook';
 import logoWhite from '../../assets/logo-white.svg';
 import './NavBar.css'
-//import logoBlack from '../../assets/logo-black.svg';
 
 export default () => {
     const { isLoginValid, getUsername, logout } = useLogin();
@@ -38,7 +37,9 @@ export default () => {
 
     return (
         <Layout.Header>
-            <img src={logoWhite} alt='Sledger Logo' className="logo" />
+            <a href="/">
+                <img src={logoWhite} alt='Sledger Logo' className="logo" />
+            </a>
             <div style={{
                 margin: '6px',
                 lineHeight: '32px',
