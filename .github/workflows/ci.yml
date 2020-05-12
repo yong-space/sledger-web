@@ -10,16 +10,28 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
+    - name: Cache node modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
     - name: npm install
-      run: npm ci
-    - name: Create Environment
-      run: echo "BROWSER=NONE\\nREACT_APP_BASE_URL=/" > .env
+      run: npm install
+    - name: Set environment file
+      run: printf "BROWSER=NONE\nREACT_APP_BASE_URL=${{ SECRETS.BASE_URL }}" > .env
     - name: npm build
       run: npm run build
     - name: Derive tag from package.json version
       run: |
         export PACKAGE_VERSION=`sed -n 's/\s\+"version": "\([0-9.]\+\)",/\1/p' package.json`
-        echo "::set-env name=VERSION_TAG::$PACKAGE_VERSION"
+        export TIMESTAMP=`date +'%Y%m%d%H%M'`
+        echo "::set-env name=VERSION_TAG::$PACKAGE_VERSION-$TIMESTAMP"
     - name: Set full image name
       run: |
         export IMAGE_NAME="${{ SECRETS.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
