@@ -10,17 +10,12 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
-    - name: Cache node modules
-      uses: actions/cache@v1
-      env:
-        cache-name: cache-node-modules
+    - uses: actions/cache@v1
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        path: node_modules
+        key: node_modules-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
+          node_modules-
     - name: npm install
       run: npm install
     - name: Set environment file
@@ -36,10 +31,9 @@ jobs:
       run: |
         export IMAGE_NAME="${{ SECRETS.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
         echo "::set-env name=FULL_IMAGE_NAME::$IMAGE_NAME"
-    - name: Build main Docker image
+    - name: Build Docker image
       run: docker build -t ${{ env.FULL_IMAGE_NAME }} .
-    - name: Push main Docker image
+    - name: Push Docker image
       run: docker push ${{ env.FULL_IMAGE_NAME }}
     - name: Perform rolling update
       run: kubectl set image deployments/${{ SECRETS.DEPLOYMENT_NAME }} ${{ SECRETS.DEPLOYMENT_NAME }}=${{ env.FULL_IMAGE_NAME }}
-  
