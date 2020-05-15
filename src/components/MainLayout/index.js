@@ -60,7 +60,6 @@ export default () => {
                     </Breadcrumb>
                     <Content
                         style={{
-                            background: '#fff',
                             padding: 24,
                             margin: 0,
                             minHeight: 280,

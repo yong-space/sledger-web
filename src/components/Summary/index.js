@@ -1,17 +1,14 @@
 import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import './summary.css';
+import unicaTheme from './unica-theme'
 
 export default () => {
+    Highcharts.setOptions(unicaTheme);
+
     const options = {
-        credits: false,
-        title: { text: '' },
         chart: {
             type: 'pie'
-        },
-        exporting: {
-            enabled: false
         },
         plotOptions: {
             pie: {
@@ -54,7 +51,6 @@ export default () => {
     return (
         <>
             <h1>Dashboard</h1>
-
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
