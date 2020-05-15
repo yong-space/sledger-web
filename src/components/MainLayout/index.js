@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons';
 import NavBar from '../NavBar';
 import Summary from '../Summary';
+import './main-layout.css';
 
 export default () => {
     const { Content, Sider } = Layout;

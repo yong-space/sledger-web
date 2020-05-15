@@ -7,8 +7,8 @@ export default () => {
 
     const login = async (username, password) => {
         let formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
+        formData.append('username', username.trim());
+        formData.append('password', password.trim());
 
         return await fetch(`${baseUrl}/api/authenticate`, {
             method: 'POST',

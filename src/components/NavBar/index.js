@@ -38,7 +38,7 @@ export default () => {
     return (
         <Layout.Header>
             <a href="/">
-                <img src={logoWhite} alt='Sledger Logo' className="logo" />
+                <img src={logoWhite} alt='Sledger' className="logo" />
             </a>
             <div style={{
                 margin: '6px',
