@@ -4,16 +4,22 @@ import { Layout } from 'antd';
 import NavBar from '../NavBar';
 import Dashboard from '../Dashboard';
 import Transactions from '../Transactions';
+import Settings from '../Settings';
 import './main-layout.css';
 
 export default () => {
+    const routes = [
+        { path: '/dash', component: Dashboard },
+        { path: '/transactions', component: Transactions },
+        { path: '/settings', component: Settings },
+    ].map(route => <Route path={route.path} component={withRouter(route.component)} />)
+
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <NavBar />
             <Layout>
                 <Switch>
-                    <Route path="/dash" component={withRouter(Dashboard)} />
-                    <Route path="/transactions" component={withRouter(Transactions)} />
+                    {routes}
                     <Route render={() => <><br />MainLayout route not Found</>} />
                 </Switch>
             </Layout>

@@ -7,7 +7,7 @@ export default () => {
     const { Content } = Layout;
     return (
         <Content style={{ padding: 24 }}>
-            <Title level={4}>Transactions</Title>
+            <Title level={4}>Settings</Title>
         </Content>
     );
 }

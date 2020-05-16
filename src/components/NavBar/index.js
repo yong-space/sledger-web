@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { Link } from 'react-router-dom';
 import { Button, Layout, Menu } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
-import useLogin from '../LoginHook';
+import useLogin from '../Login/login-hook';
 import logoWhite from '../../assets/logo-white.svg';
 import './NavBar.css'
 

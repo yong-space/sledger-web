@@ -5,7 +5,7 @@ import { Layout, Menu } from 'antd';
 import {
     PieChartOutlined, DesktopOutlined, UserOutlined, TeamOutlined, FileOutlined
 } from '@ant-design/icons';
-import Summary from '../Summary';
+import Summary from './Summary';
 
 export default () => {
     const { Content, Sider } = Layout;

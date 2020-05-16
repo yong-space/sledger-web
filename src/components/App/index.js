@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoginProvider, IsLoggedIn } from '../LoginContext';
+import { LoginProvider, IsLoggedIn } from '../Login/login-context';
 import { BrowserRouter, Route, Switch, withRouter } from 'react-router-dom';
 import MainLayout from '../MainLayout'
 import Login from '../Login'

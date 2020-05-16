@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { LoginContext } from '../LoginContext';
+import { LoginContext } from './login-context';
 
 export default () => {
     const baseUrl = process.env.REACT_APP_BASE_URL;

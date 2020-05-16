@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { Layout, Button, Input, Row, Col, Form, Alert } from 'antd';
-import useLogin from '../LoginHook';
+import useLogin from './login-hook';
 import {
     LoginOutlined, UserOutlined, LockOutlined
 } from '@ant-design/icons';
