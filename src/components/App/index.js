@@ -1,6 +1,6 @@
 import React from 'react';
 import { LoginProvider, IsLoggedIn } from '../LoginContext';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, withRouter } from 'react-router-dom';
 import MainLayout from '../MainLayout'
 import Login from '../Login'
 
@@ -12,14 +12,16 @@ export default () => {
         window.history.pushState({}, "", "/dash")
     }
 
+    const mainPaths = [ "/dash", "/transactions", "/settings" ];
+
     return (
         <div className="App">
             <LoginProvider>
                 <BrowserRouter>
                     <Switch>
-                        <Route path="/login" component={Login} />
-                        <Route path="/dash" component={MainLayout} />
-                        <Route path="*" render={() => <><br/>Route not Found</>} />
+                        <Route path="/login" component={withRouter(Login)} />
+                        <Route path={mainPaths} component={withRouter(MainLayout)} />
+                        <Route render={() => <><br />Index route not Found</>} />
                     </Switch>
                 </BrowserRouter>
             </LoginProvider>

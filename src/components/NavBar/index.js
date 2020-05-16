@@ -1,24 +1,32 @@
 import React from 'react';
-import {Button, Layout, Menu} from 'antd';
+import { useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { Button, Layout, Menu } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import useLogin from '../LoginHook';
 import logoWhite from '../../assets/logo-white.svg';
 import './NavBar.css'
 
 export default () => {
+    let location = useLocation();
     const { isLoginValid, getUsername, logout } = useLogin();
-    const menuItems = [ 'Dashboard', 'Transactions', 'Settings' ];
+    const menuItems = [
+        { label: 'Dashboard', route: '/dash' },
+        { label: 'Transactions', route: '/transactions' },
+        { label: 'Settings', route: '/settings' }
+    ];
+
     const getMenuItems = () => menuItems.map((menuItem, index) =>
-        <Menu.Item
-            key={index}
-            onClick={e => changeMenu(e)}
-        >
-            {menuItem}
+        <Menu.Item key={index}>
+            <Link to={menuItem.route}>
+                {menuItem.label}
+            </Link>
         </Menu.Item>
     );
-    const changeMenu = e => {
-        console.log(menuItems[e.key]);
-    };
+
+    const selectedMenuItem = [
+        menuItems.map(i => i.route).indexOf(location.pathname).toString()
+    ]
 
     const getLoginStatus = () => {
         if (isLoginValid()) {
@@ -46,14 +54,14 @@ export default () => {
                 float: 'right',
                 color: 'white'
             }}>
-                { getLoginStatus() }
+                {getLoginStatus()}
             </div>
             <Menu
                 theme="dark"
                 mode="horizontal"
-                defaultSelectedKeys={['0']}
+                defaultSelectedKeys={selectedMenuItem}
             >
-                { getMenuItems() }
+                {getMenuItems()}
             </Menu>
         </Layout.Header>
     );

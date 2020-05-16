@@ -1,11 +1,12 @@
 import React from 'react';
+import { Typography } from 'antd';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import unicaTheme from './unica-theme'
 
 export default () => {
+    const { Title } = Typography;
     Highcharts.setOptions(unicaTheme);
-
     const options = {
         chart: {
             type: 'pie'
@@ -50,7 +51,7 @@ export default () => {
 
     return (
         <>
-            <h1>Dashboard</h1>
+            <Title level={4}>Dashboard</Title>
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
