@@ -12,7 +12,9 @@ export default () => {
         { path: '/dash', component: Dashboard },
         { path: '/transactions', component: Transactions },
         { path: '/settings', component: Settings },
-    ].map(route => <Route path={route.path} component={withRouter(route.component)} />)
+    ].map((route, index) =>
+        <Route key={index} path={route.path} component={withRouter(route.component)} />
+    )
 
     return (
         <Layout style={{ minHeight: '100vh' }}>

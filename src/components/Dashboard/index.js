@@ -14,15 +14,21 @@ export default () => {
 
     return (
         <>
-            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+            <Sider
+                collapsible
+                collapsed={collapsed}
+                onCollapse={setCollapsed}
+                breakpoint="sm"
+                collapsedWidth="0"
+            >
                 <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
                     <Menu.Item key="1">
                         <PieChartOutlined />
-                        <span>Option 1</span>
+                        <span>Summary</span>
                     </Menu.Item>
                     <Menu.Item key="2">
                         <DesktopOutlined />
-                        <span>Option 2</span>
+                        <span>Balance History</span>
                     </Menu.Item>
                     <SubMenu
                         key="sub1"
