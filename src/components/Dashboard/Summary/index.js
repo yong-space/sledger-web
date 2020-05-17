@@ -1,61 +1,72 @@
 import React from 'react';
 import { Typography } from 'antd';
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
-import unicaTheme from './unica-theme'
+import {
+    Chart, Interval, Tooltip, Legend, View, Axis, Coordinate
+} from 'bizcharts';
+import { DataView } from '@antv/data-set';
 
 export default () => {
     const { Title } = Typography;
-    Highcharts.setOptions(unicaTheme);
-    const options = {
-        chart: {
-            type: 'pie'
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: { style: { textOutline: false } }
-            }
-        },
-        series: [
-            {
-                name: 'Total Balance',
-                data: [
-                    { name: 'Cash', y: 7000 },
-                    { name: 'Investments', y: 3000 },
-                    { name: 'Retirement', y: 2000 }
-                ],
-                size: '70%',
-                dataLabels: {
-                    distance: -50,
-                    formatter: function () {
-                        return this.y > 0 ? this.point.name : null;
-                    }
-                }
-            }, {
-                name: 'Balance',
-                data: [
-                    { name: 'Bank A', y: 3000 },
-                    { name: 'Bank B', y: 4000 },
-                    { name: 'Broker C', y: 2000 },
-                    { name: 'Broker D', y: 1000 },
-                    { name: 'CPF', y: 2000 },
-                ],
-                size: '100%',
-                innerSize: '70%',
-                dataLabels: {
-                    distance: 0
-                }
-            }
-        ]
-    };
+
+    const data = [
+        { type: 'Cash', name: 'Bank A', value: 3163.23 },
+        { type: 'Cash', name: 'Bank B', value: 1234.56 },
+        { type: 'Cash', name: 'Bank C', value: 234.78 },
+        { type: 'Investments', name: 'Broker A', value: 32163.23 },
+        { type: 'Investments', name: 'Broker B', value: 11163.23 },
+        { type: 'Retirement', name: 'CPF', value: 78163.23 }
+    ];
+
+    const colours = ['#BAE7FF', '#7FC9FE', '#71E3E3', '#ABF5F5', '#8EE0A1', '#BAF5C4'];
+
+    const innerRing = new DataView();
+    innerRing.source(data).transform({
+        type: 'percent',
+        field: 'value',
+        dimension: 'type',
+        as: 'percent',
+    });
+
+    const outerRing = new DataView();
+    outerRing.source(data).transform({
+        type: 'percent',
+        field: 'value',
+        dimension: 'name',
+        as: 'percent',
+    });
 
     return (
         <>
             <Title level={4}>Dashboard</Title>
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-            />
+            <Chart
+                height="40vh"
+                data={innerRing.rows}
+                autoFit
+            >
+                <Coordinate type="theta" radius={0.5} />
+                <Axis visible={false} />
+                <Legend visible={false} />
+                <Tooltip showTitle={false} />
+                <Interval
+                    position="percent"
+                    adjust="stack"
+                    color="type"
+                    element-highlight
+                    style={{ stroke: '#fff' }}
+                    label={[ 'type', { offset: -15 } ]}
+                />
+                <View data={outerRing.rows}>
+                    <Coordinate type="theta" radius={0.75} innerRadius={0.5 / 0.75} />
+                    <Interval
+                        position="percent"
+                        adjust="stack"
+                        color={[ 'name', colours ]}
+                        element-highlight
+                        style={{ stroke: '#fff' }}
+                        label={[ 'name', { offset: 20 } ]}
+                    />
+                </View>
+            </Chart>
         </>
     );
 }
