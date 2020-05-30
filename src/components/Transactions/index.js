@@ -1,13 +1,16 @@
 import React from 'react';
 import { Layout } from 'antd';
-import { Typography } from 'antd';
+import AccountSelector from '../AccountSelector';
 
 export default () => {
-    const { Title } = Typography;
     const { Content } = Layout;
+    const selectAccount = (x) => {
+        console.log(x)
+    }
     return (
         <Content style={{ padding: 24 }}>
-            <Title level={4}>Transactions</Title>
+            <AccountSelector selectAccount={selectAccount} />
+
         </Content>
     );
 }
