@@ -6,7 +6,6 @@ import {
     LoginOutlined, UserOutlined, LockOutlined
 } from '@ant-design/icons';
 import logoWhite from '../../assets/logo-white.svg';
-import './login.css';
 
 export default () => {
     const { login } = useLogin();

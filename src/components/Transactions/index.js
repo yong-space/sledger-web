@@ -1,16 +1,18 @@
-import React from 'react';
-import { Layout } from 'antd';
+import React, { useState } from 'react';
+import { Layout, Space } from 'antd';
 import AccountSelector from '../AccountSelector';
+import TransactionGrid from '../TransactionGrid';
 
 export default () => {
     const { Content } = Layout;
-    const selectAccount = (x) => {
-        console.log(x)
-    }
+    const [ selectedAccount, setSelectedAccount ] = useState();
+
     return (
         <Content style={{ padding: 24 }}>
-            <AccountSelector selectAccount={selectAccount} />
-
+            <Space direction="vertical" style={{ width: '100%' }}>
+                <AccountSelector selectAccount={setSelectedAccount} />
+                <TransactionGrid selectedAccount={selectedAccount} />
+            </Space>
         </Content>
     );
 }
