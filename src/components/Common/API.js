@@ -1,4 +1,4 @@
-import useLogin from './Login/login-hook';
+import useLogin from '../Login/LoginHook';
 
 export default () => {
     const baseUrl = process.env.REACT_APP_BASE_URL || window.location.origin;
@@ -29,13 +29,11 @@ export default () => {
     }
 
     const getX = async () => {
-        const x = await apiCall(GET, 'public/x');
-        console.log(x);
+        return await apiCall(GET, 'public/x');
     }
 
     const getY = async () => {
-        const x = await apiCall(GET, 'private/y');
-        console.log(x);
+        return await apiCall(GET, 'private/y');
     }
 
     return {

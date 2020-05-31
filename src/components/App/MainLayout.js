@@ -1,11 +1,11 @@
 import React from 'react';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import { Layout } from 'antd';
-import NavBar from '../NavBar';
+import NavBar from '../NavBar/NavBar';
 import DashboardMain from '../Dashboard/DashboardMain';
 import TransactionsMain from '../Transactions/TransactionsMain';
 import SettingsMain from '../Settings/SettingsMain';
-import './main-layout.css';
+import './MainLayout.css';
 
 export default () => {
     const routes = [

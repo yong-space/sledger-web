@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Space } from 'antd';
-import AccountSelector from '../AccountSelector';
+import AccountSelector from '../Common/AccountSelector';
 import TransactionGrid from './TransactionsGrid';
 
 export default () => {
