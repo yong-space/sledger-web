@@ -1,7 +1,7 @@
 import React from 'react';
 import { LoginProvider, IsLoggedIn } from '../Login/login-context';
 import { BrowserRouter, Route, Switch, withRouter } from 'react-router-dom';
-import MainLayout from '../MainLayout'
+import MainLayout from './App'
 import Login from '../Login'
 
 export default () => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Layout, Space } from 'antd';
 import AccountSelector from '../AccountSelector';
-import TransactionGrid from '../TransactionGrid';
+import TransactionGrid from './TransactionsGrid';
 
 export default () => {
     const { Content } = Layout;

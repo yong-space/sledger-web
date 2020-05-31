@@ -2,16 +2,16 @@ import React from 'react';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import { Layout } from 'antd';
 import NavBar from '../NavBar';
-import Dashboard from '../Dashboard';
-import Transactions from '../Transactions';
-import Settings from '../Settings';
+import DashboardMain from '../Dashboard/DashboardMain';
+import TransactionsMain from '../Transactions/TransactionsMain';
+import SettingsMain from '../Settings/SettingsMain';
 import './main-layout.css';
 
 export default () => {
     const routes = [
-        { path: '/dash', component: Dashboard },
-        { path: '/transactions', component: Transactions },
-        { path: '/settings', component: Settings },
+        { path: '/dash', component: DashboardMain },
+        { path: '/transactions', component: TransactionsMain },
+        { path: '/settings', component: SettingsMain },
     ].map((route, index) =>
         <Route key={index} path={route.path} component={withRouter(route.component)} />
     )

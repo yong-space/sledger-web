@@ -1,4 +1,4 @@
-import useLogin from '../Login/login-hook';
+import useLogin from './Login/login-hook';
 
 export default () => {
     const baseUrl = process.env.REACT_APP_BASE_URL || window.location.origin;
