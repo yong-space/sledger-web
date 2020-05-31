@@ -36,24 +36,23 @@ export default () => {
     ]
 
     const getLoginStatus = () => {
-        if (isLoginValid()) {
-            return (
-                <>
-                    <div className="login-description">
-                        Logged in as {getUsername()}
-                    </div>
-                    <Button
-                        type="danger"
-                        icon={<LogoutOutlined />}
-                        onClick={logout}
-                        className="logout-button">
-                        Logout
-                    </Button>
-                </>
-            );
-        } else {
-            return <div style={{ margin: '0 10px' }}>Not Logged In</div>;
+        if (!isLoginValid()) {
+            return <></>
         }
+        return (
+            <>
+                <div className="login-description">
+                    Logged in as {getUsername()}
+                </div>
+                <Button
+                    type="danger"
+                    icon={<LogoutOutlined />}
+                    onClick={logout}
+                    className="logout-button">
+                    Logout
+                </Button>
+            </>
+        );
     };
 
     return (

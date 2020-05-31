@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { LoginContext } from './login-context';
 
 export default () => {
-    const baseUrl = process.env.REACT_APP_BASE_URL;
+    const baseUrl = process.env.REACT_APP_BASE_URL || window.location.origin;
     const [ state, setState ] = useContext(LoginContext);
 
     const login = async (username, password) => {
@@ -36,6 +36,8 @@ export default () => {
 
     const getUsername = () => (state.jwtObj && state.jwtObj.sub) || undefined;
 
+    const getJwt = () => state.jwt;
+
     const logout = () => {
         setState({});
         setTimeout(() => localStorage.clear(), 300);
@@ -58,5 +60,6 @@ export default () => {
         logout,
         isLoginValid,
         getUsername,
+        getJwt
     }
 };
