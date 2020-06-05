@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom'
 import { Link } from 'react-router-dom';
 import { Button, Layout, Menu, Drawer, Divider } from 'antd';
-import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
+import { LogoutOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons';
 import useLogin from '../Login/LoginHook';
 import logoWhite from '../../assets/logo-white.svg';
 import './NavBar.less'
@@ -10,7 +10,7 @@ import './NavBar.less'
 export default () => {
     let location = useLocation();
     const [ drawerVisible, setDrawerVisible ] = useState(false);
-    const { isLoginValid, getUsername, logout } = useLogin();
+    const { isLoginValid, getFullName, logout } = useLogin();
     const menuItems = [
         { label: 'Dashboard', route: '/dash' },
         { label: 'Transactions', route: '/transactions' },
@@ -42,7 +42,7 @@ export default () => {
         return (
             <>
                 <div className="login-description">
-                    Logged in as {getUsername()}
+                    <UserOutlined /> {getFullName()}
                 </div>
                 <Button
                     type="danger"

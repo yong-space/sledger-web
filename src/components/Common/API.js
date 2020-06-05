@@ -16,6 +16,9 @@ export default () => {
             },
         };
         if (method === POST && body) {
+            if (typeof body == 'object') {
+                body = JSON.stringify(body);
+            }
             config['body'] = body;
         }
         return await fetch(`${baseUrl}/api/${path}`, config)
@@ -36,8 +39,13 @@ export default () => {
         return await apiCall(GET, 'private/y');
     }
 
+    const saveProfile = async (user) => {
+        return await apiCall(POST, 'profile/save', user);
+    }
+
     return {
         getX,
-        getY
+        getY,
+        saveProfile
     }
 };

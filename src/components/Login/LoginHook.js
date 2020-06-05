@@ -34,7 +34,9 @@ export default () => {
 
     const isLoginValid = () => !!(state.jwtObj && (state.jwtObj.exp * 1000) > Date.now());
 
-    const getUsername = () => (state.jwtObj && state.jwtObj.sub) || undefined;
+    const getUsername = () => state.jwtObj && state.jwtObj.sub;
+
+    const getFullName = () => state.jwtObj && state.jwtObj.name;
 
     const getJwt = () => state.jwt;
 
@@ -60,6 +62,7 @@ export default () => {
         logout,
         isLoginValid,
         getUsername,
+        getFullName,
         getJwt
     }
 };
