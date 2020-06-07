@@ -1,9 +1,11 @@
 import { useContext } from 'react';
+import createPersistedState from 'use-persisted-state';
 import { LoginContext } from './LoginContext';
 
 export default () => {
     const baseUrl = process.env.REACT_APP_BASE_URL || window.location.origin;
     const [ state, setState ] = useContext(LoginContext);
+    const [ profile, setProfile ] = createPersistedState('profile')();
 
     const login = async (username, password) => {
         let formData = new FormData();
@@ -23,6 +25,11 @@ export default () => {
         .then(jwt => {
             const newState = { jwt, jwtObj: parseJwt(jwt) };
             setState(newState);
+            setProfile({
+                username: newState.jwtObj.sub,
+                fullName: newState.jwtObj.name,
+                email: newState.jwtObj.email
+            })
             return newState;
         })
         .catch(() => {
@@ -34,15 +41,12 @@ export default () => {
 
     const isLoginValid = () => !!(state.jwtObj && (state.jwtObj.exp * 1000) > Date.now());
 
-    const getUsername = () => state.jwtObj && state.jwtObj.sub;
-
-    const getFullName = () => state.jwtObj && state.jwtObj.name;
+    const getProfile = () => profile;
 
     const getJwt = () => state.jwt;
 
     const logout = () => {
-        setState({});
-        setTimeout(() => localStorage.clear(), 300);
+        window.localStorage.clear();
         window.location.replace('/');
     };
 
@@ -61,8 +65,8 @@ export default () => {
         login,
         logout,
         isLoginValid,
-        getUsername,
-        getFullName,
+        getProfile,
+        setProfile,
         getJwt
     }
 };

@@ -6,9 +6,11 @@ import {
 } from '@ant-design/icons';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
+import useLogin from '../Login/LoginHook';
 
 export default () => {
     const { Title } = Typography;
+    const { getProfile, setProfile } = useLogin();
     const [ savingProfile, setSavingProfile ] = useState(false);
     const [ savingPassword, setSavingPassword ] = useState(false);
     const { updateProfile, updatePassword } = API();
@@ -24,16 +26,11 @@ export default () => {
         wrapperCol: { offset: 8, span: 16 }
     };
 
-    const initialProfileValues = {
-        username: 'x',
-        fullName: 'John Doe',
-        email: 'john@doe.com'
-    };
-
     const submitUpdateProfile = async (values) => {
         setSavingProfile(true);
         try {
             const response = await updateProfile(values);
+            setProfile(response);
             showSuccess('Profile Updated');
         } catch(e) {
             showError('Unable to Update Profile', e.message);
@@ -66,7 +63,7 @@ export default () => {
 
     const profileFormProps = {
         ...layoutProps,
-        initialValues: initialProfileValues,
+        initialValues: getProfile(),
         onFinish: submitUpdateProfile
     };
 

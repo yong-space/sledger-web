@@ -10,7 +10,7 @@ import './NavBar.less'
 export default () => {
     let location = useLocation();
     const [ drawerVisible, setDrawerVisible ] = useState(false);
-    const { isLoginValid, getFullName, logout } = useLogin();
+    const { isLoginValid, getProfile, logout } = useLogin();
     const menuItems = [
         { label: 'Dashboard', route: '/dash' },
         { label: 'Transactions', route: '/transactions' },
@@ -42,7 +42,7 @@ export default () => {
         return (
             <>
                 <div className="login-description">
-                    <UserOutlined /> {getFullName()}
+                    <UserOutlined /> {getProfile().fullName}
                 </div>
                 <Button
                     type="danger"

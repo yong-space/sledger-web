@@ -4,8 +4,7 @@ import createPersistedState from 'use-persisted-state';
 const LoginContext = React.createContext([{}, () => {}]);
 
 const LoginProvider = (props) => {
-    const useLoginState = createPersistedState('login');
-    const [ state, setState ] = useLoginState({});
+    const [ state, setState ] = createPersistedState('login')({});
 
     return (
         <LoginContext.Provider value={[ state, setState ]}>
@@ -15,8 +14,7 @@ const LoginProvider = (props) => {
 };
 
 const IsLoggedIn = () => {
-    const useLoginState = createPersistedState('login');
-    const [ state ] = useLoginState({});
+    const [ state ] = createPersistedState('login')({});
     return !!(state.jwtObj && (state.jwtObj.exp * 1000) > Date.now());
 }
 

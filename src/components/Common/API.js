@@ -27,7 +27,8 @@ export default () => {
                 if (!res.ok) {
                     throw new Error((await res.json()).message);
                 }
-                return res.bodyUsed ? res.json() : {};
+                const mimeType = res.headers.get("content-type")
+                return mimeType === 'application/json' ? res.json() : {};
             })
             .then(json => json)
             .catch(err => { throw new Error(err.message) });
