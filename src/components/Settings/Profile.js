@@ -4,6 +4,7 @@ import { Typography } from 'antd';
 import {
     UserOutlined, LockOutlined
 } from '@ant-design/icons';
+import { lime, volcano } from '@ant-design/colors';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import useLogin from '../Login/LoginHook';
@@ -19,11 +20,15 @@ export default () => {
 
     const layoutProps = {
         labelCol: { span: 8 },
-        wrapperCol: { span: 16 }
+        wrapperCol: { span: 16 },
+        hideRequiredMark: true
     };
 
     const tailLayout = {
-        wrapperCol: { offset: 8, span: 16 }
+        wrapperCol: {
+            xs: { offset: 0 },
+            sm: { offset: 8, span: 16 }
+        }
     };
 
     const submitUpdateProfile = async (values) => {
@@ -121,6 +126,7 @@ export default () => {
                                 icon={<UserOutlined />}
                                 htmlType="submit"
                                 loading={savingProfile}
+                                style={{ background: lime[8], borderColor: lime[7] }}
                             >
                                 Update Profile
                             </Button>
@@ -160,6 +166,7 @@ export default () => {
                                 icon={<LockOutlined />}
                                 htmlType="submit"
                                 loading={savingPassword}
+                                style={{ background: volcano[8], borderColor: volcano[7] }}
                             >
                                 Update Password
                             </Button>
