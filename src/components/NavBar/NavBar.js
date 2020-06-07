@@ -14,7 +14,7 @@ export default () => {
     const menuItems = [
         { label: 'Dashboard', route: '/dash' },
         { label: 'Transactions', route: '/transactions' },
-        { label: 'Settings', route: '/settings' }
+        { label: 'Settings', route: '/settings/profile' }
     ];
     const menuLinks = menuItems.map((menuItem, index) =>
         <Menu.Item key={index}>
