@@ -5,7 +5,7 @@ import { LoginContext } from './LoginContext';
 export default () => {
     const baseUrl = process.env.REACT_APP_BASE_URL || window.location.origin;
     const [ state, setState ] = useContext(LoginContext);
-    const [ profile, setProfile ] = createPersistedState('profile')();
+    const [ profile, setProfile ] = createPersistedState('profile')({});
 
     const login = async (username, password) => {
         let formData = new FormData();
