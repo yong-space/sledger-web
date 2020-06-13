@@ -5,6 +5,7 @@ import {
 import { AiOutlineAccountBook, AiFillWarning } from 'react-icons/ai';
 import Notification from '../Common/Notification';
 import API from '../Common/API';
+import Icon from '../Common/Icon';
 
 export default () => {
     const { Title } = Typography;
@@ -51,9 +52,7 @@ export default () => {
 
     const checkboxRenderer = (text, record, index) =>
         <Switch checked={record.importEnabled} disabled={true} />;
-    const warningIcon = <span className="anticon">
-            <AiFillWarning style={{ color: 'red' }} />
-        </span>;
+    const warningIcon = <Icon i={<AiFillWarning style={{ color: 'red' }} />} />;
     const deleteButton = (text, record, index) =>
         <Popconfirm
             title={`Confirm deletion of ${record.accountTypeName}?`}
@@ -158,7 +157,7 @@ export default () => {
                             <Button
                                 shape="round"
                                 type="primary"
-                                icon={<span className="anticon"><AiOutlineAccountBook /></span>}
+                                icon={<Icon i={<AiOutlineAccountBook />} />}
                                 htmlType="submit"
                                 loading={savingAccountType}
                             >

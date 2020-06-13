@@ -39,7 +39,7 @@ export default () => {
 
     const getSelectedMenuItem = () => {
         const route = getMenuItems().map(i => i.route)
-            .filter(r => location.pathname.startsWith(r))[0];
+            .filter(r => location.pathname.startsWith(r.match(/\/[\w-]+/)[0]))[0];
         const index = getMenuItems().map(i => i.route)
             .indexOf(route);
         return [ index.toString() ];

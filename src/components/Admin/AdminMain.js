@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Switch, Route, useLocation, useHistory } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
-import {
-    BankOutlined
-} from '@ant-design/icons';
+import { AiOutlineAccountBook } from 'react-icons/ai';
 import AccountTypes from './AccountTypes';
+import Icon from '../Common/Icon';
 
 export default () => {
     const { Content, Sider } = Layout;
     const [ collapsed, setCollapsed ] = useState(false);
     const menuItems = [
-        { label: 'Account Types', icon: <BankOutlined />, route: '/admin/account-types' }
+        { label: 'Account Types', icon: <Icon i={<AiOutlineAccountBook />} />, route: '/admin/account-types' }
     ];
     const menuLinks = menuItems.map((menuItem, index) =>
         <Menu.Item key={index}>
