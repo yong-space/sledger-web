@@ -41,6 +41,8 @@ export default () => {
 
     const isLoginValid = () => !!(state.jwtObj && (state.jwtObj.exp * 1000) > Date.now());
 
+    const isAdmin = () => state.jwtObj && state.jwtObj.roles.indexOf("ADMIN") > -1;
+
     const getProfile = () => profile;
 
     const getJwt = () => state.jwt;
@@ -65,6 +67,7 @@ export default () => {
         login,
         logout,
         isLoginValid,
+        isAdmin,
         getProfile,
         setProfile,
         getJwt

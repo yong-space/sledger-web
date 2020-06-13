@@ -5,6 +5,7 @@ import NavBar from '../NavBar/NavBar';
 import DashboardMain from '../Dashboard/DashboardMain';
 import TransactionsMain from '../Transactions/TransactionsMain';
 import SettingsMain from '../Settings/SettingsMain';
+import AdminMain from '../Admin/AdminMain';
 import './MainLayout.css';
 
 export default () => {
@@ -12,6 +13,7 @@ export default () => {
         { path: '/dash', component: DashboardMain },
         { path: '/transactions', component: TransactionsMain },
         { path: '/settings', component: SettingsMain },
+        { path: '/admin', component: AdminMain },
     ].map((route, index) =>
         <Route key={index} path={route.path} component={withRouter(route.component)} />
     )
@@ -22,7 +24,7 @@ export default () => {
             <Layout>
                 <Switch>
                     {routes}
-                    <Route render={() => <><br />MainLayout route not Found</>} />
+                    <Route component={DashboardMain} />
                 </Switch>
             </Layout>
         </Layout>

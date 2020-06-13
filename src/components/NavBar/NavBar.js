@@ -10,13 +10,19 @@ import './NavBar.less'
 export default () => {
     let location = useLocation();
     const [ drawerVisible, setDrawerVisible ] = useState(false);
-    const { isLoginValid, getProfile, logout } = useLogin();
-    const menuItems = [
-        { label: 'Dashboard', route: '/dash' },
-        { label: 'Transactions', route: '/transactions' },
-        { label: 'Settings', route: '/settings/profile' }
-    ];
-    const menuLinks = menuItems.map((menuItem, index) =>
+    const { isLoginValid, isAdmin, getProfile, logout } = useLogin();
+    const getMenuItems = () => {
+        const menuItems = [
+            { label: 'Dashboard', route: '/dash' },
+            { label: 'Transactions', route: '/transactions' },
+            { label: 'Settings', route: '/settings/profile' }
+        ];
+        if (isAdmin()) {
+            menuItems.push({ label: 'Admin', route: '/admin/account-types' });
+        }
+        return menuItems;
+    }
+    const menuLinks = getMenuItems().map((menuItem, index) =>
         <Menu.Item key={index}>
             <Link to={menuItem.route} onClick={() => setDrawerVisible(false)}>
                 {menuItem.label}
@@ -31,9 +37,13 @@ export default () => {
         return () => window.removeEventListener('resize', closeDrawer);
     }, []);
 
-    const selectedMenuItem = [
-        menuItems.map(i => i.route).indexOf(location.pathname).toString()
-    ]
+    const getSelectedMenuItem = () => {
+        const route = getMenuItems().map(i => i.route)
+            .filter(r => location.pathname.startsWith(r))[0];
+        const index = getMenuItems().map(i => i.route)
+            .indexOf(route);
+        return [ index.toString() ];
+    };
 
     const getLoginStatus = () => {
         if (!isLoginValid()) {
@@ -66,7 +76,7 @@ export default () => {
                     className="desktop"
                     theme="dark"
                     mode="horizontal"
-                    defaultSelectedKeys={selectedMenuItem}
+                    defaultSelectedKeys={getSelectedMenuItem()}
                 >
                     {menuLinks}
                 </Menu>
@@ -92,7 +102,7 @@ export default () => {
                 <Menu
                     theme="dark"
                     mode="vertical"
-                    defaultSelectedKeys={selectedMenuItem}
+                    defaultSelectedKeys={getSelectedMenuItem()}
                 >
                     {menuLinks}
                 </Menu>

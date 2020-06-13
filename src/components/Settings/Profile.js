@@ -14,8 +14,6 @@ export default () => {
     const { getProfile, setProfile } = useLogin();
     const [ savingProfile, setSavingProfile ] = useState(false);
     const [ savingPassword, setSavingPassword ] = useState(false);
-    const { updateProfile, updatePassword } = API();
-    const { showSuccess, showError } = Notification();
     const [ passwordForm ] = Form.useForm();
 
     const layoutProps = {
@@ -34,11 +32,10 @@ export default () => {
     const submitUpdateProfile = async (values) => {
         setSavingProfile(true);
         try {
-            const response = await updateProfile(values);
-            setProfile(response);
-            showSuccess('Profile Updated');
+            setProfile(await API.updateProfile(values));
+            Notification.showSuccess('Profile Updated');
         } catch(e) {
-            showError('Unable to Update Profile', e.message);
+            Notification.showError('Unable to Update Profile', e.message);
         }
         setSavingProfile(false);
     };
@@ -47,7 +44,7 @@ export default () => {
         setSavingPassword(true);
 
         if (values.newPassword1 !== values.newPassword2) {
-            showError('Unable to Update Password', 'Passwords do not match');
+            Notification.showError('Unable to Update Password', 'Passwords do not match');
             setSavingPassword(false);
             return;
         }
@@ -57,11 +54,11 @@ export default () => {
                 oldPassword: values.oldPassword,
                 newPassword: values.newPassword1
             };
-            await updatePassword(passwordRequest);
+            await API.updatePassword(passwordRequest);
             passwordForm.resetFields();
-            showSuccess('Password Updated');
+            Notification.showSuccess('Password Updated');
         } catch(e) {
-            showError('Unable to Update Password', e.message);
+            Notification.showError('Unable to Update Password', e.message);
         }
         setSavingPassword(false);
     }

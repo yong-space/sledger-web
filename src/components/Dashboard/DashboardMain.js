@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import {
     PieChartOutlined, DesktopOutlined, UserOutlined, TeamOutlined, FileOutlined
@@ -55,7 +55,7 @@ export default () => {
                 <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
                     <Switch>
                         <Route path="/dash" exact component={withRouter(Summary)} />
-                        <Route render={() => <><br/>Dashboard route not Found</>} />
+                        <Route render={() => <Redirect to="/dash" />} />
                     </Switch>
                 </Content>
             </Layout>

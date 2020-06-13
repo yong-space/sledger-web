@@ -12,7 +12,7 @@ export default () => {
         window.history.pushState({}, "", "/dash")
     }
 
-    const mainPaths = [ "/dash", "/transactions", "/settings" ];
+    const mainPaths = [ "/dash", "/transactions", "/settings", "/admin" ];
 
     return (
         <div className="App">
@@ -21,7 +21,7 @@ export default () => {
                     <Switch>
                         <Route path="/login" component={withRouter(LoginPage)} />
                         <Route path={mainPaths} component={withRouter(MainLayout)} />
-                        <Route render={() => <><br />Index route not Found</>} />
+                        <Route component={withRouter(MainLayout)} />
                     </Switch>
                 </BrowserRouter>
             </LoginProvider>
