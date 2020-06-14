@@ -4,6 +4,7 @@ import {
 } from '@ant-design/icons';
 import SiderLayout from '../Common/SiderLayout';
 import Summary from './Summary';
+import BalanceHistory from './BalanceHistory';
 
 export default () => {
     const menuItems = [
@@ -13,7 +14,7 @@ export default () => {
         },
         {
             label: 'Balance History', icon: <DesktopOutlined />,
-            route: '/dash/balance-history', component: Summary
+            route: '/dash/balance-history', component: BalanceHistory
         }
     ];
 

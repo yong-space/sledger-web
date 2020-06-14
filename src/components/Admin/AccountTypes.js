@@ -5,7 +5,7 @@ import {
 import { AiOutlineAccountBook, AiFillWarning } from 'react-icons/ai';
 import Notification from '../Common/Notification';
 import API from '../Common/API';
-import Icon from '../Common/Icon';
+import AntIcon from '../Common/AntIcon';
 
 export default () => {
     const { Title } = Typography;
@@ -60,7 +60,7 @@ export default () => {
 
     const confirmDelete = (record) => Modal.confirm({
         title: `Confirm deletion of ${record.accountTypeName}?`,
-        icon: <Icon i={<AiFillWarning style={{ color: 'red' }} />} />,
+        icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
         onOk: () => new Promise((resolve) => {
             submitDeleteAccountType(record.accountTypeId).then(() => resolve());
         })
@@ -70,12 +70,27 @@ export default () => {
         <Button danger onClick={() => confirmDelete(record)}>Delete</Button>;
 
     const columns = [
-        { dataIndex: 'accountTypeId', title: 'ID' },
-        { dataIndex: 'accountTypeClass', title: 'Class' },
-        { dataIndex: 'accountTypeName', title: 'Name' },
+        {
+            dataIndex: 'accountTypeClass',
+            title: 'Class',
+            sorter: {
+                compare: (a, b) => a.accountTypeClass.localeCompare(b.accountTypeClass),
+                multiple: 2
+            },
+            defaultSortOrder: 'ascend'
+        },
+        {
+            dataIndex: 'accountTypeName',
+            title: 'Name',
+            sorter: {
+                compare: (a, b) => a.accountTypeName.localeCompare(b.accountTypeName),
+                multiple: 1
+            },
+            defaultSortOrder: 'ascend'
+        },
         {
             dataIndex: 'importEnabled',
-            title: 'Import Enabled',
+            title: 'Importable',
             render: checkboxRenderer,
             width: 50
         },
@@ -159,7 +174,7 @@ export default () => {
                             <Button
                                 shape="round"
                                 type="primary"
-                                icon={<Icon i={<AiOutlineAccountBook />} />}
+                                icon={<AntIcon i={AiOutlineAccountBook} />}
                                 htmlType="submit"
                                 loading={savingAccountType}
                             >
