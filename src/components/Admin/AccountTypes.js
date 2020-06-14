@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Popconfirm
+    Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal
 } from 'antd';
 import { AiOutlineAccountBook, AiFillWarning } from 'react-icons/ai';
 import Notification from '../Common/Notification';
@@ -10,6 +10,7 @@ import Icon from '../Common/Icon';
 export default () => {
     const { Title } = Typography;
     const [ accountTypes, setAccountTypes ] = useState();
+    const [ loading, setLoading ] = useState(true);
     const [ savingAccountType, setSavingAccountType ] = useState(false);
     const [ addAccountTypeForm ] = Form.useForm();
 
@@ -39,30 +40,34 @@ export default () => {
         }
     };
 
-    const refreshAccountTypes = () => {
-        API.getAccountTypes().then(response => {
-            response.forEach((entry, i) => entry.key = i)
-            setAccountTypes(response)
-        });
+    const refreshAccountTypes = async () => {
+        setLoading(true);
+        try {
+            const response = await API.getAccountTypes();
+            setAccountTypes(response.map((entry, index) => ({ ...entry, key: index })));
+        } catch(e) {
+            Notification.showError('Unable to load account types', e.message);
+        }
+        setLoading(false);
     }
 
     useEffect(() => {
         refreshAccountTypes();
     }, []);
 
-    const checkboxRenderer = (text, record, index) =>
+    const checkboxRenderer = (text, record) =>
         <Switch checked={record.importEnabled} disabled={true} />;
-    const warningIcon = <Icon i={<AiFillWarning style={{ color: 'red' }} />} />;
-    const deleteButton = (text, record, index) =>
-        <Popconfirm
-            title={`Confirm deletion of ${record.accountTypeName}?`}
-            onConfirm={() => submitDeleteAccountType(record.accountTypeId)}
-            okText="Delete"
-            cancelText="Cancel"
-            icon={warningIcon}
-        >
-            <Button danger>Delete</Button>
-        </Popconfirm>;
+
+    const confirmDelete = (record) => Modal.confirm({
+        title: `Confirm deletion of ${record.accountTypeName}?`,
+        icon: <Icon i={<AiFillWarning style={{ color: 'red' }} />} />,
+        onOk: () => new Promise((resolve) => {
+            submitDeleteAccountType(record.accountTypeId).then(() => resolve());
+        })
+    });
+
+    const deleteButton = (text, record) =>
+        <Button danger onClick={() => confirmDelete(record)}>Delete</Button>;
 
     const columns = [
         { dataIndex: 'accountTypeId', title: 'ID' },
@@ -81,12 +86,6 @@ export default () => {
         }
     ];
 
-    const layoutProps = {
-        labelCol: { span: 8 },
-        wrapperCol: { span: 16 },
-        hideRequiredMark: true
-    };
-
     const tailLayout = {
         wrapperCol: {
             xs: { offset: 0 },
@@ -94,8 +93,10 @@ export default () => {
         }
     };
 
-    const addAccountTypeProps = {
-        ...layoutProps,
+    const addAccountTypeFormProps = {
+        labelCol: { span: 8 },
+        wrapperCol: { span: 16 },
+        hideRequiredMark: true,
         form: addAccountTypeForm,
         initialValues: {
             accountTypeClass: "Cash",
@@ -116,6 +117,7 @@ export default () => {
                         dataSource={accountTypes}
                         size="small"
                         pagination={false}
+                        loading={loading}
                     />
                 </Col>
             </Row>
@@ -123,7 +125,7 @@ export default () => {
             <Title level={4}>Add Account Type</Title>
             <Row>
                 <Col xs={24} md={18} lg={12} xl={10}>
-                    <Form {...addAccountTypeProps}>
+                    <Form {...addAccountTypeFormProps}>
                         <Form.Item
                             label="Type"
                             name="accountTypeClass"

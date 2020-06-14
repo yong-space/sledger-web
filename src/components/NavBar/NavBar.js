@@ -13,7 +13,7 @@ export default () => {
     const { isLoginValid, isAdmin, getProfile, logout } = useLogin();
     const getMenuItems = () => {
         const menuItems = [
-            { label: 'Dashboard', route: '/dash' },
+            { label: 'Dashboard', route: '/dash/summary' },
             { label: 'Transactions', route: '/transactions' },
             { label: 'Settings', route: '/settings/profile' }
         ];

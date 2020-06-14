@@ -5,7 +5,10 @@ const PUT = 'PUT';
 const DELETE = 'DELETE';
 
 const apiCall = (method, path, body) => {
-    const jwt = JSON.parse(window.localStorage.login).jwt;
+    const jwt = JSON.parse(window.localStorage.login || "{}").jwt;
+    if (jwt === undefined) {
+        throw new Error("Invalid session. Please refresh this page.");
+    }
     const config = {
         method: method,
         cache: 'no-cache',
@@ -25,37 +28,17 @@ const apiCall = (method, path, body) => {
             if (!res.ok) {
                 throw new Error((await res.json()).message);
             }
-            const mimeType = res.headers.get("content-type")
+            const mimeType = res.headers.get('content-type');
             return mimeType === 'application/json' ? res.json() : {};
         })
         .then(json => json)
         .catch(err => { throw new Error(err.message) });
 }
 
-const updateProfile = (user) => {
-    return apiCall(PUT, 'profile', user);
-}
-
-const updatePassword = (password) => {
-    return apiCall(PUT, 'profile/password', password);
-}
-
-const getAccountTypes = () => {
-    return apiCall(GET, 'account-type');
-}
-
-const addAccountType = (accountType) => {
-    return apiCall(POST, 'admin/account-type', accountType);
-}
-
-const deleteAccountType = (accountTypeId) => {
-    return apiCall(DELETE, 'admin/account-type/' + accountTypeId);
-}
-
 export default {
-    updateProfile,
-    updatePassword,
-    getAccountTypes,
-    addAccountType,
-    deleteAccountType
+    updateProfile: (user) => apiCall(PUT, 'profile', user),
+    updatePassword: (password) => apiCall(PUT, 'profile/password', password),
+    getAccountTypes: () => apiCall(GET, 'account-type'),
+    addAccountType: (accountType) => apiCall(POST, 'admin/account-type', accountType),
+    deleteAccountType: (id) => apiCall(DELETE, 'admin/account-type/' + id),
 }
