@@ -3,14 +3,26 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { Switch, Route, useLocation, useHistory } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
+import { useSwipeable } from 'react-swipeable'
 import {
     BankOutlined, UserOutlined, SwapOutlined
 } from '@ant-design/icons';
 import Profile from './Profile';
+import SiderButton from '../Common/SiderButton';
 
 export default () => {
     const { Content, Sider } = Layout;
     const [ collapsed, setCollapsed ] = useState(false);
+    const swipeProps = useSwipeable({
+        onSwiped: (event) => {
+            console.log(event.dir);
+            if (event.dir === 'Left' && !collapsed) {
+                setCollapsed(true);
+            } else if (event.dir === 'Right' && collapsed) {
+                setCollapsed(false);
+            }
+        }
+    });
     const menuItems = [
         { label: 'Profile', icon: <UserOutlined />, route: '/settings/profile' },
         { label: 'Accounts', icon: <BankOutlined />, route: '/settings/accounts' },
@@ -40,26 +52,38 @@ export default () => {
     }, [ menuItems, history, location.pathname ]);
 
     return (
-        <>
-            <Sider
-                collapsible
-                collapsed={collapsed}
-                onCollapse={setCollapsed}
-                breakpoint="sm"
-                collapsedWidth="0"
-            >
-                <Menu theme="dark" defaultSelectedKeys={selectedMenuItem()} mode="inline">
-                    {menuLinks}
-                </Menu>
-            </Sider>
-            <Layout style={{ padding: '0 24px 24px' }}>
-                <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
-                    <Switch>
-                        {routes}
-                        <Route component={withRouter(Profile)} />
-                    </Switch>
-                </Content>
+        <div {...swipeProps}>
+            <Layout>
+                <Sider
+                    collapsible
+                    collapsed={collapsed}
+                    onCollapse={setCollapsed}
+                    breakpoint="sm"
+                    collapsedWidth="1"
+                    trigger={<SiderButton collapsed={collapsed} />}
+                    width="12rem"
+                    style={{
+                        position: 'fixed',
+                        height: '100vh',
+                        zIndex: 2
+                    }}
+                >
+                    <Menu theme="dark" defaultSelectedKeys={selectedMenuItem()} mode="inline">
+                        {menuLinks}
+                    </Menu>
+                </Sider>
+                <Layout style={{
+                    padding: '0 24px 24px',
+                    marginLeft: collapsed ? 0 : '12rem'
+                }}>
+                    <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
+                        <Switch>
+                            {routes}
+                            <Route component={withRouter(Profile)} />
+                        </Switch>
+                    </Content>
+                </Layout>
             </Layout>
-        </>
+        </div>
     );
 }

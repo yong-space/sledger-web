@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+ul.ant-menu-inline-collapsed > li.ant-menu-item { display: none }
+div.ant-layout-sider-trigger > button.ant-btn-icon-only {
+  padding: 0.5em 0.6em
+}
+aside.ant-layout-sider-collapsed div.ant-layout-sider-trigger > button.ant-btn-icon-only {
+  position: absolute; bottom: 1em; left: 1em; opacity: 0.5;
+}

@@ -21,7 +21,7 @@ export default () => {
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <NavBar />
-            <Layout>
+            <Layout style={{ marginTop: '3rem' }}>
                 <Switch>
                     {routes}
                     <Route component={DashboardMain} />
