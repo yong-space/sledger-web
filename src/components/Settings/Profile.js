@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, Row, Col } from 'antd';
 import { Typography } from 'antd';
-import {
-    UserOutlined, LockOutlined
-} from '@ant-design/icons';
+import { AiOutlineUser, AiOutlineLock } from 'react-icons/ai';
+import AntIcon from '../Common/AntIcon';
 import { lime, volcano } from '@ant-design/colors';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
@@ -120,7 +119,7 @@ export default () => {
                             <Button
                                 shape="round"
                                 type="primary"
-                                icon={<UserOutlined />}
+                                icon={<AntIcon i={AiOutlineUser} />}
                                 htmlType="submit"
                                 loading={savingProfile}
                                 style={{ background: lime[8], borderColor: lime[7] }}
@@ -160,7 +159,7 @@ export default () => {
                             <Button
                                 shape="round"
                                 type="primary"
-                                icon={<LockOutlined />}
+                                icon={<AntIcon i={AiOutlineLock} />}
                                 htmlType="submit"
                                 loading={savingPassword}
                                 style={{ background: volcano[8], borderColor: volcano[7] }}

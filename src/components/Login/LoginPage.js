@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { Layout, Button, Input, Row, Col, Form, Alert } from 'antd';
 import useLogin from './LoginHook';
-import {
-    LoginOutlined, UserOutlined, LockOutlined
-} from '@ant-design/icons';
+import { AiOutlineUser, AiOutlineLogin, AiOutlineLock } from 'react-icons/ai';
+import AntIcon from '../Common/AntIcon';
 import logoWhite from '../../assets/logo-white.svg';
 
 export default () => {
@@ -43,14 +42,14 @@ export default () => {
                             <Input
                                 placeholder='Username'
                                 onChange={e => setUsername(e.target.value)}
-                                addonBefore={<UserOutlined />}
+                                addonBefore={<AntIcon i={AiOutlineUser} />}
                             />
                         </Form.Item>
                         <Form.Item>
                             <Input.Password
                                 placeholder='Password'
                                 onChange={e => setPassword(e.target.value)}
-                                addonBefore={<LockOutlined />}
+                                addonBefore={<AntIcon i={AiOutlineLock} />}
                             />
                         </Form.Item>
 
@@ -65,7 +64,7 @@ export default () => {
                                 size="large"
                                 shape="round"
                                 type="primary"
-                                icon={<LoginOutlined />}
+                                icon={<AntIcon i={AiOutlineLogin} />}
                                 onClick={submitLogin}
                                 loading={loading}
                             >

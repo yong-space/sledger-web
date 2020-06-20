@@ -1,8 +1,7 @@
 import React from 'react';
-import {
-    UserOutlined, SwapOutlined
-} from '@ant-design/icons';
+import { AiOutlineUser } from 'react-icons/ai';
 import { FaRegCreditCard, FaMoneyBillAlt } from 'react-icons/fa';
+import { MdBackup } from 'react-icons/md';
 import AntIcon from '../Common/AntIcon';
 import SiderLayout from '../Common/SiderLayout';
 import Profile from './Profile';
@@ -13,7 +12,7 @@ import Backup from './Backup';
 export default () => {
     const menuItems = [
         {
-            label: 'Profile', icon: <UserOutlined />,
+            label: 'Profile', icon: <AntIcon i={AiOutlineUser} />,
             route: '/settings/profile', component: Profile
         },
         {
@@ -25,7 +24,7 @@ export default () => {
             route: '/settings/credit-cards', component: CreditCards
         },
         {
-            label: 'Backup', icon: <SwapOutlined />,
+            label: 'Backup', icon: <AntIcon i={MdBackup} />,
             route: '/settings/backup', component: Backup
         }
     ];

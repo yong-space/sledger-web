@@ -15,12 +15,14 @@
     width: 100vw;
 }
 .ant-menu-dark.ant-menu-horizontal {
-    height: 3rem;
-    li.ant-menu-item {
+    &>.ant-menu-submenu-horizontal, &.ant-menu-horizontal, li.ant-menu-item {
         height: 3rem;
         vertical-align: top;
         line-height: 3rem;
     }
+}
+.ant-menu-submenu-popup {
+    top: 3rem !important;
 }
 img.logo {
     float: left;
@@ -33,13 +35,18 @@ img.logo {
     color: #fff;
 
     .logout-button {
-        margin-left: .5rem;
+        margin-left: .8rem;
         font-weight: bold
     }
 }
 .login-description {
     @media (max-width: @screen-sm) { margin: 1rem 0 }
     @media (min-width: @screen-sm) { display: inline }
+}
+.login-status, .login-description {
+    .ant-avatar {
+        margin-right: .5rem;
+    }
 }
 .hamburger { margin: .5rem }
 .ant-layout-header.header-container {
