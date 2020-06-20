@@ -167,6 +167,7 @@ export default () => {
                         <Form.Item
                             label="Import Enabled"
                             name="importEnabled"
+                            valuePropName="checked"
                         >
                             <Switch />
                         </Form.Item>

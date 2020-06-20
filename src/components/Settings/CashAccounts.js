@@ -17,8 +17,9 @@ export default () => {
 
     const getDefaultKey = () => accounts[0].accountId;
 
-    const submitSaveAccount = () => {
+    const submitSaveAccount = (values) => {
         setSavingAccount(true);
+        console.log(values);
         setSavingAccount(false);
     };
 
@@ -60,6 +61,7 @@ export default () => {
                 <Form.Item
                     label="Hidden"
                     name="hidden"
+                    valuePropName="checked"
                 >
                     <Switch />
                 </Form.Item>

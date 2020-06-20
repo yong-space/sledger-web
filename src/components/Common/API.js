@@ -40,5 +40,9 @@ export default {
     updatePassword: (password) => apiCall(PUT, 'profile/password', password),
     getAccountTypes: () => apiCall(GET, 'account-type'),
     addAccountType: (accountType) => apiCall(POST, 'admin/account-type', accountType),
-    deleteAccountType: (id) => apiCall(DELETE, 'admin/account-type/' + id),
+    deleteAccountType: (id) => apiCall(DELETE, `admin/account-type/${id}`),
+    getAccounts: () => apiCall(GET, 'account'),
+    addAccount: (account) => apiCall(POST, 'account', account),
+    updateAccount: (account) => apiCall(PUT, 'account', account),
+    deleteAccount: (id) => apiCall(DELETE, `account/${id}`),
 }
