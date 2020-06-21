@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'
-import { Link } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom'
 import { Avatar, Button, Layout, Menu, Drawer, Divider } from 'antd';
 import { AiOutlineDashboard, AiOutlineUser, AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
 import { IoIosSettings } from 'react-icons/io';
@@ -14,9 +13,12 @@ import logoWhite from '../../assets/logo-white.svg';
 import './NavBar.less'
 
 export default () => {
+    let history = useHistory();
     let location = useLocation();
+    const [ selectedItems, setSelectedItems ] = useState([ location.pathname ]);
     const [ drawerVisible, setDrawerVisible ] = useState(false);
     const { isLoginValid, isAdmin, getProfile, logout } = useLogin();
+
     const getMenuItems = () => {
         const menuItems = [
             { label: 'Dashboard', icon: AiOutlineDashboard, route: '/dash/summary' },
@@ -38,26 +40,28 @@ export default () => {
         }
         return menuItems;
     }
+
     const menuLinks = (desktop) => getMenuItems().map((menuItem, index) => {
         if (desktop && menuItem.children) {
             const childMenus = menuItem.children.map(child =>
                 <Menu.Item key={child.route}>
-                    <Link to={child.route} onClick={() => setDrawerVisible(false)}>
-                        <AntIcon i={child.icon} /> {child.label}
-                    </Link>
+                    <AntIcon i={child.icon} /> {child.label}
                 </Menu.Item>
             )
             return (
-                <Menu.SubMenu key={menuItem.route} title={menuItem.label} icon={<AntIcon i={menuItem.icon} />}>
+                <Menu.SubMenu
+                    key={menuItem.route}
+                    title={menuItem.label}
+                    icon={<AntIcon i={menuItem.icon} />}
+                    onTitleClick={handleMenuClick}
+                >
                     {childMenus}
                 </Menu.SubMenu>
             )
         }
         return (
-            <Menu.Item key={index} icon={<AntIcon i={menuItem.icon} />}>
-                <Link to={menuItem.route} onClick={() => setDrawerVisible(false)}>
-                    {menuItem.label}
-                </Link>
+            <Menu.Item key={menuItem.route} icon={<AntIcon i={menuItem.icon} />}>
+                {menuItem.label}
             </Menu.Item>
         );
     });
@@ -69,12 +73,10 @@ export default () => {
         return () => window.removeEventListener('resize', closeDrawer);
     }, []);
 
-    const getSelectedMenuItem = () => {
-        const route = getMenuItems().map(i => i.route)
-            .filter(r => location.pathname.startsWith(r.match(/\/[\w-]+/)[0]))[0];
-        const index = getMenuItems().map(i => i.route)
-            .indexOf(route);
-        return [ index.toString() ];
+    const handleMenuClick = (event) => {
+        closeDrawer();
+        setSelectedItems([ event.key ]);
+        history.push(event.key);
     };
 
     const getLoginStatus = () => {
@@ -109,7 +111,8 @@ export default () => {
                     className="desktop"
                     theme="dark"
                     mode="horizontal"
-                    defaultSelectedKeys={getSelectedMenuItem()}
+                    onClick={handleMenuClick}
+                    selectedKeys={selectedItems}
                 >
                     {menuLinks(true)}
                 </Menu>
@@ -135,7 +138,9 @@ export default () => {
                 <Menu
                     theme="dark"
                     mode="vertical"
-                    defaultSelectedKeys={getSelectedMenuItem()}
+                    onClick={handleMenuClick}
+                    selectedKeys={selectedItems}
+
                 >
                     {menuLinks(false)}
                 </Menu>
