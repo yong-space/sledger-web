@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom'
-import { Avatar, Button, Layout, Menu, Drawer, Divider } from 'antd';
+import { Avatar, Button, Layout, Menu, Drawer, Divider, Dropdown } from 'antd';
 import { AiOutlineDashboard, AiOutlineUser, AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
 import { IoIosSettings } from 'react-icons/io';
 import { BsLightning } from 'react-icons/bs';
@@ -79,26 +79,46 @@ export default () => {
         history.push(event.key);
     };
 
-    const getLoginStatus = () => {
-        if (!isLoginValid()) {
-            return <></>
-        }
-        return (
-            <>
-                <div className="login-description">
-                    <Avatar icon={<AntIcon i={AiOutlineUser} />} />
-                    {getProfile().fullName}
-                </div>
-                <Button
-                    type="danger"
-                    icon={<AntIcon i={AiOutlineLogout} />}
-                    onClick={logout}
-                    className="logout-button">
-                    Logout
-                </Button>
-            </>
-        );
-    };
+    const gotoProfile = () => handleMenuClick({ key: '/settings/profile' });
+
+    const avatar = (
+        <div className="login-description" onClick={gotoProfile}>
+            <Avatar icon={<AntIcon i={AiOutlineUser} />} />
+            {getProfile().fullName}
+        </div>
+    );
+
+    const logoutButton = (
+        <Button
+            type="danger"
+            icon={<AntIcon i={AiOutlineLogout} />}
+            onClick={logout}
+            className="logout-button"
+        >
+            Logout
+        </Button>
+    );
+
+    const logoutMenu = (
+        <Menu>
+            <Menu.Item>
+                {logoutButton}
+            </Menu.Item>
+        </Menu>
+    );
+
+    const avatarDesktop = (
+        <Dropdown overlay={logoutMenu} overlayClassName="logout-menu">
+            {avatar}
+        </Dropdown>
+    );
+
+    const avatarMobile = (
+        <>
+            {avatar}
+            {logoutButton}
+        </>
+    );
 
     return (
         <Layout.Header className="header-container">
@@ -118,7 +138,7 @@ export default () => {
                 </Menu>
             </div>
             <div className="login-status desktop">
-                {getLoginStatus()}
+                {isLoginValid() && avatarDesktop}
             </div>
             <Button
                 className="mobile hamburger"
@@ -145,7 +165,7 @@ export default () => {
                     {menuLinks(false)}
                 </Menu>
                 <Divider />
-                {getLoginStatus()}
+                {isLoginValid() && avatarMobile}
             </Drawer>
         </Layout.Header>
     );
