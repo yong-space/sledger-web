@@ -1,4 +1,6 @@
 import authServices from '../Login/AuthServices';
+import { useRecoilState } from 'recoil';
+import Atom from '../Common/Atom';
 
 export default () => {
     const { getJwt } = authServices();
@@ -7,6 +9,7 @@ export default () => {
     const POST = 'POST';
     const PUT = 'PUT';
     const DELETE = 'DELETE';
+    const [ accountTypes, setAccountTypes ] = useRecoilState(Atom.accountTypes);
 
     const apiCall = async (method, path, body) => {
         const token = getJwt();
@@ -42,9 +45,24 @@ export default () => {
     return {
         updateProfile: (user) => apiCall(PUT, 'profile', user),
         updatePassword: (password) => apiCall(PUT, 'profile/password', password),
-        getAccountTypes: () => apiCall(GET, 'account-type'),
-        addAccountType: (accountType) => apiCall(POST, 'admin/account-type', accountType),
-        deleteAccountType: (id) => apiCall(DELETE, `admin/account-type/${id}`),
+        getAccountTypes: async () => {
+            if (accountTypes.length === 0) {
+                const results = await apiCall(GET, 'account-type');
+                setAccountTypes(results);
+                return results;
+            }
+            return accountTypes;
+        },
+        addAccountType: async (accountType) => {
+            const response = await apiCall(POST, 'admin/account-type', accountType);
+            setAccountTypes(existing => [ ...existing, response ]);
+            return response;
+        },
+        deleteAccountType: async (id) => {
+            await apiCall(DELETE, `admin/account-type/${id}`);
+            setAccountTypes(existing => existing.filter(a => a.accountTypeId !== id));
+            return;
+        },
         getAccounts: () => apiCall(GET, 'account'),
         addAccount: (account) => apiCall(POST, 'account', account),
         updateAccount: (account) => apiCall(PUT, 'account', account),

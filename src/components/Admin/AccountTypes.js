@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import Atom from '../Common/Atom';
 import {
     Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal
 } from 'antd';
@@ -10,7 +8,7 @@ import API from '../Common/API';
 import AntIcon from '../Common/AntIcon';
 
 export default () => {
-    const [ accountTypes, setAccountTypes ] = useRecoilState(Atom.accountTypes);
+    const [ accountTypes, setAccountTypes ] = useState([]);
     const { Title } = Typography;
     const [ loading, setLoading ] = useState(true);
     const [ savingAccountType, setSavingAccountType ] = useState(false);
@@ -55,11 +53,7 @@ export default () => {
     };
 
     useEffect(() => {
-        if (accountTypes.length === 0) {
-            refreshAccountTypes();
-        } else {
-            setLoading(false);
-        }
+        refreshAccountTypes();
         // eslint-disable-next-line
     }, []);
 
