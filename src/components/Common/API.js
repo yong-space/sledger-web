@@ -10,16 +10,9 @@ export default () => {
 
     const apiCall = async (method, path, body) => {
         const token = getJwt();
-
-        await new Promise(resolve => {
-            while (token === undefined) {
-                console.log('meh');
-                // throw new Error("Invalid session. Please refresh this page.");
-            }
-            resolve();
-        });
-
-
+        if (token === undefined) {
+            window.location.reload();
+        }
         const config = {
             method: method,
             cache: 'no-cache',

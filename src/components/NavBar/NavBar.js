@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom'
+import { useRecoilState } from 'recoil';
+import Atom from '../Common/Atom';
+import authServices from '../Login/AuthServices';
 import { Avatar, Button, Layout, Menu, Drawer, Divider, Dropdown } from 'antd';
-import { AiOutlineDashboard, AiOutlineUser, AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
+import {
+    AiOutlineDashboard, AiOutlineUser, AiOutlineLogout, AiOutlineMenu, AiOutlinePieChart,
+    AiOutlineBarChart, AiOutlineAccountBook
+} from 'react-icons/ai';
 import { IoIosSettings } from 'react-icons/io';
 import { BsLightning } from 'react-icons/bs';
 import { TiDocumentText } from 'react-icons/ti';
 import { FaRegCreditCard, FaMoneyBillAlt } from 'react-icons/fa';
 import { MdBackup } from 'react-icons/md';
 import AntIcon from '../Common/AntIcon';
-import authServices from '../Login/AuthServices';
 import logoWhite from '../../assets/logo-white.svg';
 import './NavBar.less'
 
-export default (props) => {
+export default () => {
     let history = useHistory();
     let location = useLocation();
-    const [ selectedItems, setSelectedItems ] = useState([ location.pathname ]);
+    const [ selectedItems, setSelectedItems ] = useRecoilState(Atom.selectedNavItems);
     const [ drawerVisible, setDrawerVisible ] = useState(false);
     const { isAdmin, getProfile, logout } = authServices();
 
     const getMenuItems = () => {
         const menuItems = [
-            { label: 'Dashboard', icon: AiOutlineDashboard, route: '/dash/summary' },
+            {
+                label: 'Dashboard',
+                icon: AiOutlineDashboard,
+                route: '/dash',
+                children: [
+                    { label: 'Summary', icon: AiOutlinePieChart, route: '/dash/summary' },
+                    { label: 'Balance History', icon: AiOutlineBarChart, route: '/dash/balance-history' },
+                ]
+            },
             { label: 'Transactions', icon: TiDocumentText, route: '/transactions' },
             {
                 label: 'Settings',
-                route: '/settings/profile',
                 icon: IoIosSettings,
+                route: '/settings',
                 children: [
                     { label: 'Profile', icon: AiOutlineUser, route: '/settings/profile' },
                     { label: 'Cash Accounts', icon: FaMoneyBillAlt, route: '/settings/cash-accounts' },
@@ -36,12 +49,21 @@ export default (props) => {
             }
         ];
         if (isAdmin()) {
-            menuItems.push({ label: 'Admin', icon: BsLightning, route: '/admin/account-types' });
+            menuItems.push(
+                {
+                    label: 'Admin',
+                    icon: BsLightning,
+                    route: '/admin',
+                    children: [
+                        { label: 'Account Types', icon: AiOutlineAccountBook, route: '/admin/account-types' },
+                    ]
+                }
+            );
         }
         return menuItems;
     }
 
-    const menuLinks = (desktop) => getMenuItems().map((menuItem, index) => {
+    const menuLinks = (desktop) => getMenuItems().map((menuItem) => {
         if (desktop && menuItem.children) {
             const childMenus = menuItem.children.map(child =>
                 <Menu.Item key={child.route}>
@@ -69,13 +91,31 @@ export default (props) => {
     const closeDrawer = () => setDrawerVisible(false);
 
     useEffect(() => {
+        const menuItems = getMenuItems().map(i => i.route);
+        if (menuItems.indexOf(location.pathname) > -1) {
+            setSelectedItems([ location.pathname ]);
+        } else {
+            let defaultItems = menuItems.filter(i => i.indexOf(location.pathname) > -1);
+            if (defaultItems.length === 0) {
+                const subPath = location.pathname.match(/\/\w+/)[0];
+                defaultItems = menuItems.filter(i => i.indexOf(subPath) > -1);
+            }
+            setSelectedItems([ location.pathname, defaultItems[0] ]);
+        }
+
         window.addEventListener('resize', closeDrawer);
         return () => window.removeEventListener('resize', closeDrawer);
+        // eslint-disable-next-line
     }, []);
 
     const handleMenuClick = (event) => {
         closeDrawer();
-        setSelectedItems([ event.key ]);
+        if (event.keyPath) {
+            setSelectedItems([ event.key ]);
+        } else {
+            const topLevel = getMenuItems().filter(i => i.route === event.key)[0];
+            setSelectedItems([ topLevel.children[0].route ]);
+        }
         history.push(event.key);
     };
 

@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Switch, Route, useLocation, useHistory } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useRecoilState } from 'recoil';
+import Atom from '../Common/Atom';
+import { useHistory } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import { useSwipeable } from 'react-swipeable'
 import SiderButton from '../Common/SiderButton';
 
 export default (props) => {
+    let history = useHistory();
+    const [ selectedItems, setSelectedItems ] = useRecoilState(Atom.selectedNavItems);
     const { Content, Sider } = Layout;
     const [ collapsed, setCollapsed ] = useState(false);
     const swipeProps = useSwipeable({
@@ -18,11 +22,9 @@ export default (props) => {
         }
     });
 
-    const menuLinks = props.menuItems.map((menuItem, index) =>
-        <Menu.Item key={index}>
-            <Link to={menuItem.route}>
-                {menuItem.icon} {menuItem.label}
-            </Link>
+    const menuLinks = props.menuItems.map((menuItem) =>
+        <Menu.Item key={menuItem.route}>
+            {menuItem.icon} {menuItem.label}
         </Menu.Item>
     );
 
@@ -33,18 +35,10 @@ export default (props) => {
             component={menuItem.component} />
     );
 
-    let location = useLocation();
-    const selectedMenuItem = () => [
-        Math.max(0, props.menuItems.map(i => i.route).indexOf(location.pathname)).toString()
-    ]
-
-    const history = useHistory();
-    useEffect(() => {
-        if (props.menuItems.map(i => i.route).indexOf(location.pathname) === -1) {
-            history.push(props.menuItems[0].route);
-        }
-        // eslint-disable-next-line
-    }, []);
+    const handleMenuClick = (event) => {
+        setSelectedItems([ event.key ]);
+        history.push(event.key);
+    };
 
     return (
         <div {...swipeProps}>
@@ -63,7 +57,12 @@ export default (props) => {
                         zIndex: 2
                     }}
                 >
-                    <Menu theme="dark" defaultSelectedKeys={selectedMenuItem()} mode="inline">
+                    <Menu
+                        theme="dark"
+                        selectedKeys={selectedItems}
+                        mode="inline"
+                        onClick={handleMenuClick}
+                    >
                         {menuLinks}
                     </Menu>
                 </Sider>
@@ -74,7 +73,7 @@ export default (props) => {
                     <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
                         <Switch>
                             {routes}
-                            <Route component={props.menuItems[0].component} />
+                            <Route render={() => <Redirect to={props.menuItems[0].route} />} />
                         </Switch>
                     </Content>
                 </Layout>

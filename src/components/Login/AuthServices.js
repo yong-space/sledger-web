@@ -72,7 +72,17 @@ export default () => {
         return isLoginValidForToken(loginState.jwtObj);
     }, [ loginState.jwtObj, parseLoginState, setLoginState ]);
 
-    const isAdmin = () => loginState && loginState.jwtObj?.roles.indexOf("ADMIN") > -1;
+    const isAdmin = () => {
+        let jwtObj = loginState?.jwtObj;
+        if (!jwtObj) {
+            const jwtString = localStorage.getItem("jwt");
+            if (jwtString === null) {
+                return false;
+            }
+            return parseJwt(jwtString);
+        }
+        return jwtObj.roles.indexOf("ADMIN") > -1;
+    }
 
     const getProfile = () => loginState && loginState.profile;
 
