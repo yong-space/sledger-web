@@ -119,7 +119,7 @@ export default () => {
         history.push(event.key);
     };
 
-    const gotoProfile = () => handleMenuClick({ key: '/settings/profile' });
+    const gotoProfile = () => handleMenuClick({ key: '/settings' });
 
     const avatar = (
         <div className="login-description" onClick={gotoProfile}>

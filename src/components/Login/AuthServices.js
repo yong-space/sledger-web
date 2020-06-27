@@ -84,7 +84,7 @@ export default () => {
         return jwtObj.roles.indexOf("ADMIN") > -1;
     }
 
-    const getProfile = () => loginState && loginState.profile;
+    const getProfile = () => loginState.profile || parseLoginState(localStorage.getItem("jwt")).profile;
 
     const getJwt = () => (loginState && loginState.jwt) || localStorage.getItem("jwt");
 
