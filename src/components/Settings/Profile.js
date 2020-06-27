@@ -6,14 +6,15 @@ import AntIcon from '../Common/AntIcon';
 import { lime, volcano } from '@ant-design/colors';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
-import useLogin from '../Login/LoginHook';
+import authServices from '../Login/AuthServices';
 
 export default () => {
     const { Title } = Typography;
-    const { getProfile, setProfile } = useLogin();
+    const { getProfile, setProfile } = authServices();
     const [ savingProfile, setSavingProfile ] = useState(false);
     const [ savingPassword, setSavingPassword ] = useState(false);
     const [ passwordForm ] = Form.useForm();
+    const { updateProfile, updatePassword } = API();
 
     const layoutProps = {
         labelCol: { span: 8 },
@@ -31,7 +32,7 @@ export default () => {
     const submitUpdateProfile = async (values) => {
         setSavingProfile(true);
         try {
-            setProfile(await API.updateProfile(values));
+            setProfile(await updateProfile(values));
             Notification.showSuccess('Profile Updated');
         } catch(e) {
             Notification.showError('Unable to Update Profile', e.message);
@@ -53,7 +54,7 @@ export default () => {
                 oldPassword: values.oldPassword,
                 newPassword: values.newPassword1
             };
-            await API.updatePassword(passwordRequest);
+            await updatePassword(passwordRequest);
             passwordForm.resetFields();
             Notification.showSuccess('Password Updated');
         } catch(e) {

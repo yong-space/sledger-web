@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { Layout, Button, Input, Row, Col, Form, Alert } from 'antd';
-import useLogin from './LoginHook';
+import authServices from './AuthServices';
 import { AiOutlineUser, AiOutlineLogin, AiOutlineLock } from 'react-icons/ai';
 import AntIcon from '../Common/AntIcon';
 import logoWhite from '../../assets/logo-white.svg';
 
 export default () => {
-    const { login } = useLogin();
+    let history = useHistory();
+    const { login, isLoginValid } = authServices();
     const [ username, setUsername ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ errors, setErrors ] = useState();
     const [ loading, setLoading ] = useState(false);
-    const history = useHistory();
+
+    useEffect(() => {
+        if (!loading && isLoginValid()) {
+            history.push('/dash/summary');
+        }
+        // eslint-disable-next-line
+    }, []);
 
     const submitLogin = async () => {
         setErrors(undefined);
@@ -22,13 +29,19 @@ export default () => {
         }
         setLoading(true);
         const state = await login(username, password);
-        setLoading(false);
         if (state.jwt && !state.error) {
-            history.push('/dash');
+            history.push('/dash/summary');
         } else {
             setErrors(state.error);
+            setLoading(false);
         }
     };
+
+    const handleEnter = (event) => {
+        if (event.keyCode === 13) {
+            submitLogin();
+        }
+    }
 
     return (
         <Layout style={{ height: '100vh', paddingTop: '20vh' }}>
@@ -50,6 +63,7 @@ export default () => {
                                 placeholder='Password'
                                 onChange={e => setPassword(e.target.value)}
                                 addonBefore={<AntIcon i={AiOutlineLock} />}
+                                onKeyDown={handleEnter}
                             />
                         </Form.Item>
 
@@ -78,4 +92,4 @@ export default () => {
             </Row>
         </Layout>
     );
-}
+};

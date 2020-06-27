@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { Switch, Route, useLocation, useHistory } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
@@ -31,7 +30,7 @@ export default (props) => {
         <Route exact
             key={index}
             path={menuItem.route}
-            component={withRouter(menuItem.component)} />
+            component={menuItem.component} />
     );
 
     let location = useLocation();
@@ -44,7 +43,8 @@ export default (props) => {
         if (props.menuItems.map(i => i.route).indexOf(location.pathname) === -1) {
             history.push(props.menuItems[0].route);
         }
-    }, [ props.menuItems, history, location.pathname ]);
+        // eslint-disable-next-line
+    }, []);
 
     return (
         <div {...swipeProps}>
@@ -74,7 +74,7 @@ export default (props) => {
                     <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
                         <Switch>
                             {routes}
-                            <Route component={withRouter(props.menuItems[0].component)} />
+                            <Route component={props.menuItems[0].component} />
                         </Switch>
                     </Content>
                 </Layout>

@@ -8,16 +8,16 @@ import { TiDocumentText } from 'react-icons/ti';
 import { FaRegCreditCard, FaMoneyBillAlt } from 'react-icons/fa';
 import { MdBackup } from 'react-icons/md';
 import AntIcon from '../Common/AntIcon';
-import useLogin from '../Login/LoginHook';
+import authServices from '../Login/AuthServices';
 import logoWhite from '../../assets/logo-white.svg';
 import './NavBar.less'
 
-export default () => {
+export default (props) => {
     let history = useHistory();
     let location = useLocation();
     const [ selectedItems, setSelectedItems ] = useState([ location.pathname ]);
     const [ drawerVisible, setDrawerVisible ] = useState(false);
-    const { isLoginValid, isAdmin, getProfile, logout } = useLogin();
+    const { isAdmin, getProfile, logout } = authServices();
 
     const getMenuItems = () => {
         const menuItems = [
@@ -84,7 +84,7 @@ export default () => {
     const avatar = (
         <div className="login-description" onClick={gotoProfile}>
             <Avatar icon={<AntIcon i={AiOutlineUser} />} />
-            {getProfile().fullName}
+            {getProfile()?.fullName || ''}
         </div>
     );
 
@@ -138,7 +138,7 @@ export default () => {
                 </Menu>
             </div>
             <div className="login-status desktop">
-                {isLoginValid() && avatarDesktop}
+                {avatarDesktop}
             </div>
             <Button
                 className="mobile hamburger"
@@ -165,7 +165,7 @@ export default () => {
                     {menuLinks(false)}
                 </Menu>
                 <Divider />
-                {isLoginValid() && avatarMobile}
+                {avatarMobile}
             </Drawer>
         </Layout.Header>
     );

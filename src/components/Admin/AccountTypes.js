@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import Atom from '../Common/Atom';
 import {
     Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal
 } from 'antd';
@@ -8,16 +10,17 @@ import API from '../Common/API';
 import AntIcon from '../Common/AntIcon';
 
 export default () => {
+    const [ accountTypes, setAccountTypes ] = useRecoilState(Atom.accountTypes);
     const { Title } = Typography;
-    const [ accountTypes, setAccountTypes ] = useState();
     const [ loading, setLoading ] = useState(true);
     const [ savingAccountType, setSavingAccountType ] = useState(false);
     const [ addAccountTypeForm ] = Form.useForm();
+    const { getAccountTypes, addAccountType, deleteAccountType } = API();
 
     const submitAddAccountType = async (values) => {
         setSavingAccountType(true);
         try {
-            const accountType = await API.addAccountType(values);
+            const accountType = await addAccountType(values);
             setAccountTypes(existing => [
                 ...existing, { ...accountType, key: existing.length + 1 }
             ]);
@@ -31,7 +34,7 @@ export default () => {
 
     const submitDeleteAccountType = async (accountTypeId) => {
         try {
-            await API.deleteAccountType(accountTypeId);
+            await deleteAccountType(accountTypeId);
             setAccountTypes(existing =>
                 existing.filter(a => a.accountTypeId !== accountTypeId));
             Notification.showSuccess('Account Type Deleted');
@@ -43,16 +46,21 @@ export default () => {
     const refreshAccountTypes = async () => {
         setLoading(true);
         try {
-            const response = await API.getAccountTypes();
+            const response = await getAccountTypes();
             setAccountTypes(response.map((entry, index) => ({ ...entry, key: index })));
         } catch(e) {
             Notification.showError('Unable to load account types', e.message);
         }
         setLoading(false);
-    }
+    };
 
     useEffect(() => {
-        refreshAccountTypes();
+        if (accountTypes.length === 0) {
+            refreshAccountTypes();
+        } else {
+            setLoading(false);
+        }
+        // eslint-disable-next-line
     }, []);
 
     const checkboxRenderer = (text, record) =>
