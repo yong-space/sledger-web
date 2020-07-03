@@ -30,7 +30,7 @@ export default () => {
     );
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout style={{ height: '100%' }}>
             <NavBar />
             <Layout style={{ marginTop: '3rem' }}>
                 <Switch>

@@ -41,8 +41,8 @@ export default (props) => {
     };
 
     return (
-        <div {...swipeProps}>
-            <Layout>
+        <div {...swipeProps} style={{ height: '100%' }}>
+            <Layout style={{ height: '100%' }}>
                 <Sider
                     collapsible
                     collapsed={collapsed}
