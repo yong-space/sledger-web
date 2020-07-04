@@ -67,5 +67,6 @@ export default () => {
         addAccount: (account) => apiCall(POST, 'account', account),
         updateAccount: (account) => apiCall(PUT, 'account', account),
         deleteAccount: (id) => apiCall(DELETE, `account/${id}`),
+        sortAccounts: (ids) => apiCall(PUT, `account/sort/${ids}`),
     };
 };
