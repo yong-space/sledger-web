@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal
+    Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal, Tag
 } from 'antd';
 import { AiOutlineAccountBook, AiFillWarning } from 'react-icons/ai';
 import Notification from '../Common/Notification';
 import API from '../Common/API';
 import AntIcon from '../Common/AntIcon';
+import { baseProps, rules, TailFormItem } from '../Common/FormProps';
 
 export default () => {
     const [ accountTypes, setAccountTypes ] = useState([]);
@@ -71,10 +72,12 @@ export default () => {
     const deleteButton = (text, record) =>
         <Button danger onClick={() => confirmDelete(record)}>Delete</Button>;
 
+    const colourTag = (text) => <Tag color={text}>{text}</Tag>;
+
     const columns = [
         {
             dataIndex: 'accountTypeClass',
-            title: 'Class',
+            title: 'Type',
             sorter: {
                 compare: (a, b) => a.accountTypeClass.localeCompare(b.accountTypeClass),
                 multiple: 2
@@ -83,12 +86,17 @@ export default () => {
         },
         {
             dataIndex: 'accountTypeName',
-            title: 'Name',
+            title: 'Bank/Issuer',
             sorter: {
                 compare: (a, b) => a.accountTypeName.localeCompare(b.accountTypeName),
                 multiple: 1
             },
             defaultSortOrder: 'ascend'
+        },
+        {
+            dataIndex: 'colour',
+            title: 'Colour',
+            render: colourTag
         },
         {
             dataIndex: 'importEnabled',
@@ -103,26 +111,33 @@ export default () => {
         }
     ];
 
-    const tailLayout = {
-        wrapperCol: {
-            xs: { offset: 0 },
-            sm: { offset: 8, span: 16 }
-        }
-    };
+    const tagColours = [
+        'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green', 'cyan', 'blue', 'geekblue', 'purple'
+    ];
 
     const addAccountTypeFormProps = {
-        labelCol: { span: 8 },
-        wrapperCol: { span: 16 },
-        hideRequiredMark: true,
+        ...baseProps,
         form: addAccountTypeForm,
         initialValues: {
             accountTypeClass: "Cash",
-            importEnabled: false
+            importEnabled: false,
+            colour: tagColours[0]
         },
         onFinish: submitAddAccountType
     };
 
-    const requiredRule = { required: true, message: 'Required Field' };
+    const colourOptions = tagColours.map(colour =>
+        <Select.Option value={colour} key={colour}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>
+                    {colour.substr(0, 1).toUpperCase()}{colour.substr(1)}
+                </span>
+                <Tag color={colour} style={{ height: '2em', margin: 'auto 0' }}>
+                    Example
+                </Tag>
+            </div>
+        </Select.Option>
+    );
 
     return (
         <>
@@ -160,11 +175,19 @@ export default () => {
                             </Select>
                         </Form.Item>
                         <Form.Item
-                            label="Name"
+                            label="Bank/Issuer"
                             name="accountTypeName"
-                            rules={[requiredRule]}
+                            rules={[ rules.requiredRule ]}
                         >
-                            <Input placeholder="Account Type Name" />
+                            <Input placeholder="Bank or issuer name.." />
+                        </Form.Item>
+                        <Form.Item
+                            label="Colour"
+                            name="colour"
+                        >
+                            <Select>
+                                { colourOptions }
+                            </Select>
                         </Form.Item>
                         <Form.Item
                             label="Import Enabled"
@@ -173,7 +196,7 @@ export default () => {
                         >
                             <Switch />
                         </Form.Item>
-                        <Form.Item {...tailLayout}>
+                        <TailFormItem>
                             <Button
                                 shape="round"
                                 type="primary"
@@ -183,7 +206,7 @@ export default () => {
                             >
                                 Add Account Type
                             </Button>
-                        </Form.Item>
+                        </TailFormItem>
                     </Form>
                 </Col>
             </Row>

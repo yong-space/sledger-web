@@ -4,7 +4,7 @@ export default (props) => {
     const ActualIcon = props.i;
     return (
         <span className="anticon">
-            <ActualIcon style={{ ...props.style }} />
+            <ActualIcon style={{ ...props.style }} size={props.size || 16} />
         </span>
     );
 };

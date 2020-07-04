@@ -7,6 +7,7 @@ import { lime, volcano } from '@ant-design/colors';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import authServices from '../Login/AuthServices';
+import { baseProps, rules, TailFormItem } from '../Common/FormProps';
 
 export default () => {
     const { Title } = Typography;
@@ -15,19 +16,6 @@ export default () => {
     const [ savingPassword, setSavingPassword ] = useState(false);
     const [ passwordForm ] = Form.useForm();
     const { updateProfile, updatePassword } = API();
-
-    const layoutProps = {
-        labelCol: { span: 8 },
-        wrapperCol: { span: 16 },
-        hideRequiredMark: true
-    };
-
-    const tailLayout = {
-        wrapperCol: {
-            xs: { offset: 0 },
-            sm: { offset: 8, span: 16 }
-        }
-    };
 
     const submitUpdateProfile = async (values) => {
         setSavingProfile(true);
@@ -64,22 +52,17 @@ export default () => {
     }
 
     const profileFormProps = {
-        ...layoutProps,
+        ...baseProps,
         initialValues: getProfile(),
         onFinish: submitUpdateProfile
     };
 
     const passwordFormProps = {
-        ...layoutProps,
+        ...baseProps,
         form: passwordForm,
         onFinish: submitUpdatePassword
     };
 
-    const emailRegex = /[\w!#$%&'*+/=?`{|}~^-]+(?:\.[\w!#$%&'*+/=?`{|}~^-]+)*@(?:[A-Z0-9-]+\.)+[A-Z]{2,6}/i
-    const emailRule = { pattern: emailRegex, message: 'Invalid Email' };
-    const requiredRule = { required: true, message: 'Required Field' };
-    const min3Rule = { type: 'string', min: 3, message: 'Minimum 3 characters' };
-    const min8Rule = { type: 'string', min: 8, message: 'Minimum 8 characters' };
     const passwordsMatchRule = ({ getFieldValue }) => ({
         validator(rule, value) {
             if (!value || getFieldValue('newPassword1') === value) {
@@ -98,25 +81,25 @@ export default () => {
                         <Form.Item
                             label="Username"
                             name="username"
-                            rules={[requiredRule]}
+                            rules={[ rules.requiredRule ]}
                         >
                             <Input placeholder="Username" />
                         </Form.Item>
                         <Form.Item
                             label="Full Name"
                             name="fullName"
-                            rules={[requiredRule, min3Rule]}
+                            rules={[ rules.requiredRule, rules.min3Rule ]}
                         >
                             <Input placeholder="Full Name" />
                         </Form.Item>
                         <Form.Item
                             label="Email"
                             name="email"
-                            rules={[requiredRule, emailRule]}
+                            rules={[ rules.requiredRule, rules.emailRule ]}
                         >
                             <Input placeholder="Email" />
                         </Form.Item>
-                        <Form.Item {...tailLayout}>
+                        <TailFormItem>
                             <Button
                                 shape="round"
                                 type="primary"
@@ -127,7 +110,7 @@ export default () => {
                             >
                                 Update Profile
                             </Button>
-                        </Form.Item>
+                        </TailFormItem>
                     </Form>
                 </Col>
             </Row>
@@ -138,25 +121,25 @@ export default () => {
                         <Form.Item
                             label="Current Password"
                             name="oldPassword"
-                            rules={[requiredRule]}
+                            rules={[ rules.requiredRule ]}
                         >
                             <Input.Password placeholder="Current Password" />
                         </Form.Item>
                         <Form.Item
                             label="New Password"
                             name="newPassword1"
-                            rules={[requiredRule, min8Rule]}
+                            rules={[ rules.requiredRule, rules.min8Rule ]}
                         >
                             <Input.Password placeholder="New Password" />
                         </Form.Item>
                         <Form.Item
                             label="Repeat Password"
                             name="newPassword2"
-                            rules={[requiredRule, min8Rule, passwordsMatchRule]}
+                            rules={[ rules.requiredRule, rules.min8Rule, passwordsMatchRule ]}
                         >
                             <Input.Password placeholder="Repeat Password" />
                         </Form.Item>
-                        <Form.Item {...tailLayout}>
+                        <TailFormItem>
                             <Button
                                 shape="round"
                                 type="primary"
@@ -167,7 +150,7 @@ export default () => {
                             >
                                 Update Password
                             </Button>
-                        </Form.Item>
+                        </TailFormItem>
                     </Form>
                 </Col>
             </Row>
