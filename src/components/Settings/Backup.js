@@ -7,6 +7,7 @@ export default () => {
     return (
         <>
             <Title level={4}>Backup Data</Title>
+            Coming soon!
         </>
     );
 };

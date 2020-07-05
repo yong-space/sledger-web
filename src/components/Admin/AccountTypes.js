@@ -86,7 +86,7 @@ export default () => {
         },
         {
             dataIndex: 'accountTypeName',
-            title: 'Bank/Issuer',
+            title: 'Bank',
             sorter: {
                 compare: (a, b) => a.accountTypeName.localeCompare(b.accountTypeName),
                 multiple: 1
@@ -175,7 +175,7 @@ export default () => {
                             </Select>
                         </Form.Item>
                         <Form.Item
-                            label="Bank/Issuer"
+                            label="Bank"
                             name="accountTypeName"
                             rules={[ rules.requiredRule ]}
                         >

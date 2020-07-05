@@ -16,7 +16,10 @@ const EmptyBox = styled.div`
     margin: 4em 0;
 `;
 
-export default () => {
+export default (props) => {
+    const { assetClassLabel } = props;
+    const assetClass = assetClassLabel.replace(/ /g, '');
+    const assetClassLower = assetClassLabel.toLowerCase();
     const [ loading, setLoading ] = useState(true);
     const [ sorting, setSorting ] = useState(false);
     const [ addFormLoading, setAddFormLoading ] = useState(false);
@@ -29,12 +32,8 @@ export default () => {
     const [ addForm ] = Form.useForm();
 
     const submitEditAccount = async (values) => {
-        console.log(values);
         setEditFormLoading(true);
-        const newAccount = {
-            ...values,
-            assetClass: 'cash'
-        };
+        const newAccount = { ...values, assetClass };
         try {
             const account = await updateAccount(newAccount);
             const workingAccounts = accounts.filter(a => a.accountId !== newAccount.accountId);
@@ -55,10 +54,7 @@ export default () => {
 
     const submitAddAccount = async (values) => {
         setAddFormLoading(true);
-        const newAccount = {
-            ...values,
-            assetClass: 'cash'
-        };
+        const newAccount = { ...values, assetClass };
         try {
             const account = await addAccount(newAccount);
             setAccounts(existing => [ ...existing, account ]);
@@ -93,21 +89,24 @@ export default () => {
     };
 
     const refreshAccountTypes = () => new Promise(async resolve => {
+        let response;
         try {
-            const response = (await getAccountTypes())
-                .filter(entry => entry.accountTypeClass === 'Cash')
+            response = (await getAccountTypes())
+                .filter(entry => entry.accountTypeClass === assetClass)
                 .map((entry, index) => ({ ...entry, key: index }))
                 .sort((a, b) => a.accountTypeName > b.accountTypeName ? 1 : -1);
             setAccountTypes(response);
         } catch(e) {
             Notification.showError('Unable to load account types', e.message);
         }
-        resolve();
+        resolve(response);
     });
 
-    const refreshAccounts = () => new Promise(async resolve => {
+    const refreshAccounts = (types) => new Promise(async resolve => {
         try {
+            const accountTypeIds = types.map(a => a.accountTypeId);
             const response = (await getAccounts())
+                .filter(entry => accountTypeIds.indexOf(entry.accountTypeId) > -1)
                 .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
             setAccounts(response);
         } catch(e) {
@@ -118,14 +117,13 @@ export default () => {
 
     useEffect(() => {
         setLoading(true);
-        Promise.all([ refreshAccountTypes(), refreshAccounts() ])
-            .then(() => setLoading(false));
+        refreshAccountTypes().then((types) => refreshAccounts(types).then(() => setLoading(false)));
         // eslint-disable-next-line
     }, []);
 
     const getAccountType = (id) => accountTypes.filter(a => a.accountTypeId === id)[0];
 
-    const getHeader = ({ color, accountTypeId, accountName, hidden }) => {
+    const getHeader = ({ accountTypeId, accountName, hidden }) => {
         const accountType = getAccountType(accountTypeId);
         return (
             <>
@@ -265,12 +263,18 @@ export default () => {
         </Panel>
     ));
 
+    const emptyFill = (
+        <EmptyBox>
+            <Empty description={`You do not have any ${assetClassLower} accounts yet`} />
+        </EmptyBox>
+    );
+
     return (
         loading ? <LoadingSpinner /> :
         <>
-            <Title level={4}>Manage Cash Accounts</Title>
+            <Title level={4}>Manage {assetClassLabel} Accounts</Title>
             {
-                accounts.length === 0 ? <EmptyBox><Empty description="You do not have any cash accounts yet" /></EmptyBox> :
+                accounts.length === 0 ? emptyFill :
                     <Row style={{ width: '100%', marginBottom: '2em' }}>
                         <Collapse accordion style={{ width: '100%' }}>
                             {getPanels()}
@@ -278,7 +282,7 @@ export default () => {
                     </Row>
             }
 
-            <Title level={4}>Add Cash Account</Title>
+            <Title level={4}>Add {assetClassLabel} Account</Title>
             <Row>
                 <Col xs={24} md={18} lg={12} xl={10}>
                     <Form {...addFormProps()}>
@@ -293,7 +297,7 @@ export default () => {
                             name="accountName"
                             rules={[rules.requiredRule]}
                         >
-                            <Input placeholder="Account Type Name" />
+                            <Input placeholder="Account Name" />
                         </Form.Item>
                         <TailFormItem>
                             <Button
@@ -303,7 +307,7 @@ export default () => {
                                 htmlType="submit"
                                 loading={addFormLoading}
                             >
-                                Add Cash Account
+                                Add {assetClass} Account
                             </Button>
                         </TailFormItem>
                     </Form>

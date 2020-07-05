@@ -123,21 +123,21 @@ export default () => {
                             name="oldPassword"
                             rules={[ rules.requiredRule ]}
                         >
-                            <Input.Password placeholder="Current Password" />
+                            <Input.Password placeholder="Current Password" autoComplete="off" />
                         </Form.Item>
                         <Form.Item
                             label="New Password"
                             name="newPassword1"
                             rules={[ rules.requiredRule, rules.min8Rule ]}
                         >
-                            <Input.Password placeholder="New Password" />
+                            <Input.Password placeholder="New Password" autoComplete="off" />
                         </Form.Item>
                         <Form.Item
                             label="Repeat Password"
                             name="newPassword2"
                             rules={[ rules.requiredRule, rules.min8Rule, passwordsMatchRule ]}
                         >
-                            <Input.Password placeholder="Repeat Password" />
+                            <Input.Password placeholder="Repeat Password" autoComplete="off" />
                         </Form.Item>
                         <TailFormItem>
                             <Button

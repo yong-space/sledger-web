@@ -5,8 +5,8 @@ import { MdBackup } from 'react-icons/md';
 import AntIcon from '../Common/AntIcon';
 import SiderLayout from '../Common/SiderLayout';
 import Profile from './Profile';
-import CashAccounts from './CashAccounts';
-import CreditCards from './CreditCards';
+import ManageCashAccounts from './ManageCashAccounts';
+import ManageCreditCards from './ManageCreditCards';
 import Backup from './Backup';
 
 export default () => {
@@ -17,11 +17,11 @@ export default () => {
         },
         {
             label: 'Cash Accounts', icon: <AntIcon i={FaMoneyBillAlt} />,
-            route: '/settings/cash-accounts', component: CashAccounts
+            route: '/settings/cash-accounts', component: ManageCashAccounts
         },
         {
             label: 'Credit Cards', icon: <AntIcon i={FaRegCreditCard} />,
-            route: '/settings/credit-cards', component: CreditCards
+            route: '/settings/credit-cards', component: ManageCreditCards
         },
         {
             label: 'Backup', icon: <AntIcon i={MdBackup} />,
