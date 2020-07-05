@@ -25,12 +25,26 @@ export default () => {
     const [ accountTypes, setAccountTypes ] = useState([]);
     const { Title } = Typography;
     const { Panel } = Collapse;
-    const { getAccountTypes, getAccounts, addAccount, deleteAccount, sortAccounts } = API();
+    const { getAccountTypes, getAccounts, addAccount, deleteAccount, updateAccount, sortAccounts } = API();
     const [ addForm ] = Form.useForm();
 
-    const submitEditAccount = (values) => {
-        setEditFormLoading(true);
+    const submitEditAccount = async (values) => {
         console.log(values);
+        setEditFormLoading(true);
+        const newAccount = {
+            ...values,
+            assetClass: 'cash'
+        };
+        try {
+            const account = await updateAccount(newAccount);
+            const workingAccounts = accounts.filter(a => a.accountId !== newAccount.accountId);
+            workingAccounts.push(account);
+            workingAccounts.sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
+            setAccounts(workingAccounts);
+            Notification.showSuccess('Account Edited');
+        } catch(e) {
+            Notification.showError('Unable to edit account', e.message);
+        }
         setEditFormLoading(false);
     };
 
@@ -40,10 +54,10 @@ export default () => {
     };
 
     const submitAddAccount = async (values) => {
+        setAddFormLoading(true);
         const newAccount = {
             ...values,
-            assetClass: 'cash',
-            sortIndex: accounts.length
+            assetClass: 'cash'
         };
         try {
             const account = await addAccount(newAccount);
@@ -55,6 +69,15 @@ export default () => {
         }
         setAddFormLoading(false);
     };
+
+    const addFormProps = () => ({
+        ...baseProps,
+        form: addForm,
+        initialValues: {
+            accountTypeId: accountTypes && accountTypes[0]?.accountTypeId
+        },
+        onFinish: submitAddAccount
+    });
 
     const submitSortAccounts = async (sortedAccounts) => {
         setSorting(true);
@@ -68,15 +91,6 @@ export default () => {
         }
         setSorting(false);
     };
-
-    const addFormProps = () => ({
-        ...baseProps,
-        form: addForm,
-        initialValues: {
-            accountTypeId: accountTypes && accountTypes[0]?.accountTypeId
-        },
-        onFinish: submitAddAccount
-    });
 
     const refreshAccountTypes = () => new Promise(async resolve => {
         try {
@@ -167,8 +181,9 @@ export default () => {
     const submitDeleteAccount = async (accountId) => {
         try {
             await deleteAccount(accountId);
-            setAccounts(existing =>
-                existing.filter(a => a.accountId !== accountId));
+            const newAccounts = accounts.filter(account => account.accountId !== accountId);
+            newAccounts.forEach((account, index) => account.sortIndex = index);
+            setAccounts(newAccounts);
             Notification.showSuccess('Account Deleted');
         } catch(e) {
             Notification.showError('Unable to delete account', e.message);
@@ -196,8 +211,14 @@ export default () => {
     };
 
     const getPanels = () => accounts.map((account, index) => (
-        <Panel header={getHeader(account)} key={index} extra={getReorderButtons(index)}>
+        <Panel header={getHeader(account)} key={account.accountId} extra={getReorderButtons(index)}>
             <Form {...editFormProps} initialValues={account}>
+                <Form.Item name="accountId" hidden={true}>
+                    <Input />
+                </Form.Item>
+                <Form.Item name="sortIndex" hidden={true}>
+                    <Input />
+                </Form.Item>
                 <Form.Item
                     label="Bank"
                     name="accountTypeId"
@@ -228,7 +249,7 @@ export default () => {
                             loading={editFormLoading}
                             style={{ marginRight: '1em' }}
                         >
-                            Save Account
+                            Edit Account
                         </Button>
                         <Button
                             shape="round"
