@@ -8,14 +8,14 @@ import logoWhite from '../../assets/logo-white.svg';
 
 export default () => {
     let history = useHistory();
-    const { login, isLoginValid } = authServices();
+    const { login, getAuthToken } = authServices();
     const [ username, setUsername ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ errors, setErrors ] = useState();
     const [ loading, setLoading ] = useState(false);
 
     useEffect(() => {
-        if (!loading && isLoginValid()) {
+        if (!loading && getAuthToken() !== null) {
             history.push('/dash/summary');
         }
         // eslint-disable-next-line

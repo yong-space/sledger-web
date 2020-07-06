@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import Atom from '../Common/Atom';
 
@@ -15,12 +14,12 @@ export default () => {
         return JSON.parse(decodeURIComponent(jsonPayload));
     };
 
-    const parseLoginState = useCallback((token) => {
+    const parseLoginState = (token) => {
         const jwtObj = parseJwt(token);
         const { sub, name, email } = jwtObj;
         const profile = { username: sub, fullName: name, email };
         return { jwt: token, jwtObj, profile };
-    }, []);
+    };
 
     const setProfile = (profile) => {
         if (loginState?.profile) {
@@ -57,20 +56,21 @@ export default () => {
 
     const isLoginValidForToken = (token) => (token.exp * 1000) > Date.now();
 
-    const isLoginValid = useCallback(() => {
+    const getAuthToken = () => {
         if (!loginState.jwtObj) {
             const storedJwt = localStorage.getItem("jwt");
             if (!!storedJwt) {
                 if (isLoginValidForToken(parseJwt(storedJwt))) {
-                    setLoginState(parseLoginState(storedJwt));
-                    return true;
+                    return parseLoginState(storedJwt);
                 }
                 localStorage.clear();
             }
-            return false;
+            return null;
         }
-        return isLoginValidForToken(loginState.jwtObj);
-    }, [ loginState.jwtObj, parseLoginState, setLoginState ]);
+        return isLoginValidForToken(loginState.jwtObj) ? {} : null;
+    };
+
+    const setTokenState = (token) => setLoginState(token);
 
     const isAdmin = () => {
         let jwtObj = loginState?.jwtObj;
@@ -96,7 +96,8 @@ export default () => {
     return {
         login,
         logout,
-        isLoginValid,
+        getAuthToken,
+        setTokenState,
         isAdmin,
         getProfile,
         setProfile,

@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Switch, Route, useHistory } from 'react-router-dom';
-import authServices from '../Login/AuthServices';
 import { Layout } from 'antd';
+import authServices from '../Login/AuthServices';
+import LoadingSpinner from '../Common/LoadingSpinner';
 import NavBar from '../NavBar/NavBar';
 import DashboardMain from '../Dashboard/DashboardMain';
 import TransactionsMain from '../Transactions/TransactionsMain';
@@ -11,11 +12,18 @@ import './MainLayout.css';
 
 export default () => {
     let history = useHistory();
-    const { isLoginValid } = authServices();
+    const { getAuthToken, setTokenState } = authServices();
+    const [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
-        if (!isLoginValid()) {
+        const token = getAuthToken();
+        if (token === null) {
             history.push('/login');
+        } else {
+            if (token.jwt) {
+                setTokenState(token);
+            }
+            setLoading(false);
         }
         // eslint-disable-next-line
     }, []);
@@ -30,6 +38,7 @@ export default () => {
     );
 
     return (
+        loading ? <LoadingSpinner /> :
         <Layout style={{ height: '100%' }}>
             <NavBar />
             <Layout style={{ marginTop: '3rem' }}>
