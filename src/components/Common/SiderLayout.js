@@ -3,7 +3,7 @@ import { useRecoilState } from 'recoil';
 import Atom from '../Common/Atom';
 import { useHistory } from 'react-router-dom';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Drawer } from 'antd';
 import { useSwipeable } from 'react-swipeable'
 import SiderButton from '../Common/SiderButton';
 
@@ -11,20 +11,21 @@ export default (props) => {
     let history = useHistory();
     const [ selectedItems, setSelectedItems ] = useRecoilState(Atom.selectedNavItems);
     const { Content, Sider } = Layout;
-    const [ collapsed, setCollapsed ] = useState(false);
+    const [ siderCollapsed, setSiderCollapsed ] = useState(false);
+    const [ drawerCollapsed, setDrawerCollapsed ] = useState(true);
     const swipeProps = useSwipeable({
         onSwiped: (event) => {
-            if (event.dir === 'Left' && !collapsed) {
-                setCollapsed(true);
-            } else if (event.dir === 'Right' && collapsed) {
-                setCollapsed(false);
+            if (event.dir === 'Left' && !drawerCollapsed) {
+                setDrawerCollapsed(true);
+            } else if (event.dir === 'Right' && drawerCollapsed) {
+                setDrawerCollapsed(false);
             }
         }
     });
 
     const menuLinks = props.menuItems.map((menuItem) =>
         <Menu.Item key={menuItem.route}>
-            {menuItem.icon} {menuItem.label}
+            {menuItem.icon} <span className="label">{menuItem.label}</span>
         </Menu.Item>
     );
 
@@ -36,6 +37,9 @@ export default (props) => {
     );
 
     const handleMenuClick = (event) => {
+        if (!drawerCollapsed) {
+            setDrawerCollapsed(true);
+        }
         setSelectedItems([ event.key ]);
         history.push(event.key);
     };
@@ -45,17 +49,11 @@ export default (props) => {
             <Layout style={{ height: '100%' }}>
                 <Sider
                     collapsible
-                    collapsed={collapsed}
-                    onCollapse={setCollapsed}
+                    collapsed={siderCollapsed}
+                    onCollapse={setSiderCollapsed}
+                    collapsedWidth="60"
                     breakpoint="sm"
-                    collapsedWidth="1"
-                    trigger={<SiderButton collapsed={collapsed} />}
                     width="12rem"
-                    style={{
-                        position: 'fixed',
-                        height: '100vh',
-                        zIndex: 2
-                    }}
                 >
                     <Menu
                         theme="dark"
@@ -67,8 +65,7 @@ export default (props) => {
                     </Menu>
                 </Sider>
                 <Layout style={{
-                    padding: '0 24px 24px',
-                    marginLeft: collapsed ? 0 : '12rem'
+                    padding: '0 24px 24px'
                 }}>
                     <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
                         <Switch>
@@ -78,6 +75,31 @@ export default (props) => {
                     </Content>
                 </Layout>
             </Layout>
+
+            <Drawer
+                placement="left"
+                visible={!drawerCollapsed}
+                closable={false}
+                key="left"
+                mask="true"
+                width="200"
+                style={{ paddingTop: '3rem' }}
+                bodyStyle={{ padding: 0 }}
+            >
+                <Menu
+                    theme="dark"
+                    selectedKeys={selectedItems}
+                    mode="inline"
+                    onClick={handleMenuClick}
+                >
+                    {menuLinks}
+                </Menu>
+            </Drawer>
+
+            <SiderButton
+                collapsed={drawerCollapsed}
+                handleClick={() => setDrawerCollapsed(!drawerCollapsed)}
+            />
         </div>
     );
 }

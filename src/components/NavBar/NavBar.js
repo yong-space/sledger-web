@@ -200,7 +200,6 @@ export default () => {
                     mode="vertical"
                     onClick={handleMenuClick}
                     selectedKeys={selectedItems}
-
                 >
                     {menuLinks(false)}
                 </Menu>

@@ -13,10 +13,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-ul.ant-menu-inline-collapsed > li.ant-menu-item { display: none }
-div.ant-layout-sider-trigger > button.ant-btn-icon-only {
-  padding: 0.5em 0.6em
+ul.ant-menu-inline-collapsed { width: 60px }
+ul.ant-menu-inline-collapsed > li.ant-menu-item {
+  display: flex;
+  justify-content: center;
+  padding: 0
 }
-aside.ant-layout-sider-collapsed div.ant-layout-sider-trigger > button.ant-btn-icon-only {
-  position: absolute; bottom: 1em; left: 1em; opacity: 0.5;
+ul.ant-menu-inline-collapsed > li.ant-menu-item > span.label { display: none }
+
+@media only screen and (max-width: 550px) {
+  aside.ant-layout-sider-collapsed { display: none }
 }
