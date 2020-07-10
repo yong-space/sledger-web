@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import Atom from '../Common/Atom';
 import { useHistory } from 'react-router-dom';
@@ -22,6 +22,18 @@ export default (props) => {
             }
         }
     });
+
+    const closeDrawer = (event) => {
+        if (event.target.className === 'ant-drawer-mask') {
+            setDrawerCollapsed(true);
+        }
+    };
+
+    useEffect(() => {
+        document.querySelector('.drawerWrapper').addEventListener('touchend', closeDrawer);
+        return () => document.querySelector('.drawerWrapper').removeEventListener('touchend', closeDrawer);
+        // eslint-disable-next-line
+    }, []);
 
     const menuLinks = props.menuItems.map((menuItem) =>
         <Menu.Item key={menuItem.route}>
@@ -77,6 +89,8 @@ export default (props) => {
                 </Layout>
             </Layout>
 
+            <div className="drawerWrapper"></div>
+
             <Drawer
                 placement="left"
                 visible={!drawerCollapsed}
@@ -86,6 +100,7 @@ export default (props) => {
                 width="200"
                 style={{ paddingTop: '3rem' }}
                 bodyStyle={{ padding: 0 }}
+                getContainer=".drawerWrapper"
             >
                 <Menu
                     theme="dark"
