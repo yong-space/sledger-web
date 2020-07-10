@@ -124,10 +124,8 @@ export default () => {
         history.push(event.key);
     };
 
-    const gotoProfile = () => handleMenuClick({ key: '/settings' });
-
     const avatar = (
-        <div className="login-description" onClick={gotoProfile}>
+        <div className="login-description">
             <Avatar icon={<AntIcon i={AiOutlineUser} />} />
             {getProfile()?.fullName || ''}
         </div>
@@ -146,6 +144,9 @@ export default () => {
 
     const logoutMenu = (
         <Menu>
+            <Menu.Item style={{ color: 'grey' }}>
+                v{process.env.REACT_APP_VERSION}
+            </Menu.Item>
             <Menu.Item>
                 {logoutButton}
             </Menu.Item>
@@ -160,8 +161,13 @@ export default () => {
 
     const avatarMobile = (
         <>
-            {avatar}
-            {logoutButton}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {avatar}
+                {logoutButton}
+            </div>
+            <span style={{ color: 'grey' }}>
+                v{process.env.REACT_APP_VERSION}
+            </span>
         </>
     );
 

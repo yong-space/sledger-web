@@ -11,8 +11,13 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '12'
+    - name: Derive tag from package.json version
+      run: |
+        export PACKAGE_VERSION=`sed -n 's/\s\+"version": "\([0-9.]\+\)",/\1/p' package.json`
+        export TIMESTAMP=`date +'%Y%m%d%H%M'`
+        echo "::set-env name=VERSION_TAG::$PACKAGE_VERSION-$TIMESTAMP"
     - name: Set environment file
-      run: printf "BROWSER=NONE\nREACT_APP_BASE_URL=${{ SECRETS.BASE_URL }}" > .env
+      run: printf "BROWSER=NONE\nREACT_APP_VERSION=${{ env.VERSION_TAG }}\nREACT_APP_BASE_URL=${{ SECRETS.BASE_URL }}" > .env
     - run: npm ci
     - run: npm run build --if-present
     - uses: actions/upload-artifact@v1
