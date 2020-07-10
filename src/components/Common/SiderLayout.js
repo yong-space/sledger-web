@@ -40,7 +40,8 @@ export default (props) => {
         if (!drawerCollapsed) {
             setDrawerCollapsed(true);
         }
-        setSelectedItems([ event.key ]);
+        const parentKey = event.key.substr(0, event.key.lastIndexOf('/'));
+        setSelectedItems([ parentKey, event.key ]);
         history.push(event.key);
     };
 

@@ -91,30 +91,35 @@ export default () => {
     const closeDrawer = () => setDrawerVisible(false);
 
     useEffect(() => {
-        const menuItems = getMenuItems().map(i => i.route);
-        if (menuItems.indexOf(location.pathname) > -1) {
-            setSelectedItems([ location.pathname ]);
-        } else {
-            let defaultItems = menuItems.filter(i => i.indexOf(location.pathname) > -1);
-            if (defaultItems.length === 0) {
-                const subPath = location.pathname.match(/\/\w+/)[0];
-                defaultItems = menuItems.filter(i => i.indexOf(subPath) > -1);
-            }
-            setSelectedItems([ location.pathname, defaultItems[0] ]);
+        const menuItems = getMenuItems();
+        const menuMap = [
+            ...menuItems.map(i => [i.route]),
+            ...menuItems.filter(i => i.children).map(i => i.children.map(c => [ c.route, i.route ])).flat()
+        ].reduce((obj, item) => {
+            obj[item[0]] = item;
+            return obj;
+        }, {});
+
+        if (Object.keys(menuMap).indexOf(location.pathname) > -1) {
+            setSelectedItems(menuMap[location.pathname]);
         }
 
         window.addEventListener('resize', closeDrawer);
         return () => window.removeEventListener('resize', closeDrawer);
         // eslint-disable-next-line
-    }, []);
+    }, [ location.pathname ]);
 
     const handleMenuClick = (event) => {
         closeDrawer();
-        if (event.keyPath) {
-            setSelectedItems([ event.key ]);
+        if (event.keyPath && event.keyPath.length > 1) {
+            setSelectedItems(event.keyPath);
         } else {
             const topLevel = getMenuItems().filter(i => i.route === event.key)[0];
-            setSelectedItems([ topLevel.children[0].route ]);
+            if (topLevel.children) {
+                setSelectedItems([ event.key, topLevel.children[0].route ]);
+            } else {
+                setSelectedItems([ event.key ]);
+            }
         }
         history.push(event.key);
     };
