@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Select, Row, Col, Tag } from 'antd';
 import API from '../Common/API';
+import Notification from '../Common/Notification';
 
 export default (props) => {
     const [ loading, setLoading ] = useState(true);
     const [ accounts, setAccounts ] = useState([]);
+    const [ selectedAccount, setSelectedAccount ] = useState('No accounts available');
     const { Option, OptGroup } = Select;
     const { getAccounts } = API();
 
@@ -12,8 +14,11 @@ export default (props) => {
         try {
             const response = (await getAccounts())
                 .filter(account => account.hidden === false)
-                .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
+                .sort((a, b) => (a.accountType.accountTypeClass > b.accountType.accountTypeClass || a.sortIndex > b.sortIndex) ? 1 : -1);
             setAccounts(response);
+            if (response.length > 0) {
+                setSelectedAccount(response[0].accountId);
+            }
         } catch(e) {
             Notification.showError('Unable to load account types', e.message);
         }
@@ -26,6 +31,9 @@ export default (props) => {
     }, []);
 
     const getAccountOptions = () => {
+        if (accounts.length === 0) {
+            return [];
+        }
         const accountMap = accounts.reduce((obj, item) => {
             const assetClass = item.accountType.accountTypeClass;
             obj[assetClass] = [ ...(obj[assetClass] || []), item ];
@@ -52,19 +60,18 @@ export default (props) => {
                 <span className="ant-input-group-wrapper ant-input-group-wrapper-lg">
                     <span className="ant-input-wrapper ant-input-group">
                         <span className="ant-input-group-addon">Account</span>
-                        { !loading && accounts.length > 0 &&
                         <Select
                             size="large"
                             style={{ width: '100%' }}
-                            defaultValue={accounts[0].accountId}
                             onChange={props.selectAccount}
+                            value={selectedAccount}
+                            loading={loading}
                         >
                             {getAccountOptions()}
                         </Select>
-                        }
                     </span>
                 </span>
             </Col>
         </Row>
-    )
+    );
 }
