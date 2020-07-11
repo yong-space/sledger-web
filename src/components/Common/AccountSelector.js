@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Select, Row, Col, Tag } from 'antd';
+import { Select, Tag } from 'antd';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
+import styled from 'styled-components';
 
-export default (props) => {
+const Styled = styled.div`
+    .ant-select-selection-item { display: flex; align-items: center }
+    .ant-select-selection-item > .ant-tag { height: 1.5rem }
+`;
+
+export default ({ setSelectedAccount }) => {
     const [ loading, setLoading ] = useState(true);
     const [ accounts, setAccounts ] = useState([]);
-    const [ selectedAccount, setSelectedAccount ] = useState('No accounts available');
+    const [ selectedItem, setSelectedItem ] = useState();
     const { Option, OptGroup } = Select;
     const { getAccounts } = API();
 
@@ -17,11 +23,17 @@ export default (props) => {
                 .sort((a, b) => (a.accountType.accountTypeClass > b.accountType.accountTypeClass || a.sortIndex > b.sortIndex) ? 1 : -1);
             setAccounts(response);
             if (response.length > 0) {
-                setSelectedAccount(response[0].accountId);
+                setSelectedItem(response[0].accountId);
+                setSelectedAccount(response[0]);
             }
         } catch(e) {
             Notification.showError('Unable to load account types', e.message);
         }
+    };
+
+    const handleSelectionChanged = (accountId) => {
+        setSelectedItem(accountId);
+        setSelectedAccount(accounts.filter(a => a.accountId === accountId)[0]);
     };
 
     useEffect(() => {
@@ -55,23 +67,22 @@ export default (props) => {
     };
 
     return (
-        <Row>
-            <Col xs={24} sm={16} md={12} lg={8} xl={6}>
-                <span className="ant-input-group-wrapper ant-input-group-wrapper-lg">
-                    <span className="ant-input-wrapper ant-input-group">
-                        <span className="ant-input-group-addon">Account</span>
-                        <Select
-                            size="large"
-                            style={{ width: '100%' }}
-                            onChange={props.selectAccount}
-                            value={selectedAccount}
-                            loading={loading}
-                        >
-                            {getAccountOptions()}
-                        </Select>
-                    </span>
+        <Styled>
+            <span className="ant-input-group-wrapper ant-input-group-wrapper-lg">
+                <span className="ant-input-wrapper ant-input-group">
+                    <span className="ant-input-group-addon">Account</span>
+                    <Select
+                        size="large"
+                        style={{ width: '100%' }}
+                        onChange={handleSelectionChanged}
+                        value={selectedItem}
+                        loading={loading}
+                        listHeight="500"
+                    >
+                        {getAccountOptions()}
+                    </Select>
                 </span>
-            </Col>
-        </Row>
+            </span>
+        </Styled>
     );
 }

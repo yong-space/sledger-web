@@ -51,6 +51,7 @@ export default (props) => {
             columns={columns}
             dataSource={dataSource}
             size="small"
+            style={{ marginTop: '.8rem' }}
         />
-    )
+    );
 }
