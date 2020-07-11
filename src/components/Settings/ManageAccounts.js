@@ -116,7 +116,6 @@ export default (props) => {
     });
 
     useEffect(() => {
-        setLoading(true);
         refreshAccountTypes().then((types) => refreshAccounts(types).then(() => setLoading(false)));
         // eslint-disable-next-line
     }, []);
