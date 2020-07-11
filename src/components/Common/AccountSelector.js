@@ -53,7 +53,9 @@ export default ({ setSelectedAccount }) => {
         }, {});
 
         return Object.keys(accountMap).sort().map(assetClass => {
-            const options = accounts.filter(a => a.accountType.accountTypeClass === assetClass)
+            const options = accounts
+                .filter(a => a.accountType.accountTypeClass === assetClass)
+                .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1)
                 .map(a => (
                     <Option key={a.accountId} value={a.accountId}>
                         <Tag color={a.accountType.colour}>

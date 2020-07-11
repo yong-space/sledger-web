@@ -133,7 +133,7 @@ export default (props) => {
     };
 
     const moveSort = (index, newIndex) => {
-        const workingAccounts = [ ...accounts ];
+        const workingAccounts = JSON.parse(JSON.stringify(accounts));
         workingAccounts.filter(a => a.sortIndex === index)[0].sortIndex = -1;
         workingAccounts.filter(a => a.sortIndex === newIndex)[0].sortIndex = index;
         workingAccounts.filter(a => a.sortIndex === -1)[0].sortIndex = newIndex;
@@ -178,7 +178,7 @@ export default (props) => {
     const submitDeleteAccount = async (accountId) => {
         try {
             await deleteAccount(accountId);
-            const newAccounts = accounts.filter(account => account.accountId !== accountId);
+            const newAccounts = JSON.parse(JSON.stringify(accounts.filter(a => a.accountId !== accountId)));
             newAccounts.forEach((account, index) => account.sortIndex = index);
             setAccounts(newAccounts);
             Notification.showSuccess('Account Deleted');

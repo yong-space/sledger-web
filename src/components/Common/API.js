@@ -10,6 +10,7 @@ export default () => {
     const PUT = 'PUT';
     const DELETE = 'DELETE';
     const [ accountTypes, setAccountTypes ] = useRecoilState(Atom.accountTypes);
+    const [ accounts, setAccounts ] = useRecoilState(Atom.accounts);
 
     const apiCall = async (method, path, body) => {
         const token = getJwt();
@@ -61,12 +62,52 @@ export default () => {
         deleteAccountType: async (id) => {
             await apiCall(DELETE, `admin/account-type/${id}`);
             setAccountTypes(existing => existing.filter(a => a.accountTypeId !== id));
-            return;
         },
-        getAccounts: () => apiCall(GET, 'account'),
-        addAccount: (account) => apiCall(POST, 'account', account),
-        updateAccount: (account) => apiCall(PUT, 'account', account),
-        deleteAccount: (id) => apiCall(DELETE, `account/${id}`),
-        sortAccounts: (ids) => apiCall(PUT, `account/sort/${ids}`),
+        getAccounts: async () => {
+            if (accounts.length === 0) {
+                const results = await apiCall(GET, 'account');
+                setAccounts(results);
+                return results;
+            }
+            return accounts;
+        },
+        addAccount: async (account) => {
+            const response = await apiCall(POST, 'account', account);
+            setAccounts(existing => [ ...existing, response ]);
+            return response;
+        },
+        updateAccount: async (account) => {
+            const response = apiCall(PUT, 'account', account);
+            setAccounts(existing => [
+                ...existing.filter(a => a.accountId !== account.accountId),
+                response
+            ]);
+            return response;
+        },
+        deleteAccount: async (id) => {
+            await apiCall(DELETE, `account/${id}`);
+            const accountTypeClass = accounts.filter(a => a.accountId === id)[0].accountType.accountTypeClass;
+            const workingAccounts = accounts
+                .filter(a => a.accountType.accountTypeClass === accountTypeClass && a.accountId !== id)
+                .sort((a, b) => a.sortIndex > b.sortIndex ? 1 : -1)
+                .map((account, index) => ({ ...account, sortIndex: index }));
+            const newAccounts = [
+                ...accounts.filter(a => a.accountType.accountTypeClass !== accountTypeClass),
+                ...workingAccounts
+            ];
+            setAccounts(newAccounts);
+        },
+        sortAccounts: async (ids) => {
+            await apiCall(PUT, `account/sort/${ids}`);
+            const sortedIds = ids.split(',').map(id => parseInt(id));
+            const workingAccounts = sortedIds
+                .map(id => accounts.filter(a => a.accountId === id)[0])
+                .map((account, index) => ({ ...account, sortIndex: index }));
+            const newAccounts = [
+                ...accounts.filter(a => sortedIds.indexOf(a.accountId) === -1),
+                ...workingAccounts
+            ];
+            setAccounts(newAccounts);
+        },
     };
 };

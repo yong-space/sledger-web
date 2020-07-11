@@ -24,12 +24,7 @@ const ButtonBar = styled.div`
 
 export default () => {
     const { Content } = Layout;
-    const [ selectedAccount, setSelectedAccount2 ] = useState();
-
-    const setSelectedAccount = (item) => {
-        console.log(item)
-        setSelectedAccount2(item);
-    }
+    const [ selectedAccount, setSelectedAccount ] = useState();
 
     const addHandler = () => {
 
@@ -104,7 +99,7 @@ export default () => {
                     </ButtonBar>
                 </Col>
             </Row>
-            <Row>
+            <Row style={{ height: 'calc(100% - 1.1rem)' }}>
                 <Col xs={24}>
                     <TransactionGrid selectedAccount={selectedAccount} />
                 </Col>
