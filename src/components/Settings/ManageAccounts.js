@@ -9,6 +9,7 @@ import API from '../Common/API';
 import LoadingSpinner from '../Common/LoadingSpinner';
 import { baseProps, inlineProps, rules, TailFormItem } from '../Common/FormProps';
 import styled from 'styled-components';
+import { presetDarkPalettes } from '@ant-design/colors';
 
 const EmptyBox = styled.div`
     display: flex;
@@ -239,20 +240,19 @@ export default (props) => {
                 <Form.Item>
                     <div style={{ display: 'flex' }}>
                         <Button
-                            shape="round"
                             type="primary"
                             icon={<AntIcon i={FaMoneyBillAlt} />}
                             htmlType="submit"
                             loading={editFormLoading}
-                            style={{ marginRight: '1em' }}
+                            style={{ marginRight: '1em', background: presetDarkPalettes.gold[4], borderColor: presetDarkPalettes.gold[5] }}
                         >
                             Edit Account
                         </Button>
                         <Button
-                            shape="round"
                             type="danger"
                             icon={<AntIcon i={RiDeleteBinLine} />}
                             onClick={() => confirmDelete(account)}
+                            style={{ marginRight: '1em', background: presetDarkPalettes.red[4], borderColor: presetDarkPalettes.red[5] }}
                         >
                             Delete Account
                         </Button>
@@ -300,11 +300,11 @@ export default (props) => {
                         </Form.Item>
                         <TailFormItem>
                             <Button
-                                shape="round"
                                 type="primary"
                                 icon={<AntIcon i={FaMoneyBillAlt} />}
                                 htmlType="submit"
                                 loading={addFormLoading}
+                                style={{ background: presetDarkPalettes.green[4], borderColor: presetDarkPalettes.green[5] }}
                             >
                                 Add {assetClass} Account
                             </Button>

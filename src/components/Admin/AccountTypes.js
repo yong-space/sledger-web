@@ -7,6 +7,7 @@ import Notification from '../Common/Notification';
 import API from '../Common/API';
 import AntIcon from '../Common/AntIcon';
 import { baseProps, rules, TailFormItem } from '../Common/FormProps';
+import { presetDarkPalettes } from '@ant-design/colors';
 
 export default () => {
     const [ accountTypes, setAccountTypes ] = useState([]);
@@ -198,11 +199,11 @@ export default () => {
                         </Form.Item>
                         <TailFormItem>
                             <Button
-                                shape="round"
                                 type="primary"
                                 icon={<AntIcon i={AiOutlineAccountBook} />}
                                 htmlType="submit"
                                 loading={savingAccountType}
+                                style={{ background: presetDarkPalettes.green[4], borderColor: presetDarkPalettes.green[5] }}
                             >
                                 Add Account Type
                             </Button>
