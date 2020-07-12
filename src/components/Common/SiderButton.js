@@ -6,10 +6,19 @@ import styled from 'styled-components';
 
 const ButtonWrapper = styled.div`
     position: fixed;
-    bottom: 1em;
-    left: 1em;
-    opacity: 0.7;
+    bottom: 1.2em;
+    left: 1.2em;
+    opacity: 0.5;
     z-index: 1001;
+
+    button {
+        width: 4rem;
+        height: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0.25rem;
+    }
 
     &:hover { opacity: 1 }
 
@@ -18,18 +27,13 @@ const ButtonWrapper = styled.div`
     }
 `;
 
-export default ({ collapsed, handleClick }) => {
-    const icon = collapsed ? AiFillCaretRight : AiFillCaretLeft;
-
-    return (
-        <ButtonWrapper>
-            <Button
-                size="large"
-                shape="round"
-                type="primary"
-                icon={<AntIcon i={icon} />}
-                onClick={handleClick}
-            />
-        </ButtonWrapper>
-    );
-};
+export default ({ collapsed, handleClick }) => (
+    <ButtonWrapper>
+        <Button
+            shape="circle"
+            type="primary"
+            icon={<AntIcon rotate={!collapsed} i={AiFillCaretRight} size={42} />}
+            onClick={handleClick}
+        />
+    </ButtonWrapper>
+);

@@ -6,6 +6,23 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import { Layout, Menu, Drawer } from 'antd';
 import { useSwipeable } from 'react-swipeable'
 import SiderButton from '../Common/SiderButton';
+import styled from 'styled-components';
+import AntIcon from '../Common/AntIcon';
+
+const Styled = styled.div`
+    height: 100%;
+    .drawerWrapper .ant-menu-item {
+        height: 3.5rem;
+        display: flex;
+        align-items: center;
+        .label { font-size: 1.2rem }
+    }
+    .ant-layout-content {
+        @media only screen and (max-width: 549px) {
+            padding: 0.7rem !important
+        }
+    }
+`;
 
 export default (props) => {
     let history = useHistory();
@@ -35,11 +52,11 @@ export default (props) => {
         // eslint-disable-next-line
     }, []);
 
-    const menuLinks = props.menuItems.map((menuItem) =>
+    const menuLinks = (size = 16) => props.menuItems.map((menuItem) => (
         <Menu.Item key={menuItem.route}>
-            {menuItem.icon} <span className="label">{menuItem.label}</span>
+            <AntIcon i={menuItem.icon} size={size} /> <span className="label">{menuItem.label}</span>
         </Menu.Item>
-    );
+    ));
 
     const routes = props.menuItems.map((menuItem, index) =>
         <Route exact
@@ -58,7 +75,7 @@ export default (props) => {
     };
 
     return (
-        <div {...swipeProps} style={{ height: '100%' }}>
+        <Styled {...swipeProps}>
             <Layout style={{ height: '100%' }}>
                 <Sider
                     collapsible
@@ -74,13 +91,11 @@ export default (props) => {
                         mode="inline"
                         onClick={handleMenuClick}
                     >
-                        {menuLinks}
+                        {menuLinks()}
                     </Menu>
                 </Sider>
-                <Layout style={{
-                    padding: '0 24px 24px'
-                }}>
-                    <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
+                <Layout>
+                    <Content>
                         <Switch>
                             {routes}
                             <Route render={() => <Redirect to={props.menuItems[0].route} />} />
@@ -97,7 +112,7 @@ export default (props) => {
                 closable={false}
                 key="left"
                 mask="true"
-                width="200"
+                width="300"
                 style={{ paddingTop: '3rem' }}
                 bodyStyle={{ padding: 0 }}
                 getContainer=".drawerWrapper"
@@ -108,7 +123,7 @@ export default (props) => {
                     mode="inline"
                     onClick={handleMenuClick}
                 >
-                    {menuLinks}
+                    {menuLinks(18)}
                 </Menu>
             </Drawer>
 
@@ -116,6 +131,6 @@ export default (props) => {
                 collapsed={drawerCollapsed}
                 handleClick={() => setDrawerCollapsed(!drawerCollapsed)}
             />
-        </div>
+        </Styled>
     );
 }
