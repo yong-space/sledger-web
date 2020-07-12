@@ -14,7 +14,7 @@ jobs:
     - name: Derive tag from package.json version
       run: |
         export PACKAGE_VERSION=`sed -n 's/\s\+"version": "\([0-9.]\+\)",/\1/p' package.json`
-        export TIMESTAMP=`date +'%Y%m%d%H%M'`
+        export TIMESTAMP=`TZ=Asia/Singapore date +'%m%d-%H%M'`
         echo "::set-env name=VERSION_TAG::$PACKAGE_VERSION-$TIMESTAMP"
     - name: Set environment file
       run: printf "BROWSER=NONE\nREACT_APP_VERSION=${{ env.VERSION_TAG }}\nREACT_APP_BASE_URL=${{ SECRETS.BASE_URL }}" > .env
