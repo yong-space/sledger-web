@@ -1,10 +1,4 @@
 @import "~antd/lib/style/index";
-@media (max-width: @screen-sm) {
-    .desktop { display: none }
-}
-@media (min-width: @screen-sm) {
-    .mobile { display: none }
-}
 
 .header-container {
     display: flex;
@@ -13,6 +7,13 @@
     padding: 0;
     position: fixed;
     width: 100vw;
+
+    @media (max-width: @screen-sm) {
+        .desktop { display: none }
+    }
+    @media (min-width: @screen-sm) {
+        .mobile { display: none }
+    }
 }
 .ant-menu-dark.ant-menu-horizontal {
     &>.ant-menu-submenu-horizontal, &.ant-menu-horizontal, li.ant-menu-item {

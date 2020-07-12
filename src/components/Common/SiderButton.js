@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
-import { AiFillCaretRight, AiFillCaretLeft } from 'react-icons/ai';
+import { AiFillCaretRight } from 'react-icons/ai';
 import AntIcon from './AntIcon';
 import styled from 'styled-components';
 

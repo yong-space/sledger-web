@@ -5,4 +5,7 @@ export default {
     accountTypes: atom({ key: 'accountTypes', default: [] }),
     accounts: atom({ key: 'accounts', default: [] }),
     selectedNavItems: atom({ key: 'selectedNavItems', default: [] }),
+    gridColumns: atom({ key: 'gridColumns', default: [] }),
+    gridData: atom({ key: 'gridData', default: [] }),
+    gridSelection: atom({ key: 'gridSelection', default: [] }),
 };
