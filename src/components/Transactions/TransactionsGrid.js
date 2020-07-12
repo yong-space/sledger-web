@@ -7,6 +7,7 @@ import Atom from '../Common/Atom';
 import styled from 'styled-components';
 
 const Styled = styled.div`
+    height: 100%;
     margin-top: .8rem;
     .ant-table-cell {
         white-space: nowrap;
@@ -113,7 +114,7 @@ export default ({ selectedAccount }) => {
 
         return (
             <Table.Summary.Row>
-                <Table.Summary.Cell>{pageData.length} Records</Table.Summary.Cell>
+                <Table.Summary.Cell colSpan={2}>{pageData.length} Records</Table.Summary.Cell>
                 <Table.Summary.Cell className="desktop">{totalCredit.toFixed(2)}</Table.Summary.Cell>
                 <Table.Summary.Cell className="desktop">{totalDebit.toFixed(2)}</Table.Summary.Cell>
                 <Table.Summary.Cell colSpan={3}></Table.Summary.Cell>
@@ -137,8 +138,8 @@ export default ({ selectedAccount }) => {
     };
 
     return (
-        !selectedAccount ? <LoadingSpinner /> :
         <Styled>
+            {!selectedAccount ? <LoadingSpinner /> :
             <Table
                 bordered
                 columns={columns}
@@ -151,7 +152,7 @@ export default ({ selectedAccount }) => {
                         selectRow(record);
                     },
                 })}
-            />
+            />}
         </Styled>
     );
 }

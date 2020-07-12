@@ -7,10 +7,16 @@ import TransactionsButtons from './TransactionsButtons';
 
 const Styled = styled.div`
     height: 100%;
-
+    .ant-layout-content, .ant-col { height: 100%; }
     .ant-layout-content {
         @media only screen and (max-width: 549px) {
             padding: 0.7rem !important
+        }
+    }
+    .gridWrapper {
+        height: calc(100% - 1.9rem);
+        @media only screen and (max-width: 549px) {
+            height: calc(100% - 5.1rem);
         }
     }
 `;
@@ -22,7 +28,7 @@ export default () => {
     return (
         <Styled>
             <Content>
-                <Row>
+                <Row style={{ alignItems: 'center' }}>
                     <Col xs={24} md={10} lg={8} xl={6}>
                         <AccountSelector setSelectedAccount={setSelectedAccount} />
                     </Col>
@@ -30,7 +36,7 @@ export default () => {
                         <TransactionsButtons selectedAccount={selectedAccount} />
                     </Col>
                 </Row>
-                <Row style={{ height: 'calc(100% - 1.1rem)' }}>
+                <Row className="gridWrapper">
                     <Col xs={24}>
                         <TransactionGrid selectedAccount={selectedAccount} />
                     </Col>
