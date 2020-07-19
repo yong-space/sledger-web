@@ -2,8 +2,7 @@ import { atom } from 'recoil';
 
 export default {
     login: atom({ key: 'login', default: {} }),
-    accountTypes: atom({ key: 'accountTypes', default: [] }),
-    accounts: atom({ key: 'accounts', default: [] }),
+    apiCache: atom({ key: 'apiCache', default: {} }),
     selectedNavItems: atom({ key: 'selectedNavItems', default: [] }),
     gridColumns: atom({ key: 'gridColumns', default: [] }),
     gridData: atom({ key: 'gridData', default: [] }),
