@@ -30,7 +30,7 @@ export default () => {
                 'Authorization': `Bearer ${token}`
             },
         };
-        if ([ POST, PUT ].indexOf(method) > -1 && body) {
+        if ([ POST, PUT, DELETE ].indexOf(method) > -1 && body) {
             if (typeof body == 'object') {
                 body = JSON.stringify(body);
             }
@@ -109,15 +109,19 @@ export default () => {
     };
 
     return {
-        updateProfile: (user) => apiCall(PUT, 'profile', user),
-        updatePassword: (password) => apiCall(PUT, 'profile/password', password),
-        getAccountTypes: () => apiCall(GET, 'account-type'),
-        addAccountType: (accountType) => apiCall(POST, 'admin/account-type', accountType),
+        updateProfile: (user) => apiCall(PUT, `profile`, user),
+        updatePassword: (password) => apiCall(PUT, `profile/password`, password),
+        getAccountTypes: () => apiCall(GET, `account-type`),
+        addAccountType: (accountType) => apiCall(POST, `admin/account-type`, accountType),
         deleteAccountType: (id) => apiCall(DELETE, `admin/account-type/${id}`, null, id),
-        getAccounts: () => apiCall(GET, 'account'),
-        addAccount: (account) => apiCall(POST, 'account', account),
-        updateAccount: (account) => apiCall(PUT, 'account', account, account.accountId),
+        getAccounts: () => apiCall(GET, `account`),
+        addAccount: (account) => apiCall(POST, `account`, account),
+        updateAccount: (account) => apiCall(PUT, `account`, account, account.accountId),
         deleteAccount: (id) => apiCall(DELETE, `account/${id}`, null, id),
         sortAccounts: (ids) => apiCall(PUT, `account/sort/${ids}`, null, ids),
+        getTransactions: (accountId) => apiCall(GET, `transaction/account/${accountId}`),
+        addTransaction: (transaction) => apiCall(POST, `transaction`, transaction),
+        updateTransaction: (transaction) => apiCall(PUT, `transaction`, transaction),
+        deleteTransactions: (transactionIds) => apiCall(DELETE, `transaction`, transactionIds),
     };
 };

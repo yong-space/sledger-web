@@ -22,11 +22,13 @@ const ButtonBar = styled.div`
     }
 `;
 
-export default ({ selectedAccount }) => {
+export default ({ selectedAccount, setFormMode }) => {
     const setGridData = useRecoilState(Atom.gridData)[1];
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
 
     const addHandler = () => {
+        setFormMode('add');
+        /*
         const newData = {
             key: Math.floor(Math.random() * 237),
             date: new Date(1584538794873 + (7 * 360000000)),
@@ -36,6 +38,7 @@ export default ({ selectedAccount }) => {
             tags: 'Home ' + Math.floor(Math.random() * 237)
         };
         setGridData(existing => [ ...existing, newData ]);
+        */
     };
 
     const deleteHandler = () => {

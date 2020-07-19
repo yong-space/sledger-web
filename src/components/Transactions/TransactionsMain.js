@@ -4,6 +4,7 @@ import AccountSelector from '../Common/AccountSelector';
 import TransactionGrid from './TransactionsGrid';
 import styled from 'styled-components';
 import TransactionsButtons from './TransactionsButtons';
+import TransactionsForm from './TransactionsForm';
 
 const Styled = styled.div`
     height: 100%;
@@ -24,6 +25,7 @@ const Styled = styled.div`
 export default () => {
     const { Content } = Layout;
     const [ selectedAccount, setSelectedAccount ] = useState();
+    const [ formMode, setFormMode ] = useState(null);
 
     return (
         <Styled>
@@ -33,7 +35,7 @@ export default () => {
                         <AccountSelector setSelectedAccount={setSelectedAccount} />
                     </Col>
                     <Col xs={24} md={14} lg={8} xl={6}>
-                        <TransactionsButtons selectedAccount={selectedAccount} />
+                        <TransactionsButtons selectedAccount={selectedAccount} setFormMode={setFormMode} />
                     </Col>
                 </Row>
                 <Row className="gridWrapper">
@@ -42,6 +44,7 @@ export default () => {
                     </Col>
                 </Row>
             </Content>
+            <TransactionsForm mode={formMode} setMode={setFormMode} />
         </Styled>
     );
 }

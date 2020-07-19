@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table } from 'antd';
-import LoadingSpinner from '../Common/LoadingSpinner';
-import dayjs from 'dayjs';
 import { useRecoilState } from 'recoil';
 import Atom from '../Common/Atom';
 import styled from 'styled-components';
+import API from '../Common/API';
+import Notification from '../Common/Notification';
+import { getColumnsForType } from './TransactionsGridColumns';
 
 const Styled = styled.div`
     height: 100%;
@@ -24,84 +25,30 @@ const Styled = styled.div`
 `;
 
 export default ({ selectedAccount }) => {
+    const [ loading, setLoading ] = useState(true);
     const [ columns, setColumns ] = useRecoilState(Atom.gridColumns);
     const [ data, setData ] = useRecoilState(Atom.gridData);
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
+    const { getTransactions } = API();
+
+    const refreshTransactions = async (accountId) => {
+        try {
+            setData(await getTransactions(accountId));
+        } catch(e) {
+            Notification.showError('Unable to load transactions', e.message);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
         if (!selectedAccount) {
             return;
         }
-        setColumns([
-            {
-                title: 'Date',
-                dataIndex: 'date',
-                key: 'date',
-                render: (text, record) => dayjs(record.date).format('MMM D YYYY'),
-                sorter: (a, b) => a.date > b.date,
-                defaultSortOrder: 'ascend',
-            },
-            {
-                title: 'Credit',
-                dataIndex: 'credit',
-                key: 'credit',
-                align: 'right',
-                className: 'desktop',
-                render: (text, record) => record.amount > 0 ? record.amount : '',
-                sorter: (a, b) => a.amount > b.amount,
-            },
-            {
-                title: 'Debit',
-                dataIndex: 'debit',
-                key: 'debit',
-                align: 'right',
-                className: 'desktop',
-                render: (text, record) => record.amount < 0 ? -record.amount : '',
-                sorter: (a, b) => a.amount > b.amount,
-            },
-            {
-                title: 'Amount',
-                dataIndex: 'amount',
-                key: 'amount',
-                align: 'right',
-                className: 'mobile',
-                sorter: (a, b) => a.amount > b.amount,
-            },
-            {
-                title: 'Balance',
-                dataIndex: 'balance',
-                key: 'balance',
-                align: 'right',
-            },
-            {
-                title: 'Remarks',
-                dataIndex: 'remarks',
-                key: 'remarks',
-                ellipsis: true,
-                sorter: (a, b) => a.remarks > b.remarks,
-            },
-            {
-                title: 'Tags',
-                dataIndex: 'tags',
-                key: 'tags',
-                className: 'desktop',
-            },
-        ]);
-
-        const dataSource = [];
-
-        for (let i=0; i<7; i++) {
-            dataSource.push({
-                key: i,
-                date: new Date(1584538794873 + (i * 360000000)),
-                amount: (Math.floor(Math.random() * 1377) - Math.floor(Math.random() * 1777)) / 100,
-                balance: Math.floor(Math.random() * 1377) / 100,
-                remarks: 'Hello Okay ' + i,
-                tags: 'Home ' + i
-            })
-        }
-        setData(dataSource);
-    }, [ selectedAccount, setColumns, setData ]);
+        setLoading(true);
+        setColumns(getColumnsForType(selectedAccount.accountType.accountTypeClass));
+        refreshTransactions(selectedAccount.accountId);
+        // eslint-disable-next-line
+    }, [ selectedAccount ]);
 
     const generateSummary = (pageData) => {
         let totalCredit = 0;
@@ -139,20 +86,18 @@ export default ({ selectedAccount }) => {
 
     return (
         <Styled>
-            {!selectedAccount ? <LoadingSpinner /> :
             <Table
                 bordered
                 columns={columns}
                 dataSource={data}
                 size="small"
+                loading={loading}
                 summary={generateSummary}
                 rowSelection={rowSelection}
                 onRow={(record) => ({
-                    onClick: () => {
-                        selectRow(record);
-                    },
+                    onClick: () => selectRow(record),
                 })}
-            />}
+            />
         </Styled>
     );
 }
