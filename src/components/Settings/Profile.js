@@ -3,7 +3,6 @@ import { Button, Form, Input, Row, Col } from 'antd';
 import { Typography } from 'antd';
 import { AiOutlineUser, AiOutlineLock } from 'react-icons/ai';
 import AntIcon from '../Common/AntIcon';
-import { presetDarkPalettes } from '@ant-design/colors';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import authServices from '../Login/AuthServices';
@@ -105,7 +104,7 @@ export default () => {
                                 icon={<AntIcon i={AiOutlineUser} />}
                                 htmlType="submit"
                                 loading={savingProfile}
-                                style={{ background: presetDarkPalettes.gold[4], borderColor: presetDarkPalettes.gold[5] }}
+                                className="warning"
                             >
                                 Update Profile
                             </Button>
@@ -140,11 +139,10 @@ export default () => {
                         </Form.Item>
                         <TailFormItem>
                             <Button
-                                type="primary"
+                                type="danger"
                                 icon={<AntIcon i={AiOutlineLock} />}
                                 htmlType="submit"
                                 loading={savingPassword}
-                                style={{ background: presetDarkPalettes.red[4], borderColor: presetDarkPalettes.red[5] }}
                             >
                                 Update Password
                             </Button>

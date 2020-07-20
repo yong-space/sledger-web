@@ -44,7 +44,11 @@ export default () => {
                     </Col>
                 </Row>
             </Content>
-            <TransactionsForm mode={formMode} setMode={setFormMode} />
+            <TransactionsForm
+                mode={formMode}
+                setMode={setFormMode}
+                account={selectedAccount}
+            />
         </Styled>
     );
 }

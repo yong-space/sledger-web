@@ -7,9 +7,8 @@ import AntIcon from '../Common/AntIcon';
 import Notification from '../Common/Notification';
 import API from '../Common/API';
 import LoadingSpinner from '../Common/LoadingSpinner';
-import { baseProps, inlineProps, rules, TailFormItem } from '../Common/FormProps';
+import { baseProps, inlineProps, rules, FlexDiv, TailFormItem } from '../Common/FormProps';
 import styled from 'styled-components';
-import { presetDarkPalettes } from '@ant-design/colors';
 
 const EmptyBox = styled.div`
     display: flex;
@@ -238,13 +237,13 @@ export default (props) => {
                     <Switch />
                 </Form.Item>
                 <Form.Item>
-                    <div style={{ display: 'flex' }}>
+                    <FlexDiv>
                         <Button
                             type="primary"
                             icon={<AntIcon i={FaMoneyBillAlt} />}
                             htmlType="submit"
                             loading={editFormLoading}
-                            style={{ marginRight: '1em', background: presetDarkPalettes.gold[4], borderColor: presetDarkPalettes.gold[5] }}
+                            className="warning"
                         >
                             Edit Account
                         </Button>
@@ -252,11 +251,10 @@ export default (props) => {
                             type="danger"
                             icon={<AntIcon i={RiDeleteBinLine} />}
                             onClick={() => confirmDelete(account)}
-                            style={{ marginRight: '1em', background: presetDarkPalettes.red[4], borderColor: presetDarkPalettes.red[5] }}
                         >
                             Delete Account
                         </Button>
-                    </div>
+                    </FlexDiv>
                 </Form.Item>
             </Form>
         </Panel>
@@ -304,7 +302,7 @@ export default (props) => {
                                 icon={<AntIcon i={FaMoneyBillAlt} />}
                                 htmlType="submit"
                                 loading={addFormLoading}
-                                style={{ background: presetDarkPalettes.green[4], borderColor: presetDarkPalettes.green[5] }}
+                                className="success"
                             >
                                 Add {assetClass} Account
                             </Button>

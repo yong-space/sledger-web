@@ -33,7 +33,8 @@ export default ({ selectedAccount }) => {
 
     const refreshTransactions = async (accountId) => {
         try {
-            setData(await getTransactions(accountId));
+            const transactions = await getTransactions(accountId);
+            setData(transactions.map(transaction => ({ ...transaction, key: transaction.transactionId })));
         } catch(e) {
             Notification.showError('Unable to load transactions', e.message);
         }

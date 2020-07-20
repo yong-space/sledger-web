@@ -1,5 +1,7 @@
 import React from 'react';
 import { Form } from 'antd';
+import styled from 'styled-components';
+import { presetDarkPalettes } from '@ant-design/colors';
 
 const baseProps = {
     labelCol: { span: 6 },
@@ -26,12 +28,35 @@ const tailWrapper = {
     sm: { offset: 6, span: 18 }
 };
 
-const TailFormItem = ({ children }) => <Form.Item wrapperCol={tailWrapper}>{children}</Form.Item>;
+const FlexDiv = styled.div`
+    display: flex;
+    button + button { margin-left: 1rem }
+    .success {
+        background: ${presetDarkPalettes.green[4]};
+        border-color: ${presetDarkPalettes.green[5]};
+    }
+    .warning {
+        background: ${presetDarkPalettes.gold[4]};
+        border-color: ${presetDarkPalettes.gold[5]};
+    }
+    .ant-btn-danger {
+        background: ${presetDarkPalettes.red[4]};
+        border-color: ${presetDarkPalettes.red[5]};
+    }
+`;
 
+const TailFormItem = ({ children }) => (
+    <Form.Item wrapperCol={tailWrapper}>
+        <FlexDiv>
+            {children}
+        </FlexDiv>
+    </Form.Item>
+);
 
 export {
     baseProps,
     inlineProps,
     rules,
+    FlexDiv,
     TailFormItem
 };
