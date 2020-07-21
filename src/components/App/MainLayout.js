@@ -12,7 +12,7 @@ import './MainLayout.css';
 
 export default () => {
     let history = useHistory();
-    const { getAuthToken, setTokenState } = authServices();
+    const { getAuthToken, setTokenState, login } = authServices();
     const [ loading, setLoading ] = useState(true);
 
     useEffect(() => {
@@ -22,6 +22,7 @@ export default () => {
         } else {
             if (token.jwt) {
                 setTokenState(token);
+                setTimeout(async () => await login(), 2000);
             }
             setLoading(false);
         }

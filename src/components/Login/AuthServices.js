@@ -28,15 +28,22 @@ export default () => {
     };
 
     const login = async (username, password) => {
-        let formData = new FormData();
-        formData.append('username', username.trim());
-        formData.append('password', password.trim());
-
         const config = {
             method: 'POST',
             cache: 'no-cache',
-            body: formData
         };
+
+        if (username && password) {
+            let formData = new FormData();
+            formData.append('username', username.trim());
+            formData.append('password', password.trim());
+            config.body = formData;
+        } else {
+            config.headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getJwt()}`
+            };
+        }
 
         const state = fetch(`${baseUrl}/api/authenticate`, config)
             .then(res => {
