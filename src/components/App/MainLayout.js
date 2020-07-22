@@ -22,7 +22,10 @@ export default () => {
         } else {
             if (token.jwt) {
                 setTokenState(token);
-                setTimeout(async () => await login(), 2000);
+                const exp = token.jwtObj.exp * 1000;
+                if ((exp - new Date().getTime()) / (60 * 60 * 24) < 6) {
+                    setTimeout(async () => await login(), 2000);
+                }
             }
             setLoading(false);
         }
