@@ -16,31 +16,31 @@ const Styled = styled.div`
         max-width: 100vw;
     }
     .ant-input-number, .ant-picker { width: 100%; }
-`;
 
-const CreditDebitWrapper = styled.div`
-    .ant-radio-group {
-        width: 100%;
-        display: flex;
-        justify-content: stretch;
-    }
-    .ant-radio-button-wrapper { flex-grow: 1; text-align: center }
-    .ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-        &.credit {
-            background: ${presetDarkPalettes.green[4]};
-            border-color: ${presetDarkPalettes.green[5]};
+    .credit-debit-wrapper {
+        .ant-radio-group {
+            width: 100%;
+            display: flex;
+            justify-content: stretch;
         }
-        &.debit {
-            background: ${presetDarkPalettes.red[4]};
-            border-color: ${presetDarkPalettes.red[5]};
+        .ant-radio-button-wrapper { flex-grow: 1; text-align: center }
+        .ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+            &.credit {
+                background: ${presetDarkPalettes.green[4]};
+                border-color: ${presetDarkPalettes.green[5]};
+            }
+            &.debit {
+                background: ${presetDarkPalettes.red[4]};
+                border-color: ${presetDarkPalettes.red[5]};
+            }
         }
-    }
-    .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked) {
-        &.credit:hover { color: ${presetDarkPalettes.green[4]} }
-        &.debit:hover { color: ${presetDarkPalettes.red[4]} }
-    }
-    .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
-        background-color: transparent;
+        .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked) {
+            &.credit:hover { color: ${presetDarkPalettes.green[4]} }
+            &.debit:hover { color: ${presetDarkPalettes.red[4]} }
+        }
+        .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+            background-color: transparent;
+        }
     }
 `;
 
@@ -124,13 +124,12 @@ export default ({ mode, setMode, account }) => {
                     <Form.Item
                         label="Type"
                         name="creditDebit"
+                        className="credit-debit-wrapper"
                     >
-                        <CreditDebitWrapper>
-                            <Radio.Group buttonStyle="solid">
-                                <Radio.Button value="credit" className="credit">Credit</Radio.Button>
-                                <Radio.Button value="debit" className="debit">Debit</Radio.Button>
-                            </Radio.Group>
-                        </CreditDebitWrapper>
+                        <Radio.Group buttonStyle="solid">
+                            <Radio.Button value="credit" className="credit">Credit</Radio.Button>
+                            <Radio.Button value="debit" className="debit">Debit</Radio.Button>
+                        </Radio.Group>
                     </Form.Item>
                     <Form.Item
                         label="Amount"
