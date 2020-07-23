@@ -15,6 +15,8 @@ const Styled = styled.div`
         overflow-x: hidden;
         text-overflow: ellipsis;
     }
+    .ant-table-summary { font-weight: bold }
+    .right { text-align: right }
 
     @media (max-width: 549px) {
         .desktop { display: none }
@@ -26,6 +28,7 @@ const Styled = styled.div`
 
 export default ({ selectedAccount }) => {
     const [ loading, setLoading ] = useState(true);
+    const [ sortOrder, setSortOrder ] = useState({ columnKey: 'date', order: 'ascend' });
     const [ columns, setColumns ] = useRecoilState(Atom.gridColumns);
     const [ data, setData ] = useRecoilState(Atom.gridData);
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
@@ -46,26 +49,42 @@ export default ({ selectedAccount }) => {
             return;
         }
         setLoading(true);
-        setColumns(getColumnsForType(selectedAccount.accountType.accountTypeClass));
+
+        const columnDefs = getColumnsForType(selectedAccount.accountType.accountTypeClass)
+            .map(colDef => {
+                if (!colDef.sorter) {
+                    return colDef;
+                }
+                return {
+                    ...colDef,
+                    sortOrder: sortOrder.columnKey === colDef.key && sortOrder.order,
+                    sortDirections: [ 'ascend', 'descend', 'ascend' ],
+                }
+            });
+        setColumns(columnDefs);
         refreshTransactions(selectedAccount.accountId);
         // eslint-disable-next-line
-    }, [ selectedAccount ]);
+    }, [ selectedAccount, sortOrder ]);
 
     const generateSummary = (pageData) => {
+        let balance = 0;
         let totalCredit = 0;
         let totalDebit = 0;
 
         pageData.forEach(({ amount }) => {
             totalCredit += (amount > 0 ? amount : 0);
             totalDebit += (amount < 0 ? -amount : 0);;
+            balance += amount;
         });
 
         return (
             <Table.Summary.Row>
                 <Table.Summary.Cell colSpan={2}>{pageData.length} Records</Table.Summary.Cell>
-                <Table.Summary.Cell className="desktop">{totalCredit.toFixed(2)}</Table.Summary.Cell>
-                <Table.Summary.Cell className="desktop">{totalDebit.toFixed(2)}</Table.Summary.Cell>
-                <Table.Summary.Cell colSpan={3}></Table.Summary.Cell>
+                <Table.Summary.Cell className="desktop right">{totalCredit.toFixed(2)}</Table.Summary.Cell>
+                <Table.Summary.Cell className="desktop right">{totalDebit.toFixed(2)}</Table.Summary.Cell>
+                <Table.Summary.Cell className="mobile right">{balance.toFixed(2)}</Table.Summary.Cell>
+                <Table.Summary.Cell className="desktop" colSpan={3}></Table.Summary.Cell>
+                <Table.Summary.Cell className="mobile" colSpan={1}></Table.Summary.Cell>
             </Table.Summary.Row>
         );
     };
@@ -85,6 +104,10 @@ export default ({ selectedAccount }) => {
         onChange: (selection) => setSelectedRowKeys(selection)
     };
 
+    const handleChange = (pagination, filters, sorter) => {
+        setSortOrder(sorter);
+    };
+
     return (
         <Styled>
             <Table
@@ -98,6 +121,8 @@ export default ({ selectedAccount }) => {
                 onRow={(record) => ({
                     onClick: () => selectRow(record),
                 })}
+                onChange={handleChange}
+                showSorterTooltip={false}
             />
         </Styled>
     );

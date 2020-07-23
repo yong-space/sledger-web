@@ -48,55 +48,82 @@ export default ({ mode, setMode, account }) => {
     const { Title } = Typography;
     const [ label, setLabel ] = useState();
     const [ loading, setLoading ] = useState(false);
-    const setGridData = useRecoilState(Atom.gridData)[1];
-    const { addTransaction } = API();
+    const [ gridData, setGridData ] = useRecoilState(Atom.gridData);
+    const selectedRowKeys = useRecoilState(Atom.gridSelection)[0];
+    const { addTransaction, updateTransaction } = API();
     const [ form ] = Form.useForm();
+
+    const getTransactions = () => gridData.filter(row => selectedRowKeys.indexOf(row.transactionId) > -1);
+
+    const getFormValues = () => {
+        if (!mode) {
+            return {};
+        }
+        if (mode === 'add') {
+            return {
+                date: moment(),
+                creditDebit: 'debit',
+            };
+        }
+        const transaction = getTransactions()[0];
+        return {
+            ...transaction,
+            date: moment(transaction.date),
+            creditDebit: transaction.amount > 0 ? 'credit' : 'debit',
+            amount: Math.abs(transaction.amount)
+        };
+    };
 
     useEffect(() => {
         if (!mode) {
             return;
         }
         setLabel(mode.substr(0, 1).toUpperCase() + mode.substr(1));
+        form.setFieldsValue(getFormValues());
+        // eslint-disable-next-line
     }, [ mode ]);
-
-    const loadInitialValues = () => {
-        return {
-            date: moment(),
-            creditDebit: 'debit',
-        };
-    };
 
     const submitForm = async (values) => {
         setLoading(true);
-
+        const { date, creditDebit, amount, remarks, category } = values;
         const submission = {
+            transactionId: mode === 'add' ? 0 : getTransactions()[0].transactionId,
             assetClass: account.accountType.accountTypeClass,
             account: { accountId: account.accountId },
-            date: values.date.toISOString(),
-            amount: values.amount * (values.creditDebit === 'debit' ? -1 : 1),
-            remarks: values.remarks,
-            category: values.categories,
+            date: date.toISOString(),
+            amount: amount * (creditDebit === 'debit' ? -1 : 1),
+            remarks,
+            category,
         };
 
         try {
-            const transaction = await addTransaction(submission);
+            const endpoint = mode === 'add' ? addTransaction : updateTransaction;
+            const transaction = await endpoint(submission);
+
             setGridData(existing => [
-                ...existing, { ...transaction, key: transaction.transactionId }
+                ...existing.filter(t => t.transactionId !== transaction.transactionId),
+                { ...transaction, key: transaction.transactionId }
             ]);
+
             form.resetFields();
-            Notification.showSuccess('Transaction Added');
+            Notification.showSuccess(`Transaction ${label}ed`);
             setLoading(false);
             setMode(false);
         } catch(e) {
-            Notification.showError('Unable to add transaction', e.message);
+            Notification.showError(`Unable to ${label.toLowerCase()} transaction`, e.message);
             setLoading(false);
         }
+    };
+
+    const hideForm = () => {
+        setMode(false);
+        form.resetFields();
     };
 
     const formProps = () => ({
         ...baseProps,
         form,
-        initialValues: loadInitialValues(),
+        //initialValues: loadInitialValues(),
         onFinish: submitForm
     });
 
@@ -106,11 +133,12 @@ export default ({ mode, setMode, account }) => {
             <Drawer
                 placement="right"
                 visible={mode}
-                closable={false}
                 mask={true}
+                closable={true}
                 width="35rem"
                 style={{ paddingTop: '3rem' }}
                 getContainer=".drawerWrapper"
+                destroyOnClose={true}
             >
                 <Title level={4}>{label} Transaction</Title>
 
@@ -146,10 +174,10 @@ export default ({ mode, setMode, account }) => {
                         <Input placeholder="Remarks" />
                     </Form.Item>
                     <Form.Item
-                        label="Categories"
-                        name="categories"
+                        label="Category"
+                        name="category"
                     >
-                        <Input placeholder="Categories" />
+                        <Input placeholder="Category" />
                     </Form.Item>
                     <TailFormItem>
                         <Button
@@ -165,7 +193,7 @@ export default ({ mode, setMode, account }) => {
                             type="secondary"
                             icon={<AntIcon i={TiCancel} />}
                             loading={loading}
-                            onClick={() => setMode(false)}
+                            onClick={hideForm}
                         >
                             Cancel
                         </Button>

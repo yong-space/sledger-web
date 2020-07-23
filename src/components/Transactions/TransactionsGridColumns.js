@@ -6,8 +6,7 @@ export const columnDefinitions = {
         dataIndex: 'date',
         key: 'date',
         render: (text, record) => dayjs(record.date).format('MMM D YYYY'),
-        sorter: (a, b) => a.date > b.date,
-        defaultSortOrder: 'ascend',
+        sorter: (a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? 1 : -1,
     },
     credit: {
         title: 'Credit',
@@ -15,8 +14,8 @@ export const columnDefinitions = {
         key: 'credit',
         align: 'right',
         className: 'desktop',
-        render: (text, record) => record.amount > 0 ? record.amount : '',
-        sorter: (a, b) => a.amount > b.amount,
+        render: (text, record) => record.amount > 0 ? record.amount.toFixed(2) : '',
+        sorter: (a, b) => a.amount - b.amount,
     },
     debit: {
         title: 'Debit',
@@ -24,8 +23,8 @@ export const columnDefinitions = {
         key: 'debit',
         align: 'right',
         className: 'desktop',
-        render: (text, record) => record.amount < 0 ? -record.amount : '',
-        sorter: (a, b) => a.amount > b.amount,
+        render: (text, record) => record.amount < 0 ? (-record.amount).toFixed(2) : '',
+        sorter: (a, b) => b.amount - a.amount,
     },
     amount: {
         title: 'Amount',
@@ -33,13 +32,15 @@ export const columnDefinitions = {
         key: 'amount',
         align: 'right',
         className: 'mobile',
-        sorter: (a, b) => a.amount > b.amount,
+        render: (text, record) => record.amount.toFixed(2),
+        sorter: (a, b) => b.amount - a.amount,
     },
     balance: {
         title: 'Balance',
         dataIndex: 'balance',
         key: 'balance',
         align: 'right',
+        className: 'desktop',
     },
     remarks: {
         title: 'Remarks',
@@ -49,9 +50,9 @@ export const columnDefinitions = {
         sorter: (a, b) => a.remarks > b.remarks,
     },
     tags: {
-        title: 'Tags',
-        dataIndex: 'tags',
-        key: 'tags',
+        title: 'Category',
+        dataIndex: 'category',
+        key: 'category',
         className: 'desktop',
     },
 };

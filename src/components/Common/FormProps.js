@@ -30,7 +30,12 @@ const tailWrapper = {
 
 const FlexDiv = styled.div`
     display: flex;
-    button + button { margin-left: 1rem }
+    height: 100%;
+    display: flex;
+    align-items: center;
+
+    button + button { margin-left: .8rem }
+
     .success {
         background: ${presetDarkPalettes.green[4]};
         border-color: ${presetDarkPalettes.green[5]};
@@ -39,7 +44,15 @@ const FlexDiv = styled.div`
         background: ${presetDarkPalettes.gold[4]};
         border-color: ${presetDarkPalettes.gold[5]};
     }
-    .ant-btn-danger {
+    .info {
+        background: ${presetDarkPalettes.cyan[4]};
+        border-color: ${presetDarkPalettes.cyan[5]};
+    }
+    .funky {
+        background: ${presetDarkPalettes.purple[4]};
+        border-color: ${presetDarkPalettes.purple[5]};
+    }
+    .danger, .ant-btn-danger {
         background: ${presetDarkPalettes.red[4]};
         border-color: ${presetDarkPalettes.red[5]};
     }

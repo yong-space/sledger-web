@@ -3,26 +3,24 @@ import styled from 'styled-components';
 import { Button, Modal } from 'antd';
 import AntIcon from '../Common/AntIcon';
 import {
-    AiOutlinePlusCircle, AiOutlineMinusCircle, AiOutlineCloudUpload, AiFillWarning,
+    AiOutlinePlusCircle, AiOutlineMinusCircle, AiOutlineEdit, AiOutlineCloudUpload, AiFillWarning,
 } from 'react-icons/ai';
 import { DiGitMerge } from 'react-icons/di';
-import { presetDarkPalettes } from '@ant-design/colors';
 import { useRecoilState } from 'recoil';
 import Atom from '../Common/Atom';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
+import { FlexDiv } from '../Common/FormProps';
 
-const ButtonBar = styled.div`
-    height: 100%;
-    display: flex;
-    align-items: center;
-
-    button { margin-left: .5rem }
-
+const Styled = styled.div`
+    margin-left: .8rem;
     @media only screen and (max-width: 767px) {
-        margin-top: .5rem;
-        button:first-child { margin-left: 0 }
-        button.import { display: none }
+        margin-left: 0;
+        margin-top: .8rem;
+        button.desktop { display: none }
+    }
+    @media only screen and (min-width: 768px) and (max-width: 938px) {
+        button span { display: none }
     }
 `;
 
@@ -55,37 +53,44 @@ export default ({ selectedAccount, setFormMode }) => {
 
     };
 
-    const getColourTheme = (base) => ({
-        background: presetDarkPalettes[base][4],
-        border: presetDarkPalettes[base][5]
-    });
-
     const buttons = [
         {
             label: 'Add',
+            tooltip: 'Add Transaction',
             icon: AiOutlinePlusCircle,
             handler: () => setFormMode('add'),
-            ...getColourTheme('green')
+            className: 'success',
+        },
+        {
+            label: 'Edit',
+            tooltip: 'Edit Transaction',
+            icon: AiOutlineEdit,
+            handler: () => setFormMode('edit'),
+            className: 'warning',
+            disabled: () => selectedRowKeys.length !== 1,
         },
         {
             label: 'Delete',
+            tooltip: 'Delete Transactions',
             icon: AiOutlineMinusCircle,
             handler: deleteHandler,
-            ...getColourTheme('red'),
-            disabled: () => selectedRowKeys.length === 0
+            className: 'danger',
+            disabled: () => selectedRowKeys.length === 0,
         },
         {
             label: 'Merge',
+            tooltip: 'Merge Transactions',
             icon: DiGitMerge,
             handler: mergeHandler,
-            ...getColourTheme('gold'),
-            disabled: () => selectedRowKeys.length === 0
+            className: 'funky',
+            disabled: () => selectedRowKeys.length < 2,
         },
         {
             label: 'Import',
+            tooltip: 'Import Transactions',
             icon: AiOutlineCloudUpload,
             handler: importHandler,
-            ...getColourTheme('cyan'),
+            className: 'info desktop',
             hidden: selectedAccount && !selectedAccount.accountType.importEnabled
         }
     ];
@@ -95,20 +100,22 @@ export default ({ selectedAccount, setFormMode }) => {
         .map(button => (
             <Button
                 key={button.label}
-                className={button.label.toLowerCase()}
                 type="primary"
                 icon={<AntIcon i={button.icon} />}
-                style={{ backgroundColor: button.background, borderColor: button.border }}
+                className={button.className}
                 onClick={button.handler}
                 disabled={!button.disabled ? false : button.disabled()}
+                title={button.tooltip}
             >
                 {button.label}
             </Button>
         ));
 
     return (
-        <ButtonBar>
-            {getButtons()}
-        </ButtonBar>
+        <Styled>
+            <FlexDiv>
+                {getButtons()}
+            </FlexDiv>
+        </Styled>
     );
 }

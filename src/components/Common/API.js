@@ -9,7 +9,9 @@ export default () => {
     const [ apiCache, setApiCache ] = useRecoilState(Atom.apiCache);
     const cacheableEndpoints = [
         'account-type',
-        'account'
+        'account',
+        'transaction',
+        'transaction/account'
     ];
 
     const apiCall = (method, path, body, id) => {
@@ -17,8 +19,8 @@ export default () => {
         if (token === undefined) {
             window.location.reload();
         }
-
-        if (method === GET && cacheableEndpoints.indexOf(path) > -1 && apiCache[path]) {
+        const genericPath = path.replace(/\/\d+$/g, '');
+        if (method === GET && cacheableEndpoints.indexOf(genericPath) > -1 && apiCache[path]) {
             return apiCache[path];
         }
 
@@ -32,9 +34,10 @@ export default () => {
         };
         if ([ POST, PUT, DELETE ].indexOf(method) > -1 && body) {
             if (typeof body == 'object') {
-                body = JSON.stringify(body);
+                config['body'] = JSON.stringify(body);
+            } else {
+                config['body'] = body;
             }
-            config['body'] = body;
         }
         return fetch(`${baseUrl}/api/${path}`, config)
             .then(async (res) => {
@@ -46,24 +49,25 @@ export default () => {
             })
             .then(json => json)
             .then(obj => {
-                if (cacheableEndpoints.indexOf(path) > -1) {
+                if (cacheableEndpoints.indexOf(genericPath) > -1) {
+                    const revisedPath = path === 'transaction' ? `${path}/account/${body.account.accountId}` : path;
                     if (method === GET) {
                         const newState = ({ ...apiCache });
                         newState[path] = obj;
                         setApiCache(newState);
                     } else if (method === POST) {
-                        const newState = ({ ...apiCache });
-                        newState[path] = [ ...newState[path], obj ];
-                        setApiCache(newState);
+                        const newState = { ...apiCache };
+                        newState[revisedPath] = [ ...newState[revisedPath], obj ];
+                        setApiCache(newState)
                     } else if (method === PUT) {
-                        if (path.indexOf('account/sort/') === 0) {
+                        if (genericPath === 'account/sort/') {
                             setApiCache(previous => ({
                                 ...previous,
                                 account: setSortCachedAccounts(apiCache.account, id),
                             }));
                         } else {
                             const newState = ({ ...apiCache });
-                            newState[path] = [ ...newState[path].filter(a => a.accountTypeId !== id), obj ];
+                            newState[revisedPath] = [ ...newState[revisedPath].filter(a => a.accountTypeId !== id), obj ];
                             setApiCache(newState);
                         }
                     } else if (method === DELETE) {
@@ -74,7 +78,7 @@ export default () => {
                             }));
                         } else {
                             const newState = ({ ...apiCache });
-                            newState[path] = newState[path].filter(a => a.accountTypeId !== id);
+                            newState[revisedPath] = newState[revisedPath].filter(a => a.accountTypeId !== id);
                             setApiCache(newState);
                         }
                     }

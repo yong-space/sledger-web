@@ -31,10 +31,10 @@ export default () => {
         <Styled>
             <Content>
                 <Row style={{ alignItems: 'center' }}>
-                    <Col xs={24} md={10} lg={8} xl={6}>
+                    <Col xs={24} sm={10} lg={8} xl={6}>
                         <AccountSelector setSelectedAccount={setSelectedAccount} />
                     </Col>
-                    <Col xs={24} md={14} lg={8} xl={6}>
+                    <Col xs={24} sm={14} lg={16} xl={18} style={{ overflowX: 'hidden' }}>
                         <TransactionsButtons selectedAccount={selectedAccount} setFormMode={setFormMode} />
                     </Col>
                 </Row>
