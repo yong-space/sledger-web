@@ -119,7 +119,7 @@ export default ({ mode, setMode, account }) => {
                         label="Date"
                         name="date"
                     >
-                        <DatePicker allowClear={false} />
+                        <DatePicker allowClear={false} inputReadOnly={true} />
                     </Form.Item>
                     <Form.Item
                         label="Type"
@@ -136,7 +136,7 @@ export default ({ mode, setMode, account }) => {
                         name="amount"
                         rules={[rules.requiredRule]}
                     >
-                        <InputNumber placeholder="Amount" />
+                        <InputNumber placeholder="Amount" type="number" />
                     </Form.Item>
                     <Form.Item
                         label="Remarks"
