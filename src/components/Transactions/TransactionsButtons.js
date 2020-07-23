@@ -1,12 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button } from 'antd';
+import { Button, Modal } from 'antd';
 import AntIcon from '../Common/AntIcon';
-import { AiOutlinePlusCircle, AiOutlineMinusCircle, AiOutlineCloudUpload } from 'react-icons/ai';
+import {
+    AiOutlinePlusCircle, AiOutlineMinusCircle, AiOutlineCloudUpload, AiFillWarning,
+} from 'react-icons/ai';
 import { DiGitMerge } from 'react-icons/di';
 import { presetDarkPalettes } from '@ant-design/colors';
 import { useRecoilState } from 'recoil';
 import Atom from '../Common/Atom';
+import API from '../Common/API';
+import Notification from '../Common/Notification';
 
 const ButtonBar = styled.div`
     height: 100%;
@@ -25,26 +29,23 @@ const ButtonBar = styled.div`
 export default ({ selectedAccount, setFormMode }) => {
     const setGridData = useRecoilState(Atom.gridData)[1];
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
+    const { deleteTransactions } = API();
 
-    const addHandler = () => {
-        setFormMode('add');
-        /*
-        const newData = {
-            key: Math.floor(Math.random() * 237),
-            date: new Date(1584538794873 + (7 * 360000000)),
-            amount: (Math.floor(Math.random() * 1377) - Math.floor(Math.random() * 1777)) / 100,
-            balance: Math.floor(Math.random() * 1377) / 100,
-            remarks: 'Hello Okay ' + Math.floor(Math.random() * 237),
-            tags: 'Home ' + Math.floor(Math.random() * 237)
-        };
-        setGridData(existing => [ ...existing, newData ]);
-        */
-    };
-
-    const deleteHandler = () => {
-        setGridData(existing => existing.filter(record => selectedRowKeys.indexOf(record.key) === -1));
-        setSelectedRowKeys([]);
-    };
+    const deleteHandler = () => Modal.confirm({
+        title: `Are you sure you wish to delete these transactions?`,
+        icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
+        onOk: () => new Promise(async (resolve) => {
+            try {
+                await deleteTransactions(selectedRowKeys);
+                setGridData(existing => existing.filter(record => selectedRowKeys.indexOf(record.key) === -1));
+                setSelectedRowKeys([]);
+                Notification.showSuccess('Transactions deleted');
+            } catch(e) {
+                Notification.showError('Unable to delete transactions', e.message);
+            }
+            resolve();
+        })
+    });
 
     const mergeHandler = () => {
 
@@ -63,7 +64,7 @@ export default ({ selectedAccount, setFormMode }) => {
         {
             label: 'Add',
             icon: AiOutlinePlusCircle,
-            handler: addHandler,
+            handler: () => setFormMode('add'),
             ...getColourTheme('green')
         },
         {
