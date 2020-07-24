@@ -40,7 +40,7 @@ export default () => {
                 </Row>
                 <Row className="gridWrapper">
                     <Col xs={24}>
-                        <TransactionGrid selectedAccount={selectedAccount} />
+                        <TransactionGrid selectedAccount={selectedAccount} setFormMode={setFormMode} />
                     </Col>
                 </Row>
             </Content>

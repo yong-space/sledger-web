@@ -26,7 +26,7 @@ const Styled = styled.div`
     }
 `;
 
-export default ({ selectedAccount }) => {
+export default ({ selectedAccount, setFormMode }) => {
     const [ loading, setLoading ] = useState(true);
     const [ sortOrder, setSortOrder ] = useState({ columnKey: 'date', order: 'ascend' });
     const [ columns, setColumns ] = useRecoilState(Atom.gridColumns);
@@ -99,6 +99,14 @@ export default ({ selectedAccount }) => {
         setSelectedRowKeys(selection);
     };
 
+    const handleEvents = (record) => ({
+        onClick: () => selectRow(record),
+        onDoubleClick: () => {
+            setSelectedRowKeys([ record.key ]);
+            setFormMode('edit');
+        }
+    });
+
     const rowSelection = {
         selectedRowKeys,
         onChange: (selection) => setSelectedRowKeys(selection)
@@ -118,9 +126,7 @@ export default ({ selectedAccount }) => {
                 loading={loading}
                 summary={generateSummary}
                 rowSelection={rowSelection}
-                onRow={(record) => ({
-                    onClick: () => selectRow(record),
-                })}
+                onRow={handleEvents}
                 onChange={handleChange}
                 showSorterTooltip={false}
             />

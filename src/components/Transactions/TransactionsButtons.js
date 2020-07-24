@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Button, Modal } from 'antd';
 import AntIcon from '../Common/AntIcon';
 import {
-    AiOutlinePlusCircle, AiOutlineMinusCircle, AiOutlineEdit, AiOutlineCloudUpload, AiFillWarning,
+    AiOutlinePlusCircle, AiOutlineMinusCircle, AiOutlineCloudUpload, AiFillWarning,
 } from 'react-icons/ai';
 import { DiGitMerge } from 'react-icons/di';
 import { useRecoilState } from 'recoil';
@@ -18,9 +18,6 @@ const Styled = styled.div`
         margin-left: 0;
         margin-top: .8rem;
         button.desktop { display: none }
-    }
-    @media only screen and (min-width: 768px) and (max-width: 938px) {
-        button span { display: none }
     }
 `;
 
@@ -60,14 +57,6 @@ export default ({ selectedAccount, setFormMode }) => {
             icon: AiOutlinePlusCircle,
             handler: () => setFormMode('add'),
             className: 'success',
-        },
-        {
-            label: 'Edit',
-            tooltip: 'Edit Transaction',
-            icon: AiOutlineEdit,
-            handler: () => setFormMode('edit'),
-            className: 'warning',
-            disabled: () => selectedRowKeys.length !== 1,
         },
         {
             label: 'Delete',
