@@ -23,7 +23,7 @@ export default ({ setSelectedAccount }) => {
                 .sort((a, b) => (a.accountType.accountTypeClass > b.accountType.accountTypeClass || a.sortIndex > b.sortIndex) ? 1 : -1);
             setAccounts(response);
             if (response.length > 0) {
-                setSelectedItem(response[0].accountId);
+                setSelectedItem(response[0].id);
                 setSelectedAccount(response[0]);
             }
         } catch(e) {
@@ -31,9 +31,9 @@ export default ({ setSelectedAccount }) => {
         }
     };
 
-    const handleSelectionChanged = (accountId) => {
-        setSelectedItem(accountId);
-        setSelectedAccount(accounts.filter(a => a.accountId === accountId)[0]);
+    const handleSelectionChanged = (id) => {
+        setSelectedItem(id);
+        setSelectedAccount(accounts.filter(a => a.id === id)[0]);
     };
 
     useEffect(() => {
@@ -57,7 +57,7 @@ export default ({ setSelectedAccount }) => {
                 .filter(a => a.accountType.accountTypeClass === assetClass)
                 .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1)
                 .map(a => (
-                    <Option key={a.accountId} value={a.accountId}>
+                    <Option key={a.id} value={a.id}>
                         <Tag color={a.accountType.colour}>
                             {a.accountType.accountTypeName}
                         </Tag>

@@ -37,7 +37,7 @@ export default ({ selectedAccount }) => {
     const refreshTransactions = async (accountId) => {
         try {
             const transactions = await getTransactions(accountId);
-            setData(transactions.map(transaction => ({ ...transaction, key: transaction.transactionId })));
+            setData(transactions.map(transaction => ({ ...transaction, key: transaction.id })));
         } catch(e) {
             Notification.showError('Unable to load transactions', e.message);
         }
@@ -62,7 +62,7 @@ export default ({ selectedAccount }) => {
                 }
             });
         setColumns(columnDefs);
-        refreshTransactions(selectedAccount.accountId);
+        refreshTransactions(selectedAccount.id);
         // eslint-disable-next-line
     }, [ selectedAccount, sortOrder ]);
 

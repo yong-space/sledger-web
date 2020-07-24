@@ -53,7 +53,7 @@ export default ({ mode, setMode, account }) => {
     const { addTransaction, updateTransaction } = API();
     const [ form ] = Form.useForm();
 
-    const getTransactions = () => gridData.filter(row => selectedRowKeys.indexOf(row.transactionId) > -1);
+    const getTransactions = () => gridData.filter(row => selectedRowKeys.indexOf(row.id) > -1);
 
     const getFormValues = () => {
         if (!mode) {
@@ -87,9 +87,9 @@ export default ({ mode, setMode, account }) => {
         setLoading(true);
         const { date, creditDebit, amount, remarks, category } = values;
         const submission = {
-            transactionId: mode === 'add' ? 0 : getTransactions()[0].transactionId,
+            id: mode === 'add' ? 0 : getTransactions()[0].id,
             assetClass: account.accountType.accountTypeClass,
-            account: { accountId: account.accountId },
+            account: { id: account.id },
             date: date.toISOString(),
             amount: amount * (creditDebit === 'debit' ? -1 : 1),
             remarks,
@@ -101,8 +101,8 @@ export default ({ mode, setMode, account }) => {
             const transaction = await endpoint(submission);
 
             setGridData(existing => [
-                ...existing.filter(t => t.transactionId !== transaction.transactionId),
-                { ...transaction, key: transaction.transactionId }
+                ...existing.filter(t => t.id !== transaction.id),
+                { ...transaction, key: transaction.id }
             ]);
 
             form.resetFields();

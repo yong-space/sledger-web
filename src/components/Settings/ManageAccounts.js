@@ -36,7 +36,7 @@ export default (props) => {
         const newAccount = { ...values, assetClass };
         try {
             const account = await updateAccount(newAccount);
-            const workingAccounts = accounts.filter(a => a.accountId !== newAccount.accountId);
+            const workingAccounts = accounts.filter(a => a.id !== newAccount.id);
             workingAccounts.push(account);
             workingAccounts.sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
             setAccounts(workingAccounts);
@@ -70,14 +70,14 @@ export default (props) => {
         ...baseProps,
         form: addForm,
         initialValues: {
-            accountTypeId: accountTypes && accountTypes[0]?.accountTypeId
+            id: accountTypes && accountTypes[0]?.id
         },
         onFinish: submitAddAccount
     });
 
     const submitSortAccounts = async (sortedAccounts) => {
         setSorting(true);
-        const accountIds = sortedAccounts.map(a => a.accountId).join();
+        const accountIds = sortedAccounts.map(a => a.id).join();
         try {
             await sortAccounts(accountIds);
             setAccounts(sortedAccounts);
@@ -104,9 +104,9 @@ export default (props) => {
 
     const refreshAccounts = (types) => new Promise(async resolve => {
         try {
-            const accountTypeIds = types.map(a => a.accountTypeId);
+            const accountTypeIds = types.map(a => a.id);
             const response = (await getAccounts())
-                .filter(entry => accountTypeIds.indexOf(entry.accountTypeId) > -1)
+                .filter(entry => accountTypeIds.indexOf(entry.id) > -1)
                 .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
             setAccounts(response);
         } catch(e) {
@@ -120,7 +120,7 @@ export default (props) => {
         // eslint-disable-next-line
     }, []);
 
-    const getAccountType = (id) => accountTypes.filter(a => a.accountTypeId === id)[0];
+    const getAccountType = (id) => accountTypes.filter(a => a.id === id)[0];
 
     const getHeader = ({ accountTypeId, accountName, hidden }) => {
         const accountType = getAccountType(accountTypeId);
@@ -175,10 +175,10 @@ export default (props) => {
         </>
     );
 
-    const submitDeleteAccount = async (accountId) => {
+    const submitDeleteAccount = async (id) => {
         try {
-            await deleteAccount(accountId);
-            const newAccounts = JSON.parse(JSON.stringify(accounts.filter(a => a.accountId !== accountId)));
+            await deleteAccount(id);
+            const newAccounts = JSON.parse(JSON.stringify(accounts.filter(a => a.id !== id)));
             newAccounts.forEach((account, index) => account.sortIndex = index);
             setAccounts(newAccounts);
             Notification.showSuccess('Account Deleted');
@@ -191,15 +191,15 @@ export default (props) => {
         title: `Confirm deletion of account ${account.accountName}?`,
         icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
         onOk: () => new Promise((resolve) => {
-            submitDeleteAccount(account.accountId).then(() => resolve());
+            submitDeleteAccount(account.id).then(() => resolve());
         })
     });
 
     const getAccountSelector = () => {
         const options = accountTypes.map(accountType => (
             <Select.Option
-                key={accountType.accountTypeId}
-                value={accountType.accountTypeId}
+                key={accountType.id}
+                value={accountType.id}
             >
                 {accountType.accountTypeName}
             </Select.Option>
@@ -208,9 +208,9 @@ export default (props) => {
     };
 
     const getPanels = () => accounts.map((account, index) => (
-        <Panel header={getHeader(account)} key={account.accountId} extra={getReorderButtons(index)}>
+        <Panel header={getHeader(account)} key={account.id} extra={getReorderButtons(index)}>
             <Form {...editFormProps} initialValues={account}>
-                <Form.Item name="accountId" hidden={true}>
+                <Form.Item name="id" hidden={true}>
                     <Input />
                 </Form.Item>
                 <Form.Item name="sortIndex" hidden={true}>
@@ -218,7 +218,7 @@ export default (props) => {
                 </Form.Item>
                 <Form.Item
                     label="Bank"
-                    name="accountTypeId"
+                    name="id"
                 >
                     {getAccountSelector()}
                 </Form.Item>
@@ -285,7 +285,7 @@ export default (props) => {
                     <Form {...addFormProps()}>
                         <Form.Item
                             label="Bank"
-                            name="accountTypeId"
+                            name="id"
                         >
                             {getAccountSelector()}
                         </Form.Item>

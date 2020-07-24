@@ -50,7 +50,8 @@ export default () => {
             .then(json => json)
             .then(obj => {
                 if (cacheableEndpoints.indexOf(genericPath) > -1) {
-                    const revisedPath = path === 'transaction' ? `${path}/account/${body.account.accountId}` : path;
+                    const accountId = body?.account?.id || id;
+                    const revisedPath = path === 'transaction' ? `${path}/account/${accountId}` : path;
                     if (method === GET) {
                         const newState = ({ ...apiCache });
                         newState[path] = obj;
@@ -67,7 +68,7 @@ export default () => {
                             }));
                         } else {
                             const newState = ({ ...apiCache });
-                            newState[revisedPath] = [ ...newState[revisedPath].filter(a => a.accountTypeId !== id), obj ];
+                            newState[revisedPath] = [ ...newState[revisedPath].filter(a => a.id !== id), obj ];
                             setApiCache(newState);
                         }
                     } else if (method === DELETE) {
@@ -78,21 +79,22 @@ export default () => {
                             }));
                         } else {
                             const newState = ({ ...apiCache });
-                            newState[revisedPath] = newState[revisedPath].filter(a => a.accountTypeId !== id);
+                            newState[revisedPath] = newState[revisedPath]
+                                .filter(a => (typeof id === 'object') ? (id.indexOf(a.id) === -1) : (a.id !== id));
                             setApiCache(newState);
                         }
                     }
                 }
                 return obj;
             })
-            .catch(err => { throw new Error(err.message) });
+            .catch(err => { console.log(err); throw new Error(err.message) });
     }
 
     const autoSortCachedAccounts = (accounts, deletedId) => {
         const accountTypeClass = accounts
-            .filter(a => a.accountId === deletedId)[0].accountType.accountTypeClass;
+            .filter(a => a.id === deletedId)[0].accountType.accountTypeClass;
         const workingAccounts = accounts
-            .filter(a => a.accountType.accountTypeClass === accountTypeClass && a.accountId !== deletedId)
+            .filter(a => a.accountType.accountTypeClass === accountTypeClass && a.id !== deletedId)
             .sort((a, b) => a.sortIndex > b.sortIndex ? 1 : -1)
             .map((account, index) => ({ ...account, sortIndex: index }));
         return [
@@ -104,10 +106,10 @@ export default () => {
     const setSortCachedAccounts = (accounts, sortOrder) => {
         const sortedIds = sortOrder.split(',').map(id => parseInt(id));
         const workingAccounts = sortedIds
-            .map(id => accounts.filter(a => a.accountId === id)[0])
+            .map(id => accounts.filter(a => a.id === id)[0])
             .map((account, index) => ({ ...account, sortIndex: index }));
         return [
-            ...accounts.filter(a => sortedIds.indexOf(a.accountId) === -1),
+            ...accounts.filter(a => sortedIds.indexOf(a.id) === -1),
             ...workingAccounts
         ];
     };
@@ -120,12 +122,12 @@ export default () => {
         deleteAccountType: (id) => apiCall(DELETE, `admin/account-type/${id}`, null, id),
         getAccounts: () => apiCall(GET, `account`),
         addAccount: (account) => apiCall(POST, `account`, account),
-        updateAccount: (account) => apiCall(PUT, `account`, account, account.accountId),
+        updateAccount: (account) => apiCall(PUT, `account`, account, account.id),
         deleteAccount: (id) => apiCall(DELETE, `account/${id}`, null, id),
         sortAccounts: (ids) => apiCall(PUT, `account/sort/${ids}`, null, ids),
         getTransactions: (accountId) => apiCall(GET, `transaction/account/${accountId}`),
         addTransaction: (transaction) => apiCall(POST, `transaction`, transaction),
         updateTransaction: (transaction) => apiCall(PUT, `transaction`, transaction),
-        deleteTransactions: (transactionIds) => apiCall(DELETE, `transaction`, transactionIds),
+        deleteTransactions: (transactionIds, accountId) => apiCall(DELETE, `transaction`, transactionIds, accountId),
     };
 };

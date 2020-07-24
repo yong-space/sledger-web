@@ -31,11 +31,11 @@ export default () => {
         setSavingAccountType(false);
     };
 
-    const submitDeleteAccountType = async (accountTypeId) => {
+    const submitDeleteAccountType = async (id) => {
         try {
-            await deleteAccountType(accountTypeId);
+            await deleteAccountType(id);
             setAccountTypes(existing =>
-                existing.filter(a => a.accountTypeId !== accountTypeId));
+                existing.filter(a => a.id !== id));
             Notification.showSuccess('Account Type Deleted');
         } catch(e) {
             Notification.showError('Unable to delete account type', e.message);
@@ -65,7 +65,7 @@ export default () => {
         title: `Confirm deletion of ${record.accountTypeName}?`,
         icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
         onOk: () => new Promise((resolve) => {
-            submitDeleteAccountType(record.accountTypeId).then(() => resolve());
+            submitDeleteAccountType(record.id).then(() => resolve());
         })
     });
 
