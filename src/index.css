@@ -36,6 +36,7 @@ ul.ant-menu-inline-collapsed > li.ant-menu-item > span.label { display: none }
 
 ::-webkit-scrollbar {
   width: 0.6rem;
+  height: 0.6rem;
 }
 
 ::-webkit-scrollbar-thumb {

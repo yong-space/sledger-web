@@ -12,13 +12,27 @@ const Styled = styled.div`
     height: 100%;
     margin-top: .8rem;
 
-    .ant-table-cell {
+    .ant-table-body .ant-table-cell {
         white-space: nowrap;
         overflow-x: hidden;
         text-overflow: ellipsis;
     }
+    .ant-table-thead .ant-table-cell {
+        overflow: visible;
+    }
     .ant-table-footer { font-weight: bold }
     .right { text-align: right }
+
+    .react-resizable-handle {
+        z-index: 99;
+        position: absolute;
+        bottom: 0;
+        right: -0.25rem;
+        height: 100%;
+        width: 0.5rem;
+        background: red;
+        &:hover { cursor: ew-resize }
+    }
 
     @media (max-width: 549px) {
         .desktop { display: none }
@@ -35,28 +49,28 @@ export default ({ selectedAccount, setFormMode }) => {
     const [ viewportHeight, setViewportHeight ] = useState();
     const [ totalRecords, setTotalRecords ] = useState(0);
     const [ sortOrder, setSortOrder ] = useState({ columnKey: 'date', order: 'ascend' });
-    const [ columns, setColumns ] = useRecoilState(Atom.gridColumns);
+    const [ columns, setColumns ] = useState();
     const [ data, setData ] = useRecoilState(Atom.gridData);
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
     const { getTransactions } = API();
+
+    const getColumnDefs = () => getColumnsForType(selectedAccount.accountType.accountTypeClass)
+        .map((colDef, index) => {
+            if (!colDef.sorter) {
+                return colDef;
+            }
+            return {
+                ...colDef,
+                sortOrder: sortOrder.columnKey === colDef.key && sortOrder.order,
+                sortDirections: [ 'ascend', 'descend', 'ascend' ],
+            }
+        });
 
     useEffect(() => {
         if (!selectedAccount) {
             return;
         }
-
-        const columnDefs = getColumnsForType(selectedAccount.accountType.accountTypeClass)
-            .map(colDef => {
-                if (!colDef.sorter) {
-                    return colDef;
-                }
-                return {
-                    ...colDef,
-                    sortOrder: sortOrder.columnKey === colDef.key && sortOrder.order,
-                    sortDirections: [ 'ascend', 'descend', 'ascend' ],
-                }
-            });
-        setColumns(columnDefs);
+        setColumns(getColumnDefs());
         handleFetch(selectedAccount.id);
         // eslint-disable-next-line
     }, [ selectedAccount, sortOrder ]);
@@ -90,9 +104,9 @@ export default ({ selectedAccount, setFormMode }) => {
             setNoMoreData(response.last);
             setTotalRecords(response.totalElements);
 
-            if (response.totalElements > 0) {
+            const body = document.querySelector('.ant-table-body');
+            if (response.totalElements > 0 && body.scrollTop > 0) {
                 const offset = (36 * pageSize) + (viewportHeight * 0.5);
-                const body = document.querySelector('.ant-table-body');
                 setTimeout(() => body && body.scrollBy(0, offset), 100);
             }
         } catch(e) {
@@ -156,11 +170,15 @@ export default ({ selectedAccount, setFormMode }) => {
         initTop: 36 * pageSize
     }), [ selectedAccount, loading, noMoreData, getScrollHeight ]);
 
+    const tableComponents = {
+        ...vt,
+    }
+
     return (
         <Styled>
             <Table
                 scroll={getScrollHeight()}
-                components={vt}
+                components={tableComponents}
                 pagination={false}
                 bordered
                 size='small'
