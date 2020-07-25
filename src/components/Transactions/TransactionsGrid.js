@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import { getColumnsForType } from './TransactionsGridColumns';
+import { Resizable } from 'react-resizable';
 
 const Styled = styled.div`
     height: 100%;
@@ -30,7 +31,6 @@ const Styled = styled.div`
         right: -0.25rem;
         height: 100%;
         width: 0.5rem;
-        background: red;
         &:hover { cursor: ew-resize }
     }
 
@@ -42,6 +42,71 @@ const Styled = styled.div`
     }
 `;
 
+const ResizableTitle = ({ onResize, width, onClick, ...restProps }) => {
+    if (!width) {
+        return <th {...restProps} />;
+    }
+
+    return (
+        <Resizable
+            width={width}
+            height={0}
+            onResize={onResize}
+            axis='x'
+        >
+            <th {...restProps} />
+        </Resizable>
+    );
+};
+
+const TableWrapper = ({ columns, data, vt, ...restProps }) => {
+    const [ intColumns, setIntColumns ] = useState([]);
+
+    useEffect(() => {
+        setIntColumns(columns.map((column, index) => ({
+            ...column,
+            onHeaderCell: column => ({
+                width: column.width,
+                onResize: handleResize(index)
+            })
+        })));
+    }, [ columns ]);
+
+    const tableComponents = {
+        ...vt,
+        header: {
+            cell: ResizableTitle,
+        }
+    }
+
+    const handleResize = (index) => (e, { size }) => {
+        e.stopImmediatePropagation();
+
+        setIntColumns(oldColumns => {
+            const newColumns = [ ...oldColumns ];
+            newColumns[index] = {
+                ...newColumns[index],
+                width: size.width,
+            };
+            return newColumns;
+        });
+    };
+
+    return (
+        <Table
+            bordered
+            size='small'
+            components={tableComponents}
+            columns={intColumns}
+            dataSource={data}
+            pagination={false}
+            rowKey='id'
+            showSorterTooltip={false}
+            {...restProps}
+        />
+    );
+};
+
 export default ({ selectedAccount, setFormMode }) => {
     const [ loading, setLoading ] = useState(true);
     const [ loadedId, setLoadedId ] = useState();
@@ -49,7 +114,7 @@ export default ({ selectedAccount, setFormMode }) => {
     const [ viewportHeight, setViewportHeight ] = useState();
     const [ totalRecords, setTotalRecords ] = useState(0);
     const [ sortOrder, setSortOrder ] = useState({ columnKey: 'date', order: 'ascend' });
-    const [ columns, setColumns ] = useState();
+    const [ columns, setColumns ] = useState([]);
     const [ data, setData ] = useRecoilState(Atom.gridData);
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
     const { getTransactions } = API();
@@ -170,27 +235,18 @@ export default ({ selectedAccount, setFormMode }) => {
         initTop: 36 * pageSize
     }), [ selectedAccount, loading, noMoreData, getScrollHeight ]);
 
-    const tableComponents = {
-        ...vt,
-    }
-
     return (
         <Styled>
-            <Table
-                scroll={getScrollHeight()}
-                components={tableComponents}
-                pagination={false}
-                bordered
-                size='small'
+            <TableWrapper
+                vt={vt}
                 columns={columns}
-                dataSource={data}
+                data={data}
+                scroll={getScrollHeight()}
                 loading={loading}
-                rowKey='id'
                 rowSelection={rowSelection}
                 footer={generateSummary}
                 onRow={handleEvents}
                 onChange={handleChange}
-                showSorterTooltip={false}
             />
         </Styled>
     );
