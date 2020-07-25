@@ -61,7 +61,7 @@ export default ({ mode, setMode, account }) => {
         }
         if (mode === 'add') {
             return {
-                date: moment(),
+                date: moment().startOf('day'),
                 creditDebit: 'debit',
             };
         }
@@ -102,7 +102,7 @@ export default ({ mode, setMode, account }) => {
 
             setGridData(existing => [
                 ...existing.filter(t => t.id !== transaction.id),
-                { ...transaction, key: transaction.id }
+                transaction
             ]);
 
             form.resetFields();
@@ -123,7 +123,6 @@ export default ({ mode, setMode, account }) => {
     const formProps = () => ({
         ...baseProps,
         form,
-        //initialValues: loadInitialValues(),
         onFinish: submitForm
     });
 

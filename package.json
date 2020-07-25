@@ -22,7 +22,8 @@
         "react-scripts": "3.4.1",
         "react-swipeable": "^5.5.1",
         "recoil": "0.0.10",
-        "styled-components": "^5.1.1"
+        "styled-components": "^5.1.1",
+        "virtualizedtableforantd4": "^1.0.0"
     },
     "scripts": {
         "start": "react-app-rewired start",

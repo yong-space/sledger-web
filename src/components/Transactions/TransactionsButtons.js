@@ -31,8 +31,8 @@ export default ({ selectedAccount, setFormMode }) => {
         icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
         onOk: () => new Promise(async (resolve) => {
             try {
-                await deleteTransactions(selectedRowKeys, selectedAccount.id);
-                setGridData(existing => existing.filter(record => selectedRowKeys.indexOf(record.key) === -1));
+                await deleteTransactions(selectedRowKeys);
+                setGridData(existing => existing.filter(record => selectedRowKeys.indexOf(record.id) === -1));
                 setSelectedRowKeys([]);
                 Notification.showSuccess('Transactions deleted');
             } catch(e) {

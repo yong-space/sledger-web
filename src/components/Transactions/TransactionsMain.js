@@ -10,8 +10,10 @@ const Styled = styled.div`
     height: 100%;
     .ant-layout-content, .ant-col { height: 100%; }
     .ant-layout-content {
+        padding: 1rem 1rem 0 1rem !important;
+        height: fit-content;
         @media only screen and (max-width: 549px) {
-            padding: 0.7rem !important
+            padding: 0.7rem 0.7rem 0 0.7rem !important
         }
     }
     .gridWrapper {

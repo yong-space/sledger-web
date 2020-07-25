@@ -10,8 +10,6 @@ export default () => {
     const cacheableEndpoints = [
         'account-type',
         'account',
-        'transaction',
-        'transaction/account'
     ];
 
     const apiCall = (method, path, body, id) => {
@@ -50,15 +48,13 @@ export default () => {
             .then(json => json)
             .then(obj => {
                 if (cacheableEndpoints.indexOf(genericPath) > -1) {
-                    const accountId = body?.account?.id || id;
-                    const revisedPath = path === 'transaction' ? `${path}/account/${accountId}` : path;
                     if (method === GET) {
                         const newState = ({ ...apiCache });
                         newState[path] = obj;
                         setApiCache(newState);
                     } else if (method === POST) {
                         const newState = { ...apiCache };
-                        newState[revisedPath] = [ ...newState[revisedPath], obj ];
+                        newState[path] = [ ...newState[path], obj ];
                         setApiCache(newState)
                     } else if (method === PUT) {
                         if (genericPath === 'account/sort/') {
@@ -66,10 +62,6 @@ export default () => {
                                 ...previous,
                                 account: setSortCachedAccounts(apiCache.account, id),
                             }));
-                        } else {
-                            const newState = ({ ...apiCache });
-                            newState[revisedPath] = [ ...newState[revisedPath].filter(a => a.id !== id), obj ];
-                            setApiCache(newState);
                         }
                     } else if (method === DELETE) {
                         if (path.indexOf('account/') === 0) {
@@ -77,11 +69,6 @@ export default () => {
                                 ...previous,
                                 account: autoSortCachedAccounts(apiCache.account, id),
                             }));
-                        } else {
-                            const newState = ({ ...apiCache });
-                            newState[revisedPath] = newState[revisedPath]
-                                .filter(a => (typeof id === 'object') ? (id.indexOf(a.id) === -1) : (a.id !== id));
-                            setApiCache(newState);
                         }
                     }
                 }
@@ -125,9 +112,9 @@ export default () => {
         updateAccount: (account) => apiCall(PUT, `account`, account, account.id),
         deleteAccount: (id) => apiCall(DELETE, `account/${id}`, null, id),
         sortAccounts: (ids) => apiCall(PUT, `account/sort/${ids}`, null, ids),
-        getTransactions: (accountId) => apiCall(GET, `transaction/account/${accountId}`),
+        getTransactions: (accountId, page, size) => apiCall(GET, `transaction/account/${accountId}?page=${page}&size=${size}`),
         addTransaction: (transaction) => apiCall(POST, `transaction`, transaction),
         updateTransaction: (transaction) => apiCall(PUT, `transaction`, transaction),
-        deleteTransactions: (transactionIds, accountId) => apiCall(DELETE, `transaction`, transactionIds, accountId),
+        deleteTransactions: (transactionIds) => apiCall(DELETE, `transaction`, transactionIds),
     };
 };
