@@ -70,7 +70,7 @@ export default (props) => {
         ...baseProps,
         form: addForm,
         initialValues: {
-            id: accountTypes && accountTypes[0]?.id
+            accountTypeId: accountTypes && accountTypes[0]?.id
         },
         onFinish: submitAddAccount
     });
@@ -106,7 +106,7 @@ export default (props) => {
         try {
             const accountTypeIds = types.map(a => a.id);
             const response = (await getAccounts())
-                .filter(entry => accountTypeIds.indexOf(entry.id) > -1)
+                .filter(entry => accountTypeIds.indexOf(entry.accountType.id) > -1)
                 .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
             setAccounts(response);
         } catch(e) {
@@ -218,7 +218,7 @@ export default (props) => {
                 </Form.Item>
                 <Form.Item
                     label="Bank"
-                    name="id"
+                    name="accountTypeId"
                 >
                     {getAccountSelector()}
                 </Form.Item>
@@ -285,7 +285,7 @@ export default (props) => {
                     <Form {...addFormProps()}>
                         <Form.Item
                             label="Bank"
-                            name="id"
+                            name="accountTypeId"
                         >
                             {getAccountSelector()}
                         </Form.Item>

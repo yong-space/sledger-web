@@ -85,7 +85,7 @@ export default ({ mode, setMode, account }) => {
 
     const submitForm = async (values) => {
         setLoading(true);
-        const { date, creditDebit, amount, remarks, category } = values;
+        const { date, creditDebit, amount, remarks, tag } = values;
         const submission = {
             id: mode === 'add' ? 0 : getTransactions()[0].id,
             assetClass: account.accountType.accountTypeClass,
@@ -93,16 +93,23 @@ export default ({ mode, setMode, account }) => {
             date: date.toISOString(),
             amount: amount * (creditDebit === 'debit' ? -1 : 1),
             remarks,
-            category,
+            tag,
         };
 
         try {
             const endpoint = mode === 'add' ? addTransaction : updateTransaction;
             const transaction = await endpoint(submission);
+            let balance = transaction.balance;
+            const rebalancedFuture = gridData
+                .filter(t => t.date > transaction.date)
+                .map(t => ({ ...t, balance: balance += t.amount }));
 
             setGridData(existing => [
-                ...existing.filter(t => t.id !== transaction.id),
-                transaction
+                ...existing
+                    .filter(t => t.id !== transaction.id)
+                    .filter(t => t.date < transaction.date),
+                transaction,
+                ...rebalancedFuture,
             ]);
 
             form.resetFields();
@@ -173,10 +180,10 @@ export default ({ mode, setMode, account }) => {
                         <Input placeholder="Remarks" />
                     </Form.Item>
                     <Form.Item
-                        label="Category"
-                        name="category"
+                        label="Tag"
+                        name="tag"
                     >
-                        <Input placeholder="Category" />
+                        <Input placeholder="Tag" />
                     </Form.Item>
                     <TailFormItem>
                         <Button

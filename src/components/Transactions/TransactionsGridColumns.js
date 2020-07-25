@@ -55,10 +55,10 @@ export const columnDefinitions = {
         ellipsis: true,
         sorter: (a, b) => a.remarks > b.remarks,
     },
-    category: {
-        title: 'Category',
-        dataIndex: 'category',
-        key: 'category',
+    tag: {
+        title: 'Tag',
+        dataIndex: 'tag',
+        key: 'tag',
         width: 200,
         className: 'desktop',
     },
@@ -68,7 +68,7 @@ export const getColumnsForType = (assetClass) => {
     const c = columnDefinitions;
     switch (assetClass) {
         case 'Cash':
-            return [ c.date, c.credit, c.debit, c.amount, c.balance, c.remarks, c.category ];
+            return [ c.date, c.credit, c.debit, c.amount, c.balance, c.remarks, c.tag ];
         default: return [];
     }
 };
