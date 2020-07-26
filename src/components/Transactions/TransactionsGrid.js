@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table } from 'antd';
+import { Table, Tag } from 'antd';
 import { useVT } from 'virtualizedtableforantd4';
 import { useRecoilState } from 'recoil';
 import Atom from '../Common/Atom';
@@ -34,13 +34,6 @@ const Styled = styled.div`
         width: 0.5rem;
         &:hover { cursor: ew-resize }
     }
-
-    @media (max-width: 549px) {
-        .desktop { display: none }
-    }
-    @media (min-width: 550px) {
-        .mobile { display: none }
-    }
 `;
 
 const ResizableTitle = ({ onResize, width, onClick, ...restProps }) => {
@@ -72,7 +65,7 @@ const TableWrapper = ({ columns, data, vt, sortOrder, ...restProps }) => {
                     onResize: handleResize(index)
                 })
             }))
-            .map((column, index) => {
+            .map((column) => {
                 if (!column.sorter) {
                     return column;
                 }
@@ -181,15 +174,25 @@ export default ({ selectedAccount, setFormMode }) => {
         setLoading(false);
     };
 
-    const generateSummary = (pageData) => {
-        let totalCredit = 0;
-        let totalDebit = 0;
-
-        pageData.forEach(({ amount }) => {
-            totalCredit += (amount > 0 ? amount : 0);
-            totalDebit += (amount < 0 ? -amount : 0);
-        });
-        return `${totalRecords} Records, Credit: ${formatNumber(totalCredit)}, Debit: ${formatNumber(totalDebit)}`;
+    const generateSummary = () => {
+        if (selectedRowKeys.length === 0) {
+            return <Tag>{formatNumber(totalRecords, 0)} Records</Tag>;
+        } else {
+            const selectedTransactions = data.filter(t => selectedRowKeys.indexOf(t.id) > -1);
+            let totalCredit = 0;
+            let totalDebit = 0;
+            selectedTransactions.forEach(({ amount }) => {
+                totalCredit += (amount > 0 ? amount : 0);
+                totalDebit += (amount < 0 ? -amount : 0);
+            });
+            return (
+                <>
+                    <Tag>{formatNumber(selectedTransactions.length, 0)} Selected</Tag>
+                    <Tag>Credit: {formatNumber(totalCredit)}</Tag>
+                    <Tag>Debit: {formatNumber(totalDebit)}</Tag>
+                </>
+            );
+        }
     };
 
     const selectRow = (record) => {

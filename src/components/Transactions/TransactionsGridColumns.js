@@ -5,37 +5,16 @@ export const columnDefinitions = {
         title: 'Date',
         dataIndex: 'date',
         key: 'date',
-        width: 150,
+        width: 110,
         render: (text, record) => formatDate(record.date),
         sorter: sortDate,
-    },
-    credit: {
-        title: 'Credit',
-        dataIndex: 'credit',
-        key: 'credit',
-        width: 120,
-        align: 'right',
-        className: 'desktop',
-        render: (text, record) => record.amount > 0 ? formatNumber(record.amount) : '',
-        sorter: (a, b) => a.amount - b.amount,
-    },
-    debit: {
-        title: 'Debit',
-        dataIndex: 'debit',
-        key: 'debit',
-        width: 120,
-        align: 'right',
-        className: 'desktop',
-        render: (text, record) => record.amount < 0 ? formatNumber(-record.amount) : '',
-        sorter: (a, b) => b.amount - a.amount,
     },
     amount: {
         title: 'Amount',
         dataIndex: 'amount',
         key: 'amount',
-        width: 120,
+        width: 100,
         align: 'right',
-        className: 'mobile',
         render: (text, record) => formatNumber(record.amount),
         sorter: (a, b) => b.amount - a.amount,
     },
@@ -45,14 +24,14 @@ export const columnDefinitions = {
         key: 'balance',
         width: 150,
         align: 'right',
-        className: 'desktop',
+        responsive: ['md'],
         render: (text, record) => formatNumber(record.balance),
     },
     remarks: {
         title: 'Remarks',
         dataIndex: 'remarks',
         key: 'remarks',
-        width: 200,
+        width: 150,
         ellipsis: true,
         sorter: (a, b) => a.remarks > b.remarks,
     },
@@ -61,7 +40,7 @@ export const columnDefinitions = {
         dataIndex: 'tag',
         key: 'tag',
         width: 200,
-        className: 'desktop',
+        responsive: ['md'],
     },
 };
 
@@ -69,7 +48,7 @@ export const getColumnsForType = (assetClass) => {
     const c = columnDefinitions;
     switch (assetClass) {
         case 'Cash':
-            return [ c.date, c.credit, c.debit, c.amount, c.balance, c.remarks, c.tag ];
+            return [ c.date, c.amount, c.balance, c.remarks, c.tag ];
         default: return [];
     }
 };
