@@ -10,6 +10,7 @@ import { presetDarkPalettes } from '@ant-design/colors';
 import moment from 'moment';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
+import { sortDate } from '../Common/Util';
 
 const Styled = styled.div`
     .ant-drawer .ant-drawer-content-wrapper {
@@ -99,18 +100,40 @@ export default ({ mode, setMode, account }) => {
         try {
             const endpoint = mode === 'add' ? addTransaction : updateTransaction;
             const transaction = await endpoint(submission);
-            let balance = transaction.balance;
-            const rebalancedFuture = gridData
-                .filter(t => t.date > transaction.date)
-                .map(t => ({ ...t, balance: balance += t.amount }));
 
-            setGridData(existing => [
-                ...existing
-                    .filter(t => t.id !== transaction.id)
-                    .filter(t => t.date < transaction.date),
-                transaction,
-                ...rebalancedFuture,
-            ]);
+            if ([ 'Cash', 'CreditCard' ].indexOf(submission.assetClass) > -1) {
+                let minDate = transaction.date;
+                if (mode === 'edit') {
+                    const originalDate = gridData.filter(t => t.id === submission.id)[0].date;
+                    if (originalDate < minDate) {
+                        minDate = originalDate;
+                    }
+                }
+
+                const epochTransactions = gridData.filter(record => record.date < minDate);
+                const epochTransaction = epochTransactions.length === 0 ? null : epochTransactions
+                    .reduce((prev, curr) => prev.date > curr.date ? prev : curr);
+
+                let balance = epochTransaction ? epochTransaction.balance : 0;
+                const rebalancedFuture = [
+                        transaction,
+                        ...gridData
+                            .filter(t => t.date >= minDate)
+                            .filter(t => t.id !== submission.id)
+                    ]
+                    .sort(sortDate)
+                    .map(t => ({ ...t, balance: balance += t.amount }));
+
+                setGridData(existing => [
+                    ...existing.filter(t => t.date < minDate),
+                    ...rebalancedFuture,
+                ]);
+            } else {
+                setGridData(existing => [
+                    ...existing.filter(t => t.id !== transaction.id),
+                    transaction
+                ]);
+            }
 
             form.resetFields();
             Notification.showSuccess(`Transaction ${label}ed`);
@@ -140,7 +163,7 @@ export default ({ mode, setMode, account }) => {
                 placement="right"
                 visible={mode}
                 mask={true}
-                closable={true}
+                closable={false}
                 width="35rem"
                 style={{ paddingTop: '3rem' }}
                 getContainer=".drawerWrapper"

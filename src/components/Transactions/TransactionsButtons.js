@@ -11,6 +11,7 @@ import Atom from '../Common/Atom';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import { FlexDiv } from '../Common/FormProps';
+import { sortDate } from '../Common/Util';
 
 const Styled = styled.div`
     margin-left: .8rem;
@@ -22,7 +23,7 @@ const Styled = styled.div`
 `;
 
 export default ({ selectedAccount, setFormMode }) => {
-    const setGridData = useRecoilState(Atom.gridData)[1];
+    const [ gridData, setGridData ] = useRecoilState(Atom.gridData);
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
     const { deleteTransactions } = API();
 
@@ -32,7 +33,28 @@ export default ({ selectedAccount, setFormMode }) => {
         onOk: () => new Promise(async (resolve) => {
             try {
                 await deleteTransactions(selectedRowKeys);
-                setGridData(existing => existing.filter(record => selectedRowKeys.indexOf(record.id) === -1));
+
+                const minDeletedDate = gridData
+                    .filter(record => selectedRowKeys.indexOf(record.id) > -1)
+                    .reduce((prev, curr) => prev.date < curr.date ? prev : curr)
+                    .date;
+                const epochTransaction = gridData
+                    .filter(record => record.date < minDeletedDate)
+                    .reduce((prev, curr) => prev.date > curr.date ? prev : curr);
+                let balance = epochTransaction.balance;
+                const reducedData = [
+                    ...gridData
+                        .filter(t => t.date > epochTransaction.date)
+                        .filter(t => selectedRowKeys.indexOf(t.id) === -1)
+                ];
+                const rebalancedFuture = reducedData
+                    .sort(sortDate)
+                    .map(t => ({ ...t, balance: balance += t.amount }));
+
+                setGridData(existing => [
+                    ...existing.filter(record => record.date < minDeletedDate),
+                    ...rebalancedFuture
+                ]);
                 setSelectedRowKeys([]);
                 Notification.showSuccess('Transactions deleted');
             } catch(e) {

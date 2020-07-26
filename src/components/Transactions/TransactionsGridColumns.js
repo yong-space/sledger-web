@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import { formatNumber, formatDate, sortDate } from '../Common/Util';
 
 export const columnDefinitions = {
     date: {
@@ -6,8 +6,8 @@ export const columnDefinitions = {
         dataIndex: 'date',
         key: 'date',
         width: 150,
-        render: (text, record) => dayjs(record.date).format('MMM D YYYY'),
-        sorter: (a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? 1 : -1,
+        render: (text, record) => formatDate(record.date),
+        sorter: sortDate,
     },
     credit: {
         title: 'Credit',
@@ -16,7 +16,7 @@ export const columnDefinitions = {
         width: 120,
         align: 'right',
         className: 'desktop',
-        render: (text, record) => record.amount > 0 ? record.amount.toFixed(2) : '',
+        render: (text, record) => record.amount > 0 ? formatNumber(record.amount) : '',
         sorter: (a, b) => a.amount - b.amount,
     },
     debit: {
@@ -26,7 +26,7 @@ export const columnDefinitions = {
         width: 120,
         align: 'right',
         className: 'desktop',
-        render: (text, record) => record.amount < 0 ? (-record.amount).toFixed(2) : '',
+        render: (text, record) => record.amount < 0 ? formatNumber(-record.amount) : '',
         sorter: (a, b) => b.amount - a.amount,
     },
     amount: {
@@ -36,7 +36,7 @@ export const columnDefinitions = {
         width: 120,
         align: 'right',
         className: 'mobile',
-        render: (text, record) => record.amount.toFixed(2),
+        render: (text, record) => formatNumber(record.amount),
         sorter: (a, b) => b.amount - a.amount,
     },
     balance: {
@@ -46,6 +46,7 @@ export const columnDefinitions = {
         width: 150,
         align: 'right',
         className: 'desktop',
+        render: (text, record) => formatNumber(record.balance),
     },
     remarks: {
         title: 'Remarks',

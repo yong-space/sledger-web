@@ -8,6 +8,7 @@ import API from '../Common/API';
 import Notification from '../Common/Notification';
 import { getColumnsForType } from './TransactionsGridColumns';
 import { Resizable } from 'react-resizable';
+import { formatNumber } from '../Common/Util';
 
 const Styled = styled.div`
     height: 100%;
@@ -54,23 +55,35 @@ const ResizableTitle = ({ onResize, width, onClick, ...restProps }) => {
             onResize={onResize}
             axis='x'
         >
-            <th {...restProps} />
+            <th {...restProps} onClick={onClick} />
         </Resizable>
     );
 };
 
-const TableWrapper = ({ columns, data, vt, ...restProps }) => {
+const TableWrapper = ({ columns, data, vt, sortOrder, ...restProps }) => {
     const [ intColumns, setIntColumns ] = useState([]);
 
     useEffect(() => {
-        setIntColumns(columns.map((column, index) => ({
-            ...column,
-            onHeaderCell: column => ({
-                width: column.width,
-                onResize: handleResize(index)
-            })
-        })));
-    }, [ columns ]);
+        const columnDefs = columns
+            .map((column, index) => ({
+                ...column,
+                onHeaderCell: column => ({
+                    width: column.width,
+                    onResize: handleResize(index)
+                })
+            }))
+            .map((column, index) => {
+                if (!column.sorter) {
+                    return column;
+                }
+                return {
+                    ...column,
+                    sortOrder: sortOrder.columnKey === column.key && sortOrder.order,
+                    sortDirections: [ 'ascend', 'descend', 'ascend' ],
+                }
+            });
+        setIntColumns(columnDefs);
+    }, [ columns, sortOrder ]);
 
     const tableComponents = {
         ...vt,
@@ -119,26 +132,14 @@ export default ({ selectedAccount, setFormMode }) => {
     const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
     const { getTransactions } = API();
 
-    const getColumnDefs = () => getColumnsForType(selectedAccount.accountType.accountTypeClass)
-        .map((colDef, index) => {
-            if (!colDef.sorter) {
-                return colDef;
-            }
-            return {
-                ...colDef,
-                sortOrder: sortOrder.columnKey === colDef.key && sortOrder.order,
-                sortDirections: [ 'ascend', 'descend', 'ascend' ],
-            }
-        });
-
     useEffect(() => {
         if (!selectedAccount) {
             return;
         }
-        setColumns(getColumnDefs());
+        setColumns(getColumnsForType(selectedAccount.accountType.accountTypeClass));
         handleFetch(selectedAccount.id);
         // eslint-disable-next-line
-    }, [ selectedAccount, sortOrder ]);
+    }, [ selectedAccount ]);
 
     useEffect(() => {
         const setHeight = () => {
@@ -188,7 +189,7 @@ export default ({ selectedAccount, setFormMode }) => {
             totalCredit += (amount > 0 ? amount : 0);
             totalDebit += (amount < 0 ? -amount : 0);
         });
-        return `${totalRecords} Records, Credit: ${totalCredit.toFixed(2)}, Debit: ${totalDebit.toFixed(2)}`;
+        return `${totalRecords} Records, Credit: ${formatNumber(totalCredit)}, Debit: ${formatNumber(totalDebit)}`;
     };
 
     const selectRow = (record) => {
@@ -247,6 +248,7 @@ export default ({ selectedAccount, setFormMode }) => {
                 footer={generateSummary}
                 onRow={handleEvents}
                 onChange={handleChange}
+                sortOrder={sortOrder}
             />
         </Styled>
     );
