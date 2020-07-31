@@ -19,7 +19,7 @@ export default () => {
         }
         const genericPath = path.replace(/\/\d+$/g, '');
         if (method === GET && cacheableEndpoints.indexOf(genericPath) > -1 && apiCache[path]) {
-            return apiCache[path];
+            return new Promise((resolve) => resolve(apiCache[path]));
         }
 
         const config = {

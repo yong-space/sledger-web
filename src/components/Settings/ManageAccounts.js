@@ -3,14 +3,18 @@ import {
     Typography, Collapse, Form, Input, InputNumber, Switch, Button, Tag, Row, Col, Empty, Modal,
 } from 'antd';
 import { FaMoneyBillAlt } from 'react-icons/fa';
-import { AiFillCaretUp, AiFillCaretDown, AiFillWarning } from 'react-icons/ai';
+import {
+    AiFillCaretUp, AiFillCaretDown, AiFillWarning,
+} from 'react-icons/ai';
 import { RiDeleteBinLine } from 'react-icons/ri';
+import styled from 'styled-components';
 import AntIcon from '../Common/AntIcon';
 import Notification from '../Common/Notification';
 import API from '../Common/API';
 import LoadingSpinner from '../Common/LoadingSpinner';
-import { wideBaseProps, inlineProps, rules, FlexDiv, TailFormItem } from '../Common/FormProps';
-import styled from 'styled-components';
+import {
+    wideBaseProps, inlineProps, rules, FlexDiv, TailFormItem,
+} from '../Common/FormProps';
 import { InlineAccountSelector } from '../Common/AccountSelector';
 import AntAddon from '../Common/AntAddon';
 
@@ -31,7 +35,9 @@ export default ({ assetClassLabel }) => {
     const [ accountTypes, setAccountTypes ] = useState([]);
     const { Title } = Typography;
     const { Panel } = Collapse;
-    const { getAccountTypes, getAccounts, addAccount, deleteAccount, updateAccount, sortAccounts } = API();
+    const {
+        getAccountTypes, getAccounts, addAccount, deleteAccount, updateAccount, sortAccounts,
+    } = API();
     const [ addForm ] = Form.useForm();
 
     const submitEditAccount = async (values) => {
@@ -44,12 +50,12 @@ export default ({ assetClassLabel }) => {
 
         try {
             const account = await updateAccount(newAccount);
-            const workingAccounts = accounts.filter(a => a.id !== newAccount.id);
+            const workingAccounts = accounts.filter((a) => a.id !== newAccount.id);
             workingAccounts.push(account);
-            workingAccounts.sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
+            workingAccounts.sort((a, b) => ((a.sortIndex > b.sortIndex) ? 1 : -1));
             setAccounts(workingAccounts);
             Notification.showSuccess('Account Edited');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to edit account', e.message);
         }
         setEditFormLoading(false);
@@ -57,7 +63,7 @@ export default ({ assetClassLabel }) => {
 
     const editFormProps = {
         ...inlineProps,
-        onFinish: submitEditAccount
+        onFinish: submitEditAccount,
     };
 
     const submitAddAccount = async (values) => {
@@ -70,22 +76,23 @@ export default ({ assetClassLabel }) => {
 
         try {
             const account = await addAccount(newAccount);
-            setAccounts(existing => [ ...existing, account ]);
+            setAccounts((existing) => [ ...existing, account ]);
             addForm.resetFields();
             Notification.showSuccess('Account Added');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to add account', e.message);
         }
         setAddFormLoading(false);
     };
 
     const addFormProps = () => {
+        const thisAccountTypes = accountTypes.filter((a) => a.accountTypeClass === assetClass);
         const initialValues = {
-            accountTypeId: accountTypes.filter(a => a.accountTypeClass === assetClass)[0]?.id,
+            accountTypeId: thisAccountTypes.length > 0 && thisAccountTypes[0].id,
         };
 
         if (assetClass === 'CreditCard') {
-            const cashAccounts = allAccounts.filter(a => a.accountType.accountTypeClass === 'Cash');
+            const cashAccounts = allAccounts.filter((a) => a.accountType.accountTypeClass === 'Cash');
             initialValues.paymentAccount = cashAccounts[0].id;
             initialValues.billingCycleFirstDay = 1;
         }
@@ -94,42 +101,48 @@ export default ({ assetClassLabel }) => {
             ...wideBaseProps,
             form: addForm,
             initialValues,
-            onFinish: submitAddAccount
+            onFinish: submitAddAccount,
         };
     };
 
     const submitSortAccounts = async (sortedAccounts) => {
         setSorting(true);
-        const accountIds = sortedAccounts.map(a => a.id).join();
+        const accountIds = sortedAccounts.map((a) => a.id).join();
         try {
             await sortAccounts(accountIds);
             setAccounts(sortedAccounts);
             Notification.showSuccess('Sort order saved');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to save sort order', e.message);
         }
         setSorting(false);
     };
 
-    const refreshAccountTypes = () => new Promise(async (resolve) => {
+    const refreshAccountTypes = () => new Promise((resolve) => {
         try {
-            const response = (await getAccountTypes())
-                .map((entry, index) => ({ ...entry, key: index }))
-                .sort((a, b) => a.accountTypeName > b.accountTypeName ? 1 : -1);
-            setAccountTypes(response);
-        } catch(e) {
+            getAccountTypes().then((response) => {
+                const sortedResponse = response
+                    .map((entry, index) => ({ ...entry, key: index }))
+                    .sort((a, b) => (a.accountTypeName > b.accountTypeName ? 1 : -1));
+                setAccountTypes(sortedResponse);
+            });
+        } catch (e) {
             Notification.showError('Unable to load account types', e.message);
         }
         resolve();
     });
 
-    const refreshAccounts = () => new Promise(async (resolve) => {
+    const refreshAccounts = () => new Promise((resolve) => {
         try {
-            const response = [ ...await getAccounts() ]
-                .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
-            setAllAccounts(response);
-            setAccounts(response.filter(account => account.accountType.accountTypeClass === assetClass));
-        } catch(e) {
+            getAccounts().then((response) => {
+                const sortedResponse = [ ...response ]
+                    .sort((a, b) => ((a.sortIndex > b.sortIndex) ? 1 : -1));
+                setAllAccounts(sortedResponse);
+                const typeAccounts = sortedResponse
+                    .filter((account) => account.accountType.accountTypeClass === assetClass);
+                setAccounts(typeAccounts);
+            });
+        } catch (e) {
             Notification.showError('Unable to load accounts', e.message);
         }
         resolve();
@@ -142,13 +155,15 @@ export default ({ assetClassLabel }) => {
         // eslint-disable-next-line
     }, []);
 
-    const getAccountType = (id) => accountTypes.filter(a => a.id === id)[0];
+    const getAccountType = (id) => accountTypes.filter((a) => a.id === id)[0];
 
     const getHeader = ({ accountTypeId, accountName, hidden }) => {
         const accountType = getAccountType(accountTypeId);
-        return (
+        return accountType && (
             <>
-                <Tag color={accountType.colour}>{accountType.accountTypeName}</Tag> <b>{accountName}</b>
+                <Tag color={accountType.colour}>{accountType.accountTypeName}</Tag>
+                {' '}
+                <b>{accountName}</b>
                 { hidden && <Tag style={{ marginLeft: '1em' }}>Hidden</Tag> }
             </>
         );
@@ -156,10 +171,10 @@ export default ({ assetClassLabel }) => {
 
     const moveSort = (index, newIndex) => {
         const workingAccounts = JSON.parse(JSON.stringify(accounts));
-        workingAccounts.filter(a => a.sortIndex === index)[0].sortIndex = -1;
-        workingAccounts.filter(a => a.sortIndex === newIndex)[0].sortIndex = index;
-        workingAccounts.filter(a => a.sortIndex === -1)[0].sortIndex = newIndex;
-        workingAccounts.sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
+        workingAccounts.filter((a) => a.sortIndex === index)[0].sortIndex = -1;
+        workingAccounts.filter((a) => a.sortIndex === newIndex)[0].sortIndex = index;
+        workingAccounts.filter((a) => a.sortIndex === -1)[0].sortIndex = newIndex;
+        workingAccounts.sort((a, b) => ((a.sortIndex > b.sortIndex) ? 1 : -1));
         submitSortAccounts(workingAccounts);
     };
 
@@ -181,7 +196,7 @@ export default ({ assetClassLabel }) => {
                 size="small"
                 icon={<AntIcon i={AiFillCaretUp} />}
                 style={{ marginRight: '0.5em' }}
-                onClick={event => sortUp(event, index)}
+                onClick={(event) => sortUp(event, index)}
                 disabled={index === 0}
                 loading={sorting}
             />
@@ -190,7 +205,7 @@ export default ({ assetClassLabel }) => {
                 type="primary"
                 size="small"
                 icon={<AntIcon i={AiFillCaretDown} />}
-                onClick={event => sortDown(event, index)}
+                onClick={(event) => sortDown(event, index)}
                 disabled={index === accounts.length - 1}
                 loading={sorting}
             />
@@ -200,11 +215,11 @@ export default ({ assetClassLabel }) => {
     const submitDeleteAccount = async (id) => {
         try {
             await deleteAccount(id);
-            const newAccounts = JSON.parse(JSON.stringify(accounts.filter(a => a.id !== id)));
-            newAccounts.forEach((account, index) => account.sortIndex = index);
+            const newAccounts = JSON.parse(JSON.stringify(accounts.filter((a) => a.id !== id)));
+            newAccounts.forEach((account, index) => (account.sortIndex = index));
             setAccounts(newAccounts);
             Notification.showSuccess('Account Deleted');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to delete account', e.message);
         }
     };
@@ -214,20 +229,19 @@ export default ({ assetClassLabel }) => {
         icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
         onOk: () => new Promise((resolve) => {
             submitDeleteAccount(account.id).then(() => resolve());
-        })
+        }),
     });
 
     const getPanels = () => accounts
-        .map(account => (assetClass !== 'CreditCard') ? account :
-            { ...account, paymentAccount: account.paymentAccount.id, }
-        )
+        .map((account) => ((assetClass !== 'CreditCard') ? account
+            : { ...account, paymentAccount: account.paymentAccount.id }))
         .map((account, index) => (
             <Panel header={getHeader(account)} key={account.id} extra={getReorderButtons(index)}>
                 <Form {...editFormProps} initialValues={{ ...account }}>
-                    <Form.Item name="id" hidden={true}>
+                    <Form.Item name="id" hidden>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="sortIndex" hidden={true}>
+                    <Form.Item name="sortIndex" hidden>
                         <Input />
                     </Form.Item>
                     <Form.Item
@@ -243,7 +257,7 @@ export default ({ assetClassLabel }) => {
                     <Form.Item
                         label="Name"
                         name="accountName"
-                        rules={[rules.requiredRule]}
+                        rules={[ rules.requiredRule ]}
                     >
                         <Input placeholder={`${assetClass === 'Cash' ? 'Account' : 'Card'} Name`} />
                     </Form.Item>
@@ -261,14 +275,14 @@ export default ({ assetClassLabel }) => {
                             <Form.Item
                                 label="Payment Remarks"
                                 name="paymentRemarks"
-                                rules={[rules.requiredRule]}
+                                rules={[ rules.requiredRule ]}
                             >
                                 <Input placeholder="Payment Remarks" />
                             </Form.Item>
                             <Form.Item
                                 label="Billing Cycle"
                                 name="billingCycleFirstDay"
-                                rules={[rules.requiredRule]}
+                                rules={[ rules.requiredRule ]}
                             >
                                 <AntAddon behind label="Day of Month">
                                     <InputNumber type="number" style={{ width: '100%' }} />
@@ -324,7 +338,12 @@ export default ({ assetClassLabel }) => {
 
     const addAccountForm = () => (
         <>
-            <Title level={4}>Add {assetClassLabel} Account</Title>
+            <Title level={4}>
+                Add
+                {assetClassLabel}
+                {' '}
+                Account
+            </Title>
             <Row>
                 <Col xs={24} md={18} lg={12} xl={10}>
                     <Form {...addFormProps()}>
@@ -342,7 +361,7 @@ export default ({ assetClassLabel }) => {
                         <Form.Item
                             label={`${assetClass === 'Cash' ? 'Account' : 'Card'} Name`}
                             name="accountName"
-                            rules={[rules.requiredRule]}
+                            rules={[ rules.requiredRule ]}
                         >
                             <Input placeholder={`${assetClass === 'Cash' ? 'Account' : 'Card'} Name`} />
                         </Form.Item>
@@ -360,14 +379,14 @@ export default ({ assetClassLabel }) => {
                                 <Form.Item
                                     label="Payment Remarks"
                                     name="paymentRemarks"
-                                    rules={[rules.requiredRule]}
+                                    rules={[ rules.requiredRule ]}
                                 >
                                     <Input placeholder="Payment Remarks" />
                                 </Form.Item>
                                 <Form.Item
                                     label="Billing Cycle"
                                     name="billingCycleFirstDay"
-                                    rules={[rules.requiredRule]}
+                                    rules={[ rules.requiredRule ]}
                                 >
                                     <AntAddon behind label="Day of Month">
                                         <InputNumber type="number" style={{ width: '100%' }} />
@@ -383,7 +402,11 @@ export default ({ assetClassLabel }) => {
                                 loading={addFormLoading}
                                 className="success"
                             >
-                                Add {assetClassLabel} {assetClassLabel === 'Cash' && 'Account'}
+                                Add
+                                {' '}
+                                {assetClassLabel}
+                                {' '}
+                                {assetClassLabel === 'Cash' && 'Account'}
                             </Button>
                         </TailFormItem>
                     </Form>
@@ -394,17 +417,27 @@ export default ({ assetClassLabel }) => {
 
     const preCheck = () => {
         if (assetClass === 'CreditCard') {
-            if (allAccounts.filter(a => a.accountType.accountTypeClass === 'Cash').length === 0) {
+            if (allAccounts.filter((a) => a.accountType.accountTypeClass === 'Cash').length === 0) {
                 return getEmptyBox('Please create a Cash account first before managing Credit Cards');
             }
         }
         return false;
-    }
+    };
 
     return loading ? <LoadingSpinner /> : (
         <>
-            <Title level={4}>Manage {assetClassLabel}{assetClassLabel === 'Cash' && ' Account'}s</Title>
-            { preCheck() || <>{accountsListing()}{addAccountForm()}</> }
+            <Title level={4}>
+                Manage
+                {assetClassLabel}
+                {assetClassLabel === 'Cash' && ' Account'}
+                s
+            </Title>
+            { preCheck() || (
+                <>
+                    {accountsListing()}
+                    {addAccountForm()}
+                </>
+            ) }
         </>
     );
 };
