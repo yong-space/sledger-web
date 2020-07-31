@@ -6,7 +6,7 @@ import AntIcon from '../Common/AntIcon';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import authServices from '../Login/AuthServices';
-import { baseProps, rules, TailFormItem } from '../Common/FormProps';
+import { wideBaseProps, rules, TailFormItem } from '../Common/FormProps';
 
 export default () => {
     const { Title } = Typography;
@@ -51,13 +51,13 @@ export default () => {
     }
 
     const profileFormProps = {
-        ...baseProps,
+        ...wideBaseProps,
         initialValues: getProfile(),
         onFinish: submitUpdateProfile
     };
 
     const passwordFormProps = {
-        ...baseProps,
+        ...wideBaseProps,
         form: passwordForm,
         onFinish: submitUpdatePassword
     };

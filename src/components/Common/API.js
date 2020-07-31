@@ -74,7 +74,7 @@ export default () => {
                 }
                 return obj;
             })
-            .catch(err => { console.log(err); throw new Error(err.message) });
+            .catch(err => { throw new Error(err.message) });
     }
 
     const autoSortCachedAccounts = (accounts, deletedId) => {

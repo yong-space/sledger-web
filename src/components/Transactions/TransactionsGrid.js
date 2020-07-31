@@ -233,7 +233,7 @@ export default ({ selectedAccount, setFormMode }) => {
     };
 
     const [ vt ] = useVT(() => ({
-        overscanRowCount: 10,
+        overscanRowCount: 20,
         scroll: getScrollHeight(),
         onScroll: handleScroll,
         initTop: 36 * pageSize

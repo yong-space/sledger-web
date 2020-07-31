@@ -20,6 +20,7 @@ const Styled = styled.div`
         margin-top: .8rem;
         button.desktop { display: none }
     }
+    button { height: 2.4rem }
 `;
 
 export default ({ selectedAccount, setFormMode }) => {

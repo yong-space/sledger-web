@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Collapse, Form, Select, Input, Switch, Button, Tag, Row, Col, Empty, Modal } from 'antd';
+import {
+    Typography, Collapse, Form, Input, InputNumber, Switch, Button, Tag, Row, Col, Empty, Modal,
+} from 'antd';
 import { FaMoneyBillAlt } from 'react-icons/fa';
 import { AiFillCaretUp, AiFillCaretDown, AiFillWarning } from 'react-icons/ai';
 import { RiDeleteBinLine } from 'react-icons/ri';
@@ -7,8 +9,10 @@ import AntIcon from '../Common/AntIcon';
 import Notification from '../Common/Notification';
 import API from '../Common/API';
 import LoadingSpinner from '../Common/LoadingSpinner';
-import { baseProps, inlineProps, rules, FlexDiv, TailFormItem } from '../Common/FormProps';
+import { wideBaseProps, inlineProps, rules, FlexDiv, TailFormItem } from '../Common/FormProps';
 import styled from 'styled-components';
+import { InlineAccountSelector } from '../Common/AccountSelector';
+import AntAddon from '../Common/AntAddon';
 
 const EmptyBox = styled.div`
     display: flex;
@@ -16,15 +20,14 @@ const EmptyBox = styled.div`
     margin: 4em 0;
 `;
 
-export default (props) => {
-    const { assetClassLabel } = props;
+export default ({ assetClassLabel }) => {
     const assetClass = assetClassLabel.replace(/ /g, '');
-    const assetClassLower = assetClassLabel.toLowerCase();
     const [ loading, setLoading ] = useState(true);
     const [ sorting, setSorting ] = useState(false);
     const [ addFormLoading, setAddFormLoading ] = useState(false);
     const [ editFormLoading, setEditFormLoading ] = useState(false);
     const [ accounts, setAccounts ] = useState([]);
+    const [ allAccounts, setAllAccounts ] = useState([]);
     const [ accountTypes, setAccountTypes ] = useState([]);
     const { Title } = Typography;
     const { Panel } = Collapse;
@@ -34,6 +37,11 @@ export default (props) => {
     const submitEditAccount = async (values) => {
         setEditFormLoading(true);
         const newAccount = { ...values, assetClass };
+
+        if (assetClass === 'CreditCard') {
+            newAccount.paymentAccount = { id: newAccount.paymentAccount };
+        }
+
         try {
             const account = await updateAccount(newAccount);
             const workingAccounts = accounts.filter(a => a.id !== newAccount.id);
@@ -55,6 +63,11 @@ export default (props) => {
     const submitAddAccount = async (values) => {
         setAddFormLoading(true);
         const newAccount = { ...values, assetClass };
+
+        if (assetClass === 'CreditCard') {
+            newAccount.paymentAccount = { id: newAccount.paymentAccount };
+        }
+
         try {
             const account = await addAccount(newAccount);
             setAccounts(existing => [ ...existing, account ]);
@@ -66,14 +79,24 @@ export default (props) => {
         setAddFormLoading(false);
     };
 
-    const addFormProps = () => ({
-        ...baseProps,
-        form: addForm,
-        initialValues: {
-            accountTypeId: accountTypes && accountTypes[0]?.id
-        },
-        onFinish: submitAddAccount
-    });
+    const addFormProps = () => {
+        const initialValues = {
+            accountTypeId: accountTypes.filter(a => a.accountTypeClass === assetClass)[0]?.id,
+        };
+
+        if (assetClass === 'CreditCard') {
+            const cashAccounts = allAccounts.filter(a => a.accountType.accountTypeClass === 'Cash');
+            initialValues.paymentAccount = cashAccounts[0].id;
+            initialValues.billingCycleFirstDay = 1;
+        }
+
+        return {
+            ...wideBaseProps,
+            form: addForm,
+            initialValues,
+            onFinish: submitAddAccount
+        };
+    };
 
     const submitSortAccounts = async (sortedAccounts) => {
         setSorting(true);
@@ -88,35 +111,34 @@ export default (props) => {
         setSorting(false);
     };
 
-    const refreshAccountTypes = () => new Promise(async resolve => {
-        let response;
+    const refreshAccountTypes = () => new Promise(async (resolve) => {
         try {
-            response = (await getAccountTypes())
-                .filter(entry => entry.accountTypeClass === assetClass)
+            const response = (await getAccountTypes())
                 .map((entry, index) => ({ ...entry, key: index }))
                 .sort((a, b) => a.accountTypeName > b.accountTypeName ? 1 : -1);
             setAccountTypes(response);
         } catch(e) {
             Notification.showError('Unable to load account types', e.message);
         }
-        resolve(response);
+        resolve();
     });
 
-    const refreshAccounts = (types) => new Promise(async resolve => {
+    const refreshAccounts = () => new Promise(async (resolve) => {
         try {
-            const accountTypeIds = types.map(a => a.id);
-            const response = (await getAccounts())
-                .filter(entry => accountTypeIds.indexOf(entry.accountType.id) > -1)
+            const response = [ ...await getAccounts() ]
                 .sort((a, b) => (a.sortIndex > b.sortIndex) ? 1 : -1);
-            setAccounts(response);
+            setAllAccounts(response);
+            setAccounts(response.filter(account => account.accountType.accountTypeClass === assetClass));
         } catch(e) {
-            Notification.showError('Unable to load account types', e.message);
+            Notification.showError('Unable to load accounts', e.message);
         }
         resolve();
     });
 
     useEffect(() => {
-        refreshAccountTypes().then((types) => refreshAccounts(types).then(() => setLoading(false)));
+        Promise.all([ refreshAccountTypes(), refreshAccounts() ]).then(() => {
+            setLoading(false);
+        });
         // eslint-disable-next-line
     }, []);
 
@@ -195,108 +217,165 @@ export default (props) => {
         })
     });
 
-    const getAccountSelector = () => {
-        const options = accountTypes.map(accountType => (
-            <Select.Option
-                key={accountType.id}
-                value={accountType.id}
-            >
-                {accountType.accountTypeName}
-            </Select.Option>
+    const getPanels = () => accounts
+        .map(account => (assetClass !== 'CreditCard') ? account :
+            { ...account, paymentAccount: account.paymentAccount.id, }
+        )
+        .map((account, index) => (
+            <Panel header={getHeader(account)} key={account.id} extra={getReorderButtons(index)}>
+                <Form {...editFormProps} initialValues={{ ...account }}>
+                    <Form.Item name="id" hidden={true}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="sortIndex" hidden={true}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label={assetClass === 'Cash' ? 'Bank' : 'Issuer'}
+                        name="accountTypeId"
+                    >
+                        <InlineAccountSelector
+                            accountTypes
+                            assetClass={assetClass}
+                            data={accountTypes}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="Name"
+                        name="accountName"
+                        rules={[rules.requiredRule]}
+                    >
+                        <Input placeholder={`${assetClass === 'Cash' ? 'Account' : 'Card'} Name`} />
+                    </Form.Item>
+                    { assetClass === 'CreditCard' && (
+                        <>
+                            <Form.Item
+                                label="Payment Account"
+                                name="paymentAccount"
+                            >
+                                <InlineAccountSelector
+                                    assetClass="Cash"
+                                    data={allAccounts}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="Payment Remarks"
+                                name="paymentRemarks"
+                                rules={[rules.requiredRule]}
+                            >
+                                <Input placeholder="Payment Remarks" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Billing Cycle"
+                                name="billingCycleFirstDay"
+                                rules={[rules.requiredRule]}
+                            >
+                                <AntAddon behind label="Day of Month">
+                                    <InputNumber type="number" style={{ width: '100%' }} />
+                                </AntAddon>
+                            </Form.Item>
+                        </>
+                    )}
+                    <Form.Item
+                        label="Hidden"
+                        name="hidden"
+                        valuePropName="checked"
+                    >
+                        <Switch />
+                    </Form.Item>
+                    <Form.Item>
+                        <FlexDiv>
+                            <Button
+                                type="primary"
+                                icon={<AntIcon i={FaMoneyBillAlt} />}
+                                htmlType="submit"
+                                loading={editFormLoading}
+                                className="warning"
+                            >
+                                Edit Account
+                            </Button>
+                            <Button
+                                type="danger"
+                                icon={<AntIcon i={RiDeleteBinLine} />}
+                                onClick={() => confirmDelete(account)}
+                            >
+                                Delete Account
+                            </Button>
+                        </FlexDiv>
+                    </Form.Item>
+                </Form>
+            </Panel>
         ));
-        return <Select>{options}</Select>;
+
+    const getEmptyBox = (message) => <EmptyBox><Empty description={message} /></EmptyBox>;
+
+    const accountsListing = () => {
+        if (accounts.length === 0) {
+            return getEmptyBox(`You do not have any ${assetClassLabel.toLowerCase()} accounts yet`);
+        }
+        return (
+            <Row style={{ width: '100%', marginBottom: '2em' }}>
+                <Collapse accordion style={{ width: '100%' }}>
+                    {getPanels()}
+                </Collapse>
+            </Row>
+        );
     };
 
-    const getPanels = () => accounts.map((account, index) => (
-        <Panel header={getHeader(account)} key={account.id} extra={getReorderButtons(index)}>
-            <Form {...editFormProps} initialValues={account}>
-                <Form.Item name="id" hidden={true}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name="sortIndex" hidden={true}>
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    label="Bank"
-                    name="accountTypeId"
-                >
-                    {getAccountSelector()}
-                </Form.Item>
-                <Form.Item
-                    label="Name"
-                    name="accountName"
-                    rules={[rules.requiredRule]}
-                >
-                    <Input placeholder="Account Name" />
-                </Form.Item>
-                <Form.Item
-                    label="Hidden"
-                    name="hidden"
-                    valuePropName="checked"
-                >
-                    <Switch />
-                </Form.Item>
-                <Form.Item>
-                    <FlexDiv>
-                        <Button
-                            type="primary"
-                            icon={<AntIcon i={FaMoneyBillAlt} />}
-                            htmlType="submit"
-                            loading={editFormLoading}
-                            className="warning"
-                        >
-                            Edit Account
-                        </Button>
-                        <Button
-                            type="danger"
-                            icon={<AntIcon i={RiDeleteBinLine} />}
-                            onClick={() => confirmDelete(account)}
-                        >
-                            Delete Account
-                        </Button>
-                    </FlexDiv>
-                </Form.Item>
-            </Form>
-        </Panel>
-    ));
-
-    const emptyFill = (
-        <EmptyBox>
-            <Empty description={`You do not have any ${assetClassLower} accounts yet`} />
-        </EmptyBox>
-    );
-
-    return (
-        loading ? <LoadingSpinner /> :
+    const addAccountForm = () => (
         <>
-            <Title level={4}>Manage {assetClassLabel} Accounts</Title>
-            {
-                accounts.length === 0 ? emptyFill :
-                    <Row style={{ width: '100%', marginBottom: '2em' }}>
-                        <Collapse accordion style={{ width: '100%' }}>
-                            {getPanels()}
-                        </Collapse>
-                    </Row>
-            }
-
             <Title level={4}>Add {assetClassLabel} Account</Title>
             <Row>
                 <Col xs={24} md={18} lg={12} xl={10}>
                     <Form {...addFormProps()}>
                         <Form.Item
-                            label="Bank"
+                            label={assetClass === 'Cash' ? 'Bank' : 'Issuer'}
                             name="accountTypeId"
                         >
-                            {getAccountSelector()}
+                            <InlineAccountSelector
+                                accountTypes
+                                assetClass={assetClass}
+                                data={accountTypes}
+                            />
                         </Form.Item>
+
                         <Form.Item
-                            label="Name"
+                            label={`${assetClass === 'Cash' ? 'Account' : 'Card'} Name`}
                             name="accountName"
                             rules={[rules.requiredRule]}
                         >
-                            <Input placeholder="Account Name" />
+                            <Input placeholder={`${assetClass === 'Cash' ? 'Account' : 'Card'} Name`} />
                         </Form.Item>
-                        <TailFormItem>
+                        { assetClass === 'CreditCard' && (
+                            <>
+                                <Form.Item
+                                    label="Payment Account"
+                                    name="paymentAccount"
+                                >
+                                    <InlineAccountSelector
+                                        assetClass="Cash"
+                                        data={allAccounts}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    label="Payment Remarks"
+                                    name="paymentRemarks"
+                                    rules={[rules.requiredRule]}
+                                >
+                                    <Input placeholder="Payment Remarks" />
+                                </Form.Item>
+                                <Form.Item
+                                    label="Billing Cycle"
+                                    name="billingCycleFirstDay"
+                                    rules={[rules.requiredRule]}
+                                >
+                                    <AntAddon behind label="Day of Month">
+                                        <InputNumber type="number" style={{ width: '100%' }} />
+                                    </AntAddon>
+                                </Form.Item>
+                            </>
+                        )}
+                        <TailFormItem wide>
                             <Button
                                 type="primary"
                                 icon={<AntIcon i={FaMoneyBillAlt} />}
@@ -304,12 +383,28 @@ export default (props) => {
                                 loading={addFormLoading}
                                 className="success"
                             >
-                                Add {assetClass} Account
+                                Add {assetClassLabel} {assetClassLabel === 'Cash' && 'Account'}
                             </Button>
                         </TailFormItem>
                     </Form>
                 </Col>
             </Row>
+        </>
+    );
+
+    const preCheck = () => {
+        if (assetClass === 'CreditCard') {
+            if (allAccounts.filter(a => a.accountType.accountTypeClass === 'Cash').length === 0) {
+                return getEmptyBox('Please create a Cash account first before managing Credit Cards');
+            }
+        }
+        return false;
+    }
+
+    return loading ? <LoadingSpinner /> : (
+        <>
+            <Title level={4}>Manage {assetClassLabel}{assetClassLabel === 'Cash' && ' Account'}s</Title>
+            { preCheck() || <>{accountsListing()}{addAccountForm()}</> }
         </>
     );
 };

@@ -15,7 +15,7 @@ const Styled = styled.div`
         height: 3.5rem;
         display: flex;
         align-items: center;
-        .label { font-size: 1.2rem }
+        .label { font-size: 1.1rem }
     }
     .ant-layout-content {
         @media only screen and (max-width: 549px) {

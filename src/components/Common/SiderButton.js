@@ -12,8 +12,8 @@ const ButtonWrapper = styled.div`
     z-index: 1001;
 
     button {
-        width: 4rem;
-        height: 4rem;
+        width: 3rem;
+        height: 3rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -32,7 +32,7 @@ export default ({ collapsed, handleClick }) => (
         <Button
             shape="circle"
             type="primary"
-            icon={<AntIcon rotate={!collapsed} i={AiFillCaretRight} size={42} />}
+            icon={<AntIcon rotate={!collapsed} i={AiFillCaretRight} size={35} />}
             onClick={handleClick}
         />
     </ButtonWrapper>

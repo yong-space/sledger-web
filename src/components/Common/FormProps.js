@@ -9,8 +9,24 @@ const baseProps = {
     hideRequiredMark: true
 };
 
+const wideBaseProps = {
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 },
+    hideRequiredMark: true
+};
+
+const tailWrapper = {
+    xs: { offset: 0 },
+    sm: { offset: 6, span: 18 }
+};
+
+const wideTailWrapper = {
+    xs: { offset: 0 },
+    sm: { offset: 8, span: 16 }
+};
+
 const inlineProps = {
-    labelCol: { span: 3 },
+    labelCol: { span: 5 },
     wrapperCol: { span: 12 },
     hideRequiredMark: true
 };
@@ -21,11 +37,6 @@ const rules = {
     requiredRule: { required: true, message: 'Required Field' },
     min3Rule: { type: 'string', min: 3, message: 'Minimum 3 characters' },
     min8Rule: { type: 'string', min: 8, message: 'Minimum 8 characters' },
-};
-
-const tailWrapper = {
-    xs: { offset: 0 },
-    sm: { offset: 6, span: 18 }
 };
 
 const FlexDiv = styled.div`
@@ -58,8 +69,8 @@ const FlexDiv = styled.div`
     }
 `;
 
-const TailFormItem = ({ children }) => (
-    <Form.Item wrapperCol={tailWrapper}>
+const TailFormItem = ({ children, wide }) => (
+    <Form.Item wrapperCol={wide ? wideTailWrapper : tailWrapper}>
         <FlexDiv>
             {children}
         </FlexDiv>
@@ -68,6 +79,7 @@ const TailFormItem = ({ children }) => (
 
 export {
     baseProps,
+    wideBaseProps,
     inlineProps,
     rules,
     FlexDiv,
