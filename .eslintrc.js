@@ -9,6 +9,7 @@ module.exports = {
         'eslint:recommended',
         'plugin:react/recommended',
     ],
+    parser: 'babel-eslint',
     parserOptions: {
         ecmaFeatures: { jsx: true },
         ecmaVersion: 2018,
@@ -37,5 +38,8 @@ module.exports = {
         'react/jsx-props-no-spreading': 'off',
         'react/prop-types': 'off',
         'react/display-name': 'off',
+        'react/jsx-one-expression-per-line': 'off',
+        'prefer-promise-reject-errors': 'off',
+        'radix': 'off',
     },
 };

@@ -1,11 +1,8 @@
 import React, { cloneElement } from 'react';
 
-export default ({ children, label, behind, value, onChange }) => {
+export default ({ children, label, behind, ...props }) => {
     const labelSpan = <span className="ant-input-group-addon">{label}</span>;
-    let dynamicChild = children;
-    if (value && onChange) {
-        dynamicChild = cloneElement(children, { value, onChange });
-    }
+    const dynamicChild = cloneElement(children, { ...props });
     const layout = behind ? <>{dynamicChild} {labelSpan}</> : <>{labelSpan} {dynamicChild}</>;
     return (
         <span className="ant-input-group-wrapper ant-input-group-wrapper-lg">
@@ -13,5 +10,5 @@ export default ({ children, label, behind, value, onChange }) => {
                 {layout}
             </span>
         </span>
-    )
+    );
 };

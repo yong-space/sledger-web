@@ -282,7 +282,7 @@ export default ({ assetClassLabel }) => {
                             <Form.Item
                                 label="Billing Cycle"
                                 name="billingCycleFirstDay"
-                                rules={[ rules.requiredRule ]}
+                                rules={[ rules.dayOfMonthRule ]}
                             >
                                 <AntAddon behind label="Day of Month">
                                     <InputNumber type="number" style={{ width: '100%' }} />
@@ -306,14 +306,14 @@ export default ({ assetClassLabel }) => {
                                 loading={editFormLoading}
                                 className="warning"
                             >
-                                Edit Account
+                                Edit {assetClassLabel === 'Cash' ? 'Account' : 'Card'}
                             </Button>
                             <Button
                                 type="danger"
                                 icon={<AntIcon i={RiDeleteBinLine} />}
                                 onClick={() => confirmDelete(account)}
                             >
-                                Delete Account
+                                Delete {assetClassLabel === 'Cash' ? 'Account' : 'Card'}
                             </Button>
                         </FlexDiv>
                     </Form.Item>
@@ -339,10 +339,7 @@ export default ({ assetClassLabel }) => {
     const addAccountForm = () => (
         <>
             <Title level={4}>
-                Add
-                {assetClassLabel}
-                {' '}
-                Account
+                Add {assetClassLabel} {assetClassLabel === 'Cash' && 'Account'}
             </Title>
             <Row>
                 <Col xs={24} md={18} lg={12} xl={10}>
@@ -386,7 +383,7 @@ export default ({ assetClassLabel }) => {
                                 <Form.Item
                                     label="Billing Cycle"
                                     name="billingCycleFirstDay"
-                                    rules={[ rules.requiredRule ]}
+                                    rules={[ rules.dayOfMonthRule ]}
                                 >
                                     <AntAddon behind label="Day of Month">
                                         <InputNumber type="number" style={{ width: '100%' }} />
@@ -402,11 +399,7 @@ export default ({ assetClassLabel }) => {
                                 loading={addFormLoading}
                                 className="success"
                             >
-                                Add
-                                {' '}
-                                {assetClassLabel}
-                                {' '}
-                                {assetClassLabel === 'Cash' && 'Account'}
+                                Add {assetClassLabel} {assetClassLabel === 'Cash' && 'Account'}
                             </Button>
                         </TailFormItem>
                     </Form>
@@ -424,13 +417,10 @@ export default ({ assetClassLabel }) => {
         return false;
     };
 
-    return loading ? <LoadingSpinner /> : (
+    return (loading || accountTypes.length === 0) ? <LoadingSpinner /> : (
         <>
             <Title level={4}>
-                Manage
-                {assetClassLabel}
-                {assetClassLabel === 'Cash' && ' Account'}
-                s
+                Manage {assetClassLabel}{assetClassLabel === 'Cash' && ' Account'}s
             </Title>
             { preCheck() || (
                 <>
