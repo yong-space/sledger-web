@@ -1,144 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Tag } from 'antd';
-import { useVT } from 'virtualizedtableforantd4';
-import { useRecoilState } from 'recoil';
-import Atom from '../Common/Atom';
+import React, { useLayoutEffect, useState } from 'react';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine-dark.css';
+import 'ag-grid-enterprise';
 import styled from 'styled-components';
+import { useRecoilState } from 'recoil';
+import { Tag } from 'antd';
+import { getColumnsForType, defaultColDef } from './TransactionsGridColumns';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
-import { getColumnsForType } from './TransactionsGridColumns';
-import { Resizable } from 'react-resizable';
+import LoadingSpinner from '../Common/LoadingSpinner';
+import Atom from '../Common/Atom';
 import { formatNumber } from '../Common/Util';
 
-const Styled = styled.div`
-    height: 100%;
-    margin-top: .8rem;
+const Wrapper = styled.div`
+    width: 100%;
+    height: ${({ height }) => height}px;
+    margin-top: 1rem;
 
-    .ant-table-body .ant-table-cell {
-        white-space: nowrap;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
+    .ag-body-viewport, .ag-row:not(.ag-row-pinned) .ag-cell, .ag-header, .ag-header-cell {
+        transform: rotate(180deg);
     }
-    .ant-table-thead .ant-table-cell {
-        overflow: visible;
-    }
-    .ant-table-footer { font-weight: bold }
-    .right { text-align: right }
-
-    .react-resizable-handle {
-        z-index: 99;
-        position: absolute;
-        bottom: 0;
-        right: -0.25rem;
-        height: 100%;
-        width: 0.5rem;
-        &:hover { cursor: ew-resize }
-    }
+    .ag-menu, .ag-header-cell, .ag-cell { direction: ltr; text-align: left }
+    .ag-row-pinned .ag-cell { display: flex }
+    .ag-selection-checkbox { margin: 0 12px 0 0 }
+    .ag-cell-focus { border: none !important }
 `;
 
-const ResizableTitle = ({ onResize, width, onClick, ...restProps }) => {
-    if (!width) {
-        return <th {...restProps} />;
-    }
+export default ({ selectedAccount, setFormMode }) => {
+    const [ data, setData ] = useRecoilState(Atom.gridData);
+    const [ totalRows, setTotalRows ] = useState();
+    const [ viewportHeight, setViewportHeight ] = useState();
+    const { getTransactions } = API();
+    const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
 
-    return (
-        <Resizable
-            width={width}
-            height={0}
-            onResize={onResize}
-            axis='x'
-        >
-            <th {...restProps} onClick={onClick} />
-        </Resizable>
-    );
-};
-
-const TableWrapper = ({ columns, data, vt, sortOrder, ...restProps }) => {
-    const [ intColumns, setIntColumns ] = useState([]);
-
-    useEffect(() => {
-        const columnDefs = columns
-            .map((column, index) => ({
-                ...column,
-                onHeaderCell: column => ({
-                    width: column.width,
-                    onResize: handleResize(index)
+    const datasource = {
+        getRows: ({ startRow, endRow, successCallback, failCallback }) => {
+            const pageSize = endRow - startRow;
+            const page = Math.floor(startRow / pageSize);
+            getTransactions(selectedAccount.id, page, pageSize)
+                .then((response) => {
+                    setTotalRows(response.totalElements);
+                    setData((oldData) => [ ...response.content, ...oldData ]);
+                    successCallback(response.content, response.totalElements);
                 })
-            }))
-            .map((column) => {
-                if (!column.sorter) {
-                    return column;
-                }
-                return {
-                    ...column,
-                    sortOrder: sortOrder.columnKey === column.key && sortOrder.order,
-                    sortDirections: [ 'ascend', 'descend', 'ascend' ],
-                }
-            });
-        setIntColumns(columnDefs);
-    }, [ columns, sortOrder ]);
-
-    const tableComponents = {
-        ...vt,
-        header: {
-            cell: ResizableTitle,
-        }
-    }
-
-    const handleResize = (index) => (e, { size }) => {
-        e.stopImmediatePropagation();
-
-        setIntColumns(oldColumns => {
-            const newColumns = [ ...oldColumns ];
-            newColumns[index] = {
-                ...newColumns[index],
-                width: size.width,
-            };
-            return newColumns;
-        });
+                .catch((e) => {
+                    Notification.showError('Unable to load transactions', e.message);
+                    failCallback();
+                });
+        },
     };
 
-    return (
-        <Table
-            bordered
-            size='small'
-            components={tableComponents}
-            columns={intColumns}
-            dataSource={data}
-            pagination={false}
-            rowKey='id'
-            showSorterTooltip={false}
-            {...restProps}
-        />
-    );
-};
-
-export default ({ selectedAccount, setFormMode }) => {
-    const [ loading, setLoading ] = useState(true);
-    const [ loadedId, setLoadedId ] = useState();
-    const [ noMoreData, setNoMoreData ] = useState(false);
-    const [ viewportHeight, setViewportHeight ] = useState();
-    const [ totalRecords, setTotalRecords ] = useState(0);
-    const [ sortOrder, setSortOrder ] = useState({ columnKey: 'date', order: 'ascend' });
-    const [ columns, setColumns ] = useState([]);
-    const [ data, setData ] = useRecoilState(Atom.gridData);
-    const [ selectedRowKeys, setSelectedRowKeys ] = useRecoilState(Atom.gridSelection);
-    const { getTransactions } = API();
-
-    useEffect(() => {
-        if (!selectedAccount) {
-            return;
-        }
-        setColumns(getColumnsForType(selectedAccount.accountType.accountTypeClass));
-        handleFetch(selectedAccount.id);
-        // eslint-disable-next-line
-    }, [ selectedAccount ]);
-
-    useEffect(() => {
+    useLayoutEffect(() => {
         const setHeight = () => {
-            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) - 210;
-            const offset = vw < 550 ? 40 : vw < 768 ? 44 : 0;
+            const docElem = document.documentElement;
+            const vw = Math.max(docElem.clientWidth || 0, window.innerWidth || 0);
+            const vh = Math.max(docElem.clientHeight || 0, window.innerHeight || 0) - 135;
+            let offset = 0;
+            if (vw < 550) {
+                offset = 40;
+            } else if (vw < 768) {
+                offset = 44;
+            }
             setViewportHeight(vh - offset);
         };
         setHeight();
@@ -147,112 +70,68 @@ export default ({ selectedAccount, setFormMode }) => {
         // eslint-disable-next-line
     }, []);
 
-    const pageSize = 50;
-    const handleFetch = async (id) => {
-        setLoading(true);
-
-        if (id !== loadedId) {
-            setLoadedId(id);
-            setData([]);
-        }
-
-        try {
-            const page = Math.floor(data.length / pageSize);
-            const response = await getTransactions(id, page, pageSize);
-            setData(existing => existing.concat(response.content));
-            setNoMoreData(response.last);
-            setTotalRecords(response.totalElements);
-
-            const body = document.querySelector('.ant-table-body');
-            if (response.totalElements > 0 && body.scrollTop > 0) {
-                const offset = (36 * pageSize) + (viewportHeight * 0.5);
-                setTimeout(() => body && body.scrollBy(0, offset), 100);
-            }
-        } catch(e) {
-            Notification.showError('Unable to load transactions', e.message);
-        }
-        setLoading(false);
+    const onSelectionChanged = ({ api }) => {
+        setSelectedRowKeys(api.getSelectedRows().map((row) => row.id));
     };
 
-    const generateSummary = () => {
-        if (selectedRowKeys.length === 0) {
-            return <Tag>{formatNumber(totalRecords, 0)} Records</Tag>;
-        } else {
-            const selectedTransactions = data.filter(t => selectedRowKeys.indexOf(t.id) > -1);
-            let totalCredit = 0;
-            let totalDebit = 0;
-            selectedTransactions.forEach(({ amount }) => {
-                totalCredit += (amount > 0 ? amount : 0);
-                totalDebit += (amount < 0 ? -amount : 0);
-            });
+    const onRowDoubleClicked = (row) => {
+        if (row.rowPinned) {
+            return;
+        }
+        setSelectedRowKeys([ row.data.id ]);
+        setFormMode('edit');
+    };
+
+    const footerRenderer = (props) => {
+        const selectedRows = props.api.getSelectedRows();
+        if (selectedRows.length === 0) {
             return (
-                <>
-                    <Tag>{formatNumber(selectedTransactions.length, 0)} Selected</Tag>
-                    <Tag>Credit: {formatNumber(totalCredit)}</Tag>
-                    <Tag>Debit: {formatNumber(totalDebit)}</Tag>
-                </>
+                <Tag>
+                    {props.data.loadedRows} / {props.data.totalRows} Record
+                    {props.data.totalRows > 1 ? 's' : ''} Loaded
+                </Tag>
             );
         }
+
+        let totalCredit = 0;
+        let totalDebit = 0;
+        selectedRows.forEach(({ amount }) => {
+            totalCredit += (amount > 0 ? amount : 0);
+            totalDebit += (amount < 0 ? -amount : 0);
+        });
+
+        return (
+            <>
+                <Tag>{selectedRows.length} Record{selectedRows.length > 1 ? 's' : ''} Selected</Tag>
+                <Tag>Credit: {formatNumber({ value: totalCredit })}</Tag>
+                <Tag>Debit: {formatNumber({ value: totalDebit })}</Tag>
+            </>
+        );
     };
 
-    const selectRow = (record) => {
-        const selection = [ ...selectedRowKeys ];
-        if (selection.indexOf(record.id) >= 0) {
-            selection.splice(selection.indexOf(record.id), 1);
-        } else {
-            selection.push(record.id);
-        }
-        setSelectedRowKeys(selection);
-    };
-
-    const handleEvents = (record) => ({
-        onClick: () => selectRow(record),
-        onDoubleClick: () => {
-            setSelectedRowKeys([ record.id ]);
-            setFormMode('edit');
-        }
-    });
-
-    const rowSelection = {
-        selectedRowKeys,
-        onChange: (selection) => setSelectedRowKeys(selection)
-    };
-
-    const handleChange = (pagination, filters, sorter) => {
-        setSortOrder(sorter);
-    };
-
-    const handleScroll = ({ top }) => {
-        if (top < 300 && !loading && !noMoreData) {
-            handleFetch(selectedAccount.id);
-        }
-    };
-
-    const getScrollHeight = () => {
-        return ({ y: viewportHeight });
-    };
-
-    const [ vt ] = useVT(() => ({
-        overscanRowCount: 20,
-        scroll: getScrollHeight(),
-        onScroll: handleScroll,
-        initTop: 36 * pageSize
-    }), [ selectedAccount, loading, noMoreData, getScrollHeight ]);
-
-    return (
-        <Styled>
-            <TableWrapper
-                vt={vt}
-                columns={columns}
-                data={data}
-                scroll={getScrollHeight()}
-                loading={loading}
-                rowSelection={rowSelection}
-                footer={generateSummary}
-                onRow={handleEvents}
-                onChange={handleChange}
-                sortOrder={sortOrder}
+    return !selectedAccount ? <LoadingSpinner /> : (
+        <Wrapper
+            className="ag-theme-alpine-dark"
+            height={viewportHeight}
+        >
+            <AgGridReact
+                rowModelType="infinite"
+                datasource={datasource}
+                columnDefs={getColumnsForType(selectedAccount.accountType.accountTypeClass)}
+                defaultColDef={defaultColDef}
+                rowSelection="multiple"
+                onSelectionChanged={onSelectionChanged}
+                onRowDoubleClicked={onRowDoubleClicked}
+                animateRows
+                pinnedBottomRowData={[{
+                    selectedRows: selectedRowKeys.length,
+                    loadedRows: data.length,
+                    totalRows,
+                }]}
+                frameworkComponents={{ footerRenderer }}
+                onGridReady={({ columnApi }) => columnApi.getColumn('date').setSort('asc')}
+                enableRtl
             />
-        </Styled>
+        </Wrapper>
     );
-}
+};

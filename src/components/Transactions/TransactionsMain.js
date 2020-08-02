@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Layout, Row, Col } from 'antd';
+import {
+    Layout, Row, Col,
+} from 'antd';
+import styled from 'styled-components';
 import AccountSelector from '../Common/AccountSelector';
 import TransactionGrid from './TransactionsGrid';
-import styled from 'styled-components';
 import TransactionsButtons from './TransactionsButtons';
 import TransactionsForm from './TransactionsForm';
 
@@ -37,12 +39,18 @@ export default () => {
                         <AccountSelector setSelectedAccount={setSelectedAccount} />
                     </Col>
                     <Col xs={24} sm={14} lg={16} xl={18} style={{ overflowX: 'hidden' }}>
-                        <TransactionsButtons selectedAccount={selectedAccount} setFormMode={setFormMode} />
+                        <TransactionsButtons
+                            selectedAccount={selectedAccount}
+                            setFormMode={setFormMode}
+                        />
                     </Col>
                 </Row>
                 <Row className="gridWrapper">
                     <Col xs={24}>
-                        <TransactionGrid selectedAccount={selectedAccount} setFormMode={setFormMode} />
+                        <TransactionGrid
+                            selectedAccount={selectedAccount}
+                            setFormMode={setFormMode}
+                        />
                     </Col>
                 </Row>
             </Content>
@@ -53,4 +61,4 @@ export default () => {
             />
         </Styled>
     );
-}
+};

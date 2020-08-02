@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import Atom from '../Common/Atom';
-import { Drawer, Button, Typography, Form, Input, InputNumber, DatePicker, Radio } from 'antd';
-import { baseProps, rules, TailFormItem } from '../Common/FormProps';
-import AntIcon from '../Common/AntIcon';
+import {
+    Drawer, Button, Typography, Form, Input, InputNumber, DatePicker, Radio,
+} from 'antd';
 import { TiDocumentText, TiCancel } from 'react-icons/ti';
 import styled from 'styled-components';
 import { presetDarkPalettes } from '@ant-design/colors';
 import moment from 'moment';
+import AntIcon from '../Common/AntIcon';
+import {
+    baseProps, rules, TailFormItem,
+} from '../Common/FormProps';
+import Atom from '../Common/Atom';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import { sortDate } from '../Common/Util';
@@ -54,7 +58,7 @@ export default ({ mode, setMode, account }) => {
     const { addTransaction, updateTransaction } = API();
     const [ form ] = Form.useForm();
 
-    const getTransactions = () => gridData.filter(row => selectedRowKeys.indexOf(row.id) > -1);
+    const getTransactions = () => gridData.filter((row) => selectedRowKeys.indexOf(row.id) > -1);
 
     const getFormValues = () => {
         if (!mode) {
@@ -71,7 +75,7 @@ export default ({ mode, setMode, account }) => {
             ...transaction,
             date: moment(transaction.date),
             creditDebit: transaction.amount > 0 ? 'credit' : 'debit',
-            amount: Math.abs(transaction.amount)
+            amount: Math.abs(transaction.amount),
         };
     };
 
@@ -104,34 +108,32 @@ export default ({ mode, setMode, account }) => {
             if ([ 'Cash', 'CreditCard' ].indexOf(submission.assetClass) > -1) {
                 let minDate = transaction.date;
                 if (mode === 'edit') {
-                    const originalDate = gridData.filter(t => t.id === submission.id)[0].date;
+                    const originalDate = gridData.filter((t) => t.id === submission.id)[0].date;
                     if (originalDate < minDate) {
                         minDate = originalDate;
                     }
                 }
 
-                const epochTransactions = gridData.filter(record => record.date < minDate);
+                const epochTransactions = gridData.filter((record) => record.date < minDate);
                 const epochTransaction = epochTransactions.length === 0 ? null : epochTransactions
-                    .reduce((prev, curr) => prev.date > curr.date ? prev : curr);
+                    .reduce((prev, curr) => (prev.date > curr.date ? prev : curr));
 
                 let balance = epochTransaction ? epochTransaction.balance : 0;
                 const rebalancedFuture = [
-                        transaction,
-                        ...gridData
-                            .filter(t => t.date >= minDate)
-                            .filter(t => t.id !== submission.id)
-                    ]
-                    .sort(sortDate)
-                    .map(t => ({ ...t, balance: balance += t.amount }));
+                    transaction,
+                    ...gridData
+                        .filter((t) => t.date >= minDate)
+                        .filter((t) => t.id !== submission.id),
+                ].sort(sortDate).map((t) => ({ ...t, balance: balance += t.amount }));
 
-                setGridData(existing => [
-                    ...existing.filter(t => t.date < minDate),
+                setGridData((existing) => [
+                    ...existing.filter((t) => t.date < minDate),
                     ...rebalancedFuture,
                 ]);
             } else {
-                setGridData(existing => [
-                    ...existing.filter(t => t.id !== transaction.id),
-                    transaction
+                setGridData((existing) => [
+                    ...existing.filter((t) => t.id !== transaction.id),
+                    transaction,
                 ]);
             }
 
@@ -139,7 +141,7 @@ export default ({ mode, setMode, account }) => {
             Notification.showSuccess(`Transaction ${label}ed`);
             setLoading(false);
             setMode(false);
-        } catch(e) {
+        } catch (e) {
             Notification.showError(`Unable to ${label.toLowerCase()} transaction`, e.message);
             setLoading(false);
         }
@@ -153,21 +155,21 @@ export default ({ mode, setMode, account }) => {
     const formProps = () => ({
         ...baseProps,
         form,
-        onFinish: submitForm
+        onFinish: submitForm,
     });
 
     return (
         <Styled>
-            <div className="drawerWrapper"></div>
+            <div className="drawerWrapper" />
             <Drawer
                 placement="right"
                 visible={mode}
-                mask={true}
+                mask
                 closable={false}
                 width="35rem"
                 style={{ paddingTop: '3rem' }}
                 getContainer=".drawerWrapper"
-                destroyOnClose={true}
+                destroyOnClose
             >
                 <Title level={4}>{label} Transaction</Title>
 
@@ -176,7 +178,7 @@ export default ({ mode, setMode, account }) => {
                         label="Date"
                         name="date"
                     >
-                        <DatePicker allowClear={false} inputReadOnly={true} />
+                        <DatePicker allowClear={false} inputReadOnly />
                     </Form.Item>
                     <Form.Item
                         label="Type"
@@ -191,14 +193,14 @@ export default ({ mode, setMode, account }) => {
                     <Form.Item
                         label="Amount"
                         name="amount"
-                        rules={[rules.requiredRule]}
+                        rules={[ rules.requiredRule ]}
                     >
                         <InputNumber placeholder="Amount" type="number" />
                     </Form.Item>
                     <Form.Item
                         label="Remarks"
                         name="remarks"
-                        rules={[rules.requiredRule]}
+                        rules={[ rules.requiredRule ]}
                     >
                         <Input placeholder="Remarks" />
                     </Form.Item>

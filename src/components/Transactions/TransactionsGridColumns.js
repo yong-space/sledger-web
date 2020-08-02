@@ -1,47 +1,43 @@
-import { formatNumber, formatDate, sortDate } from '../Common/Util';
+import { formatNumber, formatDate } from '../Common/Util';
 
 export const columnDefinitions = {
     date: {
-        title: 'Date',
-        dataIndex: 'date',
-        key: 'date',
-        width: 110,
-        render: (text, record) => formatDate(record.date),
-        sorter: sortDate,
+        headerName: 'Date',
+        field: 'date',
+        sortable: true,
+        filter: true,
+        checkboxSelection: true,
+        valueFormatter: formatDate,
+        colSpan: (params) => (params.node.rowPinned ? params.columnApi.getAllDisplayedColumns().length : 1),
+        pinnedRowCellRenderer: 'footerRenderer',
     },
     amount: {
-        title: 'Amount',
-        dataIndex: 'amount',
-        key: 'amount',
-        width: 100,
-        align: 'right',
-        render: (text, record) => formatNumber(record.amount),
-        sorter: (a, b) => b.amount - a.amount,
+        headerName: 'Amount',
+        field: 'amount',
+        sortable: true,
+        valueFormatter: formatNumber,
     },
     balance: {
-        title: 'Balance',
-        dataIndex: 'balance',
-        key: 'balance',
-        width: 150,
-        align: 'right',
-        responsive: ['md'],
-        render: (text, record) => formatNumber(record.balance),
+        headerName: 'Balance',
+        field: 'balance',
+        sortable: true,
+        valueFormatter: formatNumber,
     },
     remarks: {
-        title: 'Remarks',
-        dataIndex: 'remarks',
-        key: 'remarks',
-        width: 150,
-        ellipsis: true,
-        sorter: (a, b) => a.remarks > b.remarks,
+        headerName: 'Remarks',
+        field: 'remarks',
+        sortable: true,
+        filter: true,
+        flex: 1,
     },
     tag: {
-        title: 'Tag',
-        dataIndex: 'tag',
-        key: 'tag',
-        width: 200,
-        responsive: ['md'],
+        headerName: 'Tag',
+        field: 'tag',
     },
+};
+
+export const defaultColDef = {
+    resizable: true,
 };
 
 export const getColumnsForType = (assetClass) => {

@@ -1,14 +1,15 @@
 import dayjs from 'dayjs';
 
-const formatNumber = (number, decPlaces = 2) =>
-    number.toFixed(decPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const formatNumber = ({ value }, decPlaces = 2) => (
+    !value ? '0.00' : value.toFixed(decPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+);
 
-const formatDate = (date) => dayjs(date).format('MMM D YYYY');
+const formatDate = ({ value }) => dayjs(value).format('MMM D YYYY');
 
-const sortDate = (a, b) => dayjs(a.date).isAfter(dayjs(b.date)) ? 1 : -1;
+const sortDate = (a, b) => (dayjs(a.date).isAfter(dayjs(b.date)) ? 1 : -1);
 
 export {
     formatNumber,
     formatDate,
-    sortDate
+    sortDate,
 };
