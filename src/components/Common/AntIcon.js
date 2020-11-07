@@ -7,10 +7,14 @@ const IconWrapper = styled.div`
 `;
 
 export default (props) => {
-    const ActualIcon = props.i;
+    const { i: ActualIcon, rotate, style, size, red } = props;
+    const allStyles = {
+        ...(style || {}),
+        ...(red && { color: 'maroon' }),
+    };
     return (
-        <IconWrapper className={`anticon ${props.rotate ? 'rotate' : 'no-rotate'}`}>
-            <ActualIcon style={{ ...props.style }} size={props.size || 16} />
+        <IconWrapper className={`anticon ${rotate ? 'rotate' : 'no-rotate'}`}>
+            <ActualIcon style={allStyles} size={size || 16} />
         </IconWrapper>
     );
 };

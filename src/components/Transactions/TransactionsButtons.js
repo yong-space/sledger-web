@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button, Modal } from 'antd';
-import AntIcon from '../Common/AntIcon';
 import {
     AiOutlinePlusCircle, AiOutlineMinusCircle, AiOutlineCloudUpload, AiFillWarning,
 } from 'react-icons/ai';
 import { DiGitMerge } from 'react-icons/di';
 import { useRecoilState } from 'recoil';
+import AntIcon from '../Common/AntIcon';
 import Atom from '../Common/Atom';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
@@ -29,40 +29,41 @@ export default ({ selectedAccount, setFormMode }) => {
     const { deleteTransactions } = API();
 
     const deleteHandler = () => Modal.confirm({
-        title: `Are you sure you wish to delete these transactions?`,
+        title: 'Are you sure you wish to delete these transactions?',
         icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
-        onOk: () => new Promise(async (resolve) => {
-            try {
-                await deleteTransactions(selectedRowKeys);
+        onOk: () => new Promise((resolve, reject) => {
+            deleteTransactions(selectedRowKeys).then(() => {
+                try {
+                    const minDeletedDate = gridData
+                        .filter((record) => selectedRowKeys.indexOf(record.id) > -1)
+                        .reduce((prev, curr) => (prev.date < curr.date ? prev : curr))
+                        .date;
+                    const epochTransaction = gridData
+                        .filter((record) => record.date < minDeletedDate)
+                        .reduce((prev, curr) => (prev.date > curr.date ? prev : curr));
+                    let { balance } = epochTransaction;
+                    const reducedData = [
+                        ...gridData
+                            .filter((t) => t.date > epochTransaction.date)
+                            .filter((t) => selectedRowKeys.indexOf(t.id) === -1),
+                    ];
+                    const rebalancedFuture = reducedData
+                        .sort(sortDate)
+                        .map((t) => ({ ...t, balance: balance += t.amount }));
 
-                const minDeletedDate = gridData
-                    .filter(record => selectedRowKeys.indexOf(record.id) > -1)
-                    .reduce((prev, curr) => prev.date < curr.date ? prev : curr)
-                    .date;
-                const epochTransaction = gridData
-                    .filter(record => record.date < minDeletedDate)
-                    .reduce((prev, curr) => prev.date > curr.date ? prev : curr);
-                let balance = epochTransaction.balance;
-                const reducedData = [
-                    ...gridData
-                        .filter(t => t.date > epochTransaction.date)
-                        .filter(t => selectedRowKeys.indexOf(t.id) === -1)
-                ];
-                const rebalancedFuture = reducedData
-                    .sort(sortDate)
-                    .map(t => ({ ...t, balance: balance += t.amount }));
-
-                setGridData(existing => [
-                    ...existing.filter(record => record.date < minDeletedDate),
-                    ...rebalancedFuture
-                ]);
-                setSelectedRowKeys([]);
-                Notification.showSuccess('Transactions deleted');
-            } catch(e) {
-                Notification.showError('Unable to delete transactions', e.message);
-            }
-            resolve();
-        })
+                    setGridData((existing) => [
+                        ...existing.filter((record) => record.date < minDeletedDate),
+                        ...rebalancedFuture,
+                    ]);
+                    setSelectedRowKeys([]);
+                    Notification.showSuccess('Transactions deleted');
+                    resolve();
+                } catch (e) {
+                    Notification.showError('Unable to delete transactions', e.message);
+                    reject();
+                }
+            });
+        }),
     });
 
     const mergeHandler = () => {
@@ -103,13 +104,13 @@ export default ({ selectedAccount, setFormMode }) => {
             icon: AiOutlineCloudUpload,
             handler: importHandler,
             className: 'info desktop',
-            hidden: selectedAccount && !selectedAccount.accountType.importEnabled
-        }
+            hidden: selectedAccount && !selectedAccount.accountType.importEnabled,
+        },
     ];
 
     const getButtons = () => buttons
-        .filter(button => !button.hidden)
-        .map(button => (
+        .filter((button) => !button.hidden)
+        .map((button) => (
             <Button
                 key={button.label}
                 type="primary"
@@ -130,4 +131,4 @@ export default ({ selectedAccount, setFormMode }) => {
             </FlexDiv>
         </Styled>
     );
-}
+};

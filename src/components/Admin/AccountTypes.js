@@ -3,10 +3,26 @@ import {
     Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal, Tag
 } from 'antd';
 import { AiOutlineAccountBook, AiFillWarning } from 'react-icons/ai';
+import styled from 'styled-components';
 import Notification from '../Common/Notification';
 import API from '../Common/API';
 import AntIcon from '../Common/AntIcon';
-import { baseProps, rules, TailFormItem } from '../Common/FormProps';
+import {
+    baseProps, rules, TailFormItem,
+} from '../Common/FormProps';
+
+const ColouredTag = styled(Tag)`
+    width: 100%;
+    justify-content: center;
+    text-transform: capitalize;
+`;
+
+const ColourSample = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    .ant-tag { height: 2em; margin: auto 0; }
+`;
 
 export default () => {
     const [ accountTypes, setAccountTypes ] = useState([]);
@@ -20,12 +36,12 @@ export default () => {
         setSavingAccountType(true);
         try {
             const accountType = await addAccountType(values);
-            setAccountTypes(existing => [
-                ...existing, { ...accountType, key: existing.length + 1 }
+            setAccountTypes((existing) => [
+                ...existing, { ...accountType, key: existing.length + 1 },
             ]);
             addAccountTypeForm.resetFields();
             Notification.showSuccess('Account Type Added');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to add account type', e.message);
         }
         setSavingAccountType(false);
@@ -34,10 +50,9 @@ export default () => {
     const submitDeleteAccountType = async (id) => {
         try {
             await deleteAccountType(id);
-            setAccountTypes(existing =>
-                existing.filter(a => a.id !== id));
+            setAccountTypes((existing) => existing.filter((a) => a.id !== id));
             Notification.showSuccess('Account Type Deleted');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to delete account type', e.message);
         }
     };
@@ -47,7 +62,7 @@ export default () => {
         try {
             const response = await getAccountTypes();
             setAccountTypes(response.map((entry, index) => ({ ...entry, key: index })));
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to load account types', e.message);
         }
         setLoading(false);
@@ -58,21 +73,19 @@ export default () => {
         // eslint-disable-next-line
     }, []);
 
-    const checkboxRenderer = (text, record) =>
-        <Switch checked={record.importEnabled} disabled={true} />;
+    const checkboxRenderer = (text, record) => <Switch checked={record.importEnabled} disabled />;
 
     const confirmDelete = (record) => Modal.confirm({
         title: `Confirm deletion of ${record.accountTypeName}?`,
-        icon: <AntIcon i={AiFillWarning} style={{ color: 'red' }} />,
+        icon: <AntIcon i={AiFillWarning} red />,
         onOk: () => new Promise((resolve) => {
             submitDeleteAccountType(record.id).then(() => resolve());
-        })
+        }),
     });
 
-    const deleteButton = (text, record) =>
-        <Button danger onClick={() => confirmDelete(record)}>Delete</Button>;
-
-    const colourTag = (text) => <Tag color={text}>{text}</Tag>;
+    const deleteButton = (text, record) => (
+        <Button danger onClick={() => confirmDelete(record)}>Delete</Button>
+    );
 
     const columns = [
         {
@@ -80,69 +93,77 @@ export default () => {
             title: 'Type',
             sorter: {
                 compare: (a, b) => a.accountTypeClass.localeCompare(b.accountTypeClass),
-                multiple: 2
+                multiple: 2,
             },
-            defaultSortOrder: 'ascend'
+            defaultSortOrder: 'ascend',
         },
         {
             dataIndex: 'accountTypeName',
             title: 'Bank',
             sorter: {
                 compare: (a, b) => a.accountTypeName.localeCompare(b.accountTypeName),
-                multiple: 1
+                multiple: 1,
             },
-            defaultSortOrder: 'ascend'
+            defaultSortOrder: 'ascend',
         },
         {
             dataIndex: 'colour',
             title: 'Colour',
-            render: colourTag
+            render: (text) => <ColouredTag color={text}>{text}</ColouredTag>,
         },
         {
             dataIndex: 'importEnabled',
             title: 'Importable',
             render: checkboxRenderer,
-            width: 50
+            width: 50,
         },
         {
             title: 'Delete',
             width: 50,
-            render: deleteButton
-        }
+            render: deleteButton,
+        },
     ];
 
     const tagColours = [
-        'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green', 'cyan', 'blue', 'geekblue', 'purple'
+        'Magenta',
+        'Red',
+        'Volcano',
+        'Orange',
+        'Gold',
+        'Lime',
+        'Green',
+        'Cyan',
+        'Blue',
+        'Geekblue',
+        'Purple',
     ];
 
     const addAccountTypeFormProps = {
         ...baseProps,
         form: addAccountTypeForm,
         initialValues: {
-            accountTypeClass: "Cash",
+            accountTypeClass: 'Cash',
             importEnabled: false,
-            colour: tagColours[0]
+            colour: tagColours[0],
         },
-        onFinish: submitAddAccountType
+        onFinish: submitAddAccountType,
     };
 
-    const colourOptions = tagColours.map(colour =>
+    const colourOptions = tagColours.map((colour) => (
         <Select.Option value={colour} key={colour}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>
-                    {colour.substr(0, 1).toUpperCase()}{colour.substr(1)}
-                </span>
-                <Tag color={colour} style={{ height: '2em', margin: 'auto 0' }}>
+            <ColourSample>
+                <span>{colour}</span>
+                <Tag color={colour.toLowerCase()}>
                     Example
                 </Tag>
-            </div>
+            </ColourSample>
         </Select.Option>
-    );
+    ));
 
     return (
         <>
             <Title level={4}>Manage Account Types</Title>
-            <Row gutter={[20, 20]}>
+            <Row gutter={[ 20, 20 ]}>
                 <Col xs={24} md={18} xl={14}>
                     <Table
                         columns={columns}
