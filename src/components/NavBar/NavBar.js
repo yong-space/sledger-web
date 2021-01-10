@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
-import Atom from '../Common/Atom';
-import authServices from '../Login/AuthServices';
-import { Avatar, Button, Layout, Menu, Drawer, Divider, Dropdown } from 'antd';
+import {
+    Avatar, Button, Menu, Drawer, Divider, Dropdown,
+} from 'antd';
 import {
     AiOutlineDashboard, AiOutlineUser, AiOutlineLogout, AiOutlineMenu, AiOutlinePieChart,
-    AiOutlineBarChart, AiOutlineAccountBook
+    AiOutlineBarChart, AiOutlineAccountBook,
 } from 'react-icons/ai';
 import { IoIosSettings } from 'react-icons/io';
 import { BsLightning } from 'react-icons/bs';
 import { TiDocumentText } from 'react-icons/ti';
 import { FaRegCreditCard, FaMoneyBillAlt } from 'react-icons/fa';
 import { MdBackup } from 'react-icons/md';
+import authServices from '../Login/AuthServices';
+import Atom from '../Common/Atom';
 import AntIcon from '../Common/AntIcon';
 import logoWhite from '../../assets/logo-white.svg';
-import './NavBar.less'
+import {
+    LoginDescription, LoginStatus, Logo, Styled,
+} from './NavBar.styles';
 
 export default () => {
-    let history = useHistory();
-    let location = useLocation();
+    const history = useHistory();
+    const location = useLocation();
     const [ selectedItems, setSelectedItems ] = useRecoilState(Atom.selectedNavItems);
     const [ drawerVisible, setDrawerVisible ] = useState(false);
     const { isAdmin, getProfile, logout } = authServices();
@@ -33,7 +37,7 @@ export default () => {
                 children: [
                     { label: 'Summary', icon: AiOutlinePieChart, route: '/dash/summary' },
                     { label: 'Balance History', icon: AiOutlineBarChart, route: '/dash/balance-history' },
-                ]
+                ],
             },
             { label: 'Transactions', icon: TiDocumentText, route: '/transactions' },
             {
@@ -44,9 +48,9 @@ export default () => {
                     { label: 'Profile', icon: AiOutlineUser, route: '/settings/profile' },
                     { label: 'Cash Accounts', icon: FaMoneyBillAlt, route: '/settings/cash-accounts' },
                     { label: 'Credit Cards', icon: FaRegCreditCard, route: '/settings/credit-cards' },
-                    { label: 'Backup', icon: MdBackup, route: '/settings/backup' }
-                ]
-            }
+                    { label: 'Backup', icon: MdBackup, route: '/settings/backup' },
+                ],
+            },
         ];
         if (isAdmin()) {
             menuItems.push(
@@ -56,30 +60,48 @@ export default () => {
                     route: '/admin',
                     children: [
                         { label: 'Account Types', icon: AiOutlineAccountBook, route: '/admin/account-types' },
-                    ]
-                }
+                    ],
+                },
             );
         }
         return menuItems;
-    }
+    };
+
+    const closeDrawer = () => setDrawerVisible(false);
+
+    const handleMenuClick = (event) => {
+        closeDrawer();
+        if (event.keyPath && event.keyPath.length > 1) {
+            setSelectedItems(event.keyPath);
+        } else {
+            const topLevel = getMenuItems().filter((i) => i.route === event.key)[0];
+            if (topLevel.children) {
+                setSelectedItems([ event.key, topLevel.children[0].route ]);
+            } else {
+                setSelectedItems([ event.key ]);
+            }
+        }
+        history.push(event.key);
+    };
 
     const menuLinks = (desktop) => getMenuItems().map((menuItem) => {
         if (desktop && menuItem.children) {
-            const childMenus = menuItem.children.map(child =>
+            const childMenus = menuItem.children.map((child) => (
                 <Menu.Item key={child.route}>
                     <AntIcon i={child.icon} /> {child.label}
                 </Menu.Item>
-            )
+            ));
             return (
                 <Menu.SubMenu
                     key={menuItem.route}
                     title={menuItem.label}
                     icon={<AntIcon i={menuItem.icon} />}
                     onTitleClick={handleMenuClick}
+                    popupClassName="x"
                 >
                     {childMenus}
                 </Menu.SubMenu>
-            )
+            );
         }
         return (
             <Menu.Item key={menuItem.route} icon={<AntIcon i={menuItem.icon} />}>
@@ -88,13 +110,13 @@ export default () => {
         );
     });
 
-    const closeDrawer = () => setDrawerVisible(false);
-
     useEffect(() => {
         const menuItems = getMenuItems();
         const menuMap = [
-            ...menuItems.map(i => [i.route]),
-            ...menuItems.filter(i => i.children).map(i => i.children.map(c => [ c.route, i.route ])).flat()
+            ...menuItems.map((i) => [ i.route ]),
+            ...menuItems.filter((i) => i.children).map((i) => (
+                i.children.map((c) => [ c.route, i.route ])
+            ).flat()),
         ].reduce((obj, item) => {
             obj[item[0]] = item;
             return obj;
@@ -109,26 +131,11 @@ export default () => {
         // eslint-disable-next-line
     }, [ location.pathname ]);
 
-    const handleMenuClick = (event) => {
-        closeDrawer();
-        if (event.keyPath && event.keyPath.length > 1) {
-            setSelectedItems(event.keyPath);
-        } else {
-            const topLevel = getMenuItems().filter(i => i.route === event.key)[0];
-            if (topLevel.children) {
-                setSelectedItems([ event.key, topLevel.children[0].route ]);
-            } else {
-                setSelectedItems([ event.key ]);
-            }
-        }
-        history.push(event.key);
-    };
-
     const avatar = (
-        <div className="login-description">
+        <LoginDescription>
             <Avatar icon={<AntIcon i={AiOutlineUser} />} />
             {getProfile()?.fullName || ''}
-        </div>
+        </LoginDescription>
     );
 
     const logoutButton = (
@@ -172,11 +179,11 @@ export default () => {
     );
 
     return (
-        <Layout.Header className="header-container">
+        <Styled>
             <div>
-                <a href="/">
-                    <img src={logoWhite} alt='Sledger' className="logo" />
-                </a>
+                <Logo href="/">
+                    <img src={logoWhite} alt="Sledger" />
+                </Logo>
 
                 <Menu
                     className="desktop"
@@ -184,16 +191,19 @@ export default () => {
                     mode="horizontal"
                     onClick={handleMenuClick}
                     selectedKeys={selectedItems}
+                    style={{ width: '80vw' }}
+                    getPopupContainer={(item) => item.parentElement}
                 >
                     {menuLinks(true)}
                 </Menu>
             </div>
-            <div className="login-status desktop">
+            <LoginStatus className="desktop">
                 {avatarDesktop}
-            </div>
+            </LoginStatus>
             <Button
-                className="mobile hamburger"
-                onClick={() => setDrawerVisible(!drawerVisible) }
+                style={{ margin: '.5rem' }}
+                className="mobile"
+                onClick={() => setDrawerVisible(!drawerVisible)}
             >
                 <AntIcon i={AiOutlineMenu} />
             </Button>
@@ -217,6 +227,6 @@ export default () => {
                 <Divider />
                 {avatarMobile}
             </Drawer>
-        </Layout.Header>
+        </Styled>
     );
-}
+};
