@@ -111,19 +111,18 @@ export default () => {
     });
 
     useEffect(() => {
-        const menuItems = getMenuItems();
-        const menuMap = [
-            ...menuItems.map((i) => [ i.route ]),
-            ...menuItems.filter((i) => i.children).map((i) => (
-                i.children.map((c) => [ c.route, i.route ])
-            ).flat()),
-        ].reduce((obj, item) => {
-            obj[item[0]] = item;
-            return obj;
-        }, {});
-
-        if (Object.keys(menuMap).indexOf(location.pathname) > -1) {
-            setSelectedItems(menuMap[location.pathname]);
+        const path = location.pathname.replace(/\/$/g, '');
+        if (path === '') {
+            setSelectedItems([ '/dash', '/dash/summary' ]);
+        } else if (path.match(/\//g).length === 1) {
+            const rootMenuChildren = getMenuItems().filter((i) => i.route === path)[0].children;
+            if (rootMenuChildren) {
+                setSelectedItems([ path, rootMenuChildren[0].route ]);
+            } else {
+                setSelectedItems([ path ]);
+            }
+        } else {
+            setSelectedItems([ path, path.match(/\/\w+/)[0] ]);
         }
 
         window.addEventListener('resize', closeDrawer);
@@ -180,7 +179,7 @@ export default () => {
 
     return (
         <Styled>
-            <div>
+            <div className="main">
                 <Logo href="/">
                     <img src={logoWhite} alt="Sledger" />
                 </Logo>
@@ -191,7 +190,6 @@ export default () => {
                     mode="horizontal"
                     onClick={handleMenuClick}
                     selectedKeys={selectedItems}
-                    style={{ width: '80vw' }}
                     getPopupContainer={(item) => item.parentElement}
                 >
                     {menuLinks(true)}

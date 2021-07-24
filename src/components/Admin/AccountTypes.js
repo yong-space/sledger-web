@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal, Tag
+    Typography, Table, Button, Form, Input, Select, Row, Col, Switch, Modal, Tag,
 } from 'antd';
 import { AiOutlineAccountBook, AiFillWarning } from 'react-icons/ai';
 import styled from 'styled-components';
@@ -163,7 +163,7 @@ export default () => {
     return (
         <>
             <Title level={4}>Manage Account Types</Title>
-            <Row gutter={[ 20, 20 ]}>
+            <Row style={{ marginBottom: '1.2rem' }}>
                 <Col xs={24} md={18} xl={14}>
                     <Table
                         columns={columns}

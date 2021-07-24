@@ -7,14 +7,18 @@ import BalanceHistory from './BalanceHistory';
 export default () => {
     const menuItems = [
         {
-            label: 'Summary', icon: AiOutlinePieChart,
-            route: '/dash/summary', component: Summary
+            label: 'Summary',
+            icon: AiOutlinePieChart,
+            route: '/dash/summary',
+            component: Summary,
         },
         {
-            label: 'Balance History', icon: AiOutlineBarChart,
-            route: '/dash/balance-history', component: BalanceHistory
-        }
+            label: 'Balance History',
+            icon: AiOutlineBarChart,
+            route: '/dash/balance-history',
+            component: BalanceHistory,
+        },
     ];
 
     return <SiderLayout menuItems={menuItems} />;
-}
+};

@@ -2,18 +2,18 @@ import { notification } from 'antd';
 
 export default {
     showSuccess: (message) => {
-        notification['success']({
-            message: message,
+        notification.success({
+            message,
             duration: 2,
-            placement: 'bottomRight'
+            placement: 'bottomRight',
         });
     },
     showError: (title, message) => {
-        notification['error']({
+        notification.error({
             message: title,
             description: message,
             duration: 5,
-            placement: 'bottomRight'
+            placement: 'bottomRight',
         });
-    }
-}
+    },
+};

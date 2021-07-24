@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from 'antd';
 import { AiFillCaretRight } from 'react-icons/ai';
-import AntIcon from './AntIcon';
 import styled from 'styled-components';
+import AntIcon from './AntIcon';
 
 const ButtonWrapper = styled.div`
     position: fixed;

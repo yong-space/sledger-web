@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from "react-router-dom";
-import { Layout, Button, Input, Row, Col, Form, Alert } from 'antd';
+import { useHistory } from 'react-router-dom';
+import {
+    Layout, Button, Input, Row, Col, Form, Alert,
+} from 'antd';
+import {
+    AiOutlineUser, AiOutlineLogin, AiOutlineLock,
+} from 'react-icons/ai';
 import authServices from './AuthServices';
-import { AiOutlineUser, AiOutlineLogin, AiOutlineLock } from 'react-icons/ai';
 import AntIcon from '../Common/AntIcon';
 import logoWhite from '../../assets/logo-white.svg';
 
 export default () => {
-    let history = useHistory();
+    const history = useHistory();
     const { login, getAuthToken } = authServices();
     const [ username, setUsername ] = useState('');
     const [ password, setPassword ] = useState('');
@@ -17,6 +21,8 @@ export default () => {
     useEffect(() => {
         if (!loading && getAuthToken() !== null) {
             history.push('/dash/summary');
+        } else if (!getAuthToken()) {
+            history.push('/login');
         }
         // eslint-disable-next-line
     }, []);
@@ -41,27 +47,27 @@ export default () => {
         if (event.keyCode === 13) {
             submitLogin();
         }
-    }
+    };
 
     return (
         <Layout style={{ height: '100vh', paddingTop: '20vh' }}>
-            <Row justify="space-around" align="middle" gutter={[0, 48]}>
-                <img src={logoWhite} alt='Sledger' style={{ height: '2.2rem' }} />
+            <Row justify="space-around" align="middle" gutter={[ 0, 48 ]}>
+                <img src={logoWhite} alt="Sledger" style={{ height: '2.2rem' }} />
             </Row>
             <Row justify="space-around" align="middle">
                 <Col xs={20} sm={16} md={12} lg={8} xl={6}>
                     <Form>
                         <Form.Item>
                             <Input
-                                placeholder='Username'
-                                onChange={e => setUsername(e.target.value)}
+                                placeholder="Username"
+                                onChange={(e) => setUsername(e.target.value)}
                                 addonBefore={<AntIcon i={AiOutlineUser} />}
                             />
                         </Form.Item>
                         <Form.Item>
                             <Input.Password
-                                placeholder='Password'
-                                onChange={e => setPassword(e.target.value)}
+                                placeholder="Password"
+                                onChange={(e) => setPassword(e.target.value)}
                                 addonBefore={<AntIcon i={AiOutlineLock} />}
                                 onKeyDown={handleEnter}
                             />
@@ -70,11 +76,11 @@ export default () => {
                         <Form.Item
                             wrapperCol={{
                                 xs: { offset: 0 },
-                                sm: { offset: 6, span: 12 }
+                                sm: { offset: 6, span: 12 },
                             }}
                         >
                             <Button
-                                block={true}
+                                block
                                 size="large"
                                 shape="round"
                                 type="primary"

@@ -9,6 +9,8 @@ const Styled = styled(Layout.Header)`
     position: fixed;
     width: 100vw;
     z-index: 999999;
+    
+    .main { width: 100% }
 
     @media (max-width: 767px) {
         .desktop { display: none }
@@ -74,6 +76,7 @@ const LoginStatus = styled.div`
 const LoginDescription = styled.div`
     color: #fff;
     cursor: pointer;
+    white-space: nowrap;
     @media (max-width: 767px) { margin: 1rem 0 }
     @media (min-width: 768px) { display: inline }
     .ant-avatar {

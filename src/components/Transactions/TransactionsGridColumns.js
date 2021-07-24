@@ -8,7 +8,9 @@ export const columnDefinitions = {
         filter: true,
         checkboxSelection: true,
         valueFormatter: formatDate,
-        colSpan: (params) => (params.node.rowPinned ? params.columnApi.getAllDisplayedColumns().length : 1),
+        colSpan: (params) => (
+            params.node.rowPinned ? params.columnApi.getAllDisplayedColumns().length : 1
+        ),
         pinnedRowCellRenderer: 'footerRenderer',
     },
     amount: {

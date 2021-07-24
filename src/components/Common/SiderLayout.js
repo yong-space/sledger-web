@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
-import Atom from '../Common/Atom';
-import { useHistory } from 'react-router-dom';
-import { Switch, Route, Redirect } from 'react-router-dom';
-import { Layout, Menu, Drawer } from 'antd';
-import { useSwipeable } from 'react-swipeable'
-import SiderButton from '../Common/SiderButton';
+import {
+    useHistory, Switch, Route, Redirect,
+} from 'react-router-dom';
+
+import {
+    Layout, Menu, Drawer,
+} from 'antd';
+import { useSwipeable } from 'react-swipeable';
 import styled from 'styled-components';
-import AntIcon from '../Common/AntIcon';
+import SiderButton from './SiderButton';
+import Atom from './Atom';
+import AntIcon from './AntIcon';
 
 const Styled = styled.div`
     height: 100%;
@@ -25,7 +29,7 @@ const Styled = styled.div`
 `;
 
 export default (props) => {
-    let history = useHistory();
+    const history = useHistory();
     const [ selectedItems, setSelectedItems ] = useRecoilState(Atom.selectedNavItems);
     const { Content, Sider } = Layout;
     const [ siderCollapsed, setSiderCollapsed ] = useState(false);
@@ -37,7 +41,7 @@ export default (props) => {
             } else if (event.dir === 'Right' && drawerCollapsed) {
                 setDrawerCollapsed(false);
             }
-        }
+        },
     });
 
     const closeDrawer = (event) => {
@@ -58,12 +62,15 @@ export default (props) => {
         </Menu.Item>
     ));
 
-    const routes = props.menuItems.map((menuItem, index) =>
-        <Route exact
-            key={index}
+    const { menuItems } = props;
+    const routes = menuItems.map((menuItem) => (
+        <Route
+            exact
+            key={menuItem.route}
             path={menuItem.route}
-            component={menuItem.component} />
-    );
+            component={menuItem.component}
+        />
+    ));
 
     const handleMenuClick = (event) => {
         if (!drawerCollapsed) {
@@ -104,7 +111,7 @@ export default (props) => {
                 </Layout>
             </Layout>
 
-            <div className="drawerWrapper"></div>
+            <div className="drawerWrapper" />
 
             <Drawer
                 placement="left"
@@ -133,4 +140,4 @@ export default (props) => {
             />
         </Styled>
     );
-}
+};

@@ -11,22 +11,30 @@ import Backup from './Backup';
 export default () => {
     const menuItems = [
         {
-            label: 'Profile', icon: AiOutlineUser,
-            route: '/settings/profile', component: Profile
+            label: 'Profile',
+            icon: AiOutlineUser,
+            route: '/settings/profile',
+            component: Profile,
         },
         {
-            label: 'Cash Accounts', icon: FaMoneyBillAlt,
-            route: '/settings/cash-accounts', component: ManageCashAccounts
+            label: 'Cash Accounts',
+            icon: FaMoneyBillAlt,
+            route: '/settings/cash-accounts',
+            component: ManageCashAccounts,
         },
         {
-            label: 'Credit Cards', icon: FaRegCreditCard,
-            route: '/settings/credit-cards', component: ManageCreditCards
+            label: 'Credit Cards',
+            icon: FaRegCreditCard,
+            route: '/settings/credit-cards',
+            component: ManageCreditCards,
         },
         {
-            label: 'Backup', icon: MdBackup,
-            route: '/settings/backup', component: Backup
-        }
+            label: 'Backup',
+            icon: MdBackup,
+            route: '/settings/backup',
+            component: Backup,
+        },
     ];
 
     return <SiderLayout menuItems={menuItems} />;
-}
+};

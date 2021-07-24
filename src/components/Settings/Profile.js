@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Row, Col } from 'antd';
-import { Typography } from 'antd';
+import {
+    Button, Form, Input, Row, Col, Typography,
+} from 'antd';
 import { AiOutlineUser, AiOutlineLock } from 'react-icons/ai';
 import AntIcon from '../Common/AntIcon';
 import API from '../Common/API';
 import Notification from '../Common/Notification';
 import authServices from '../Login/AuthServices';
-import { wideBaseProps, rules, TailFormItem } from '../Common/FormProps';
+import {
+    wideBaseProps, rules, TailFormItem,
+} from '../Common/FormProps';
 
 export default () => {
     const { Title } = Typography;
@@ -21,7 +24,7 @@ export default () => {
         try {
             setProfile(await updateProfile(values));
             Notification.showSuccess('Profile Updated');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to Update Profile', e.message);
         }
         setSavingProfile(false);
@@ -39,27 +42,27 @@ export default () => {
         try {
             const passwordRequest = {
                 oldPassword: values.oldPassword,
-                newPassword: values.newPassword1
+                newPassword: values.newPassword1,
             };
             await updatePassword(passwordRequest);
             passwordForm.resetFields();
             Notification.showSuccess('Password Updated');
-        } catch(e) {
+        } catch (e) {
             Notification.showError('Unable to Update Password', e.message);
         }
         setSavingPassword(false);
-    }
+    };
 
     const profileFormProps = {
         ...wideBaseProps,
         initialValues: getProfile(),
-        onFinish: submitUpdateProfile
+        onFinish: submitUpdateProfile,
     };
 
     const passwordFormProps = {
         ...wideBaseProps,
         form: passwordForm,
-        onFinish: submitUpdatePassword
+        onFinish: submitUpdatePassword,
     };
 
     const passwordsMatchRule = ({ getFieldValue }) => ({
@@ -68,7 +71,7 @@ export default () => {
                 return Promise.resolve();
             }
             return Promise.reject('Passwords do not match');
-        }
+        },
     });
 
     return (
@@ -152,4 +155,4 @@ export default () => {
             </Row>
         </>
     );
-}
+};
