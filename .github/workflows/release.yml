@@ -21,18 +21,19 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-    - name: Set environment file
-      run: printf "BROWSER=NONE\nREACT_APP_BASE_URL=${{ SECRETS.BASE_URL }}" > .env
-    - run: npm ci
-    - run: npm run build --if-present
     - name: Derive tag from package.json version
       id: tag
       run: |
         export PACKAGE_VERSION=`sed -n 's/\s\+"version": "\([0-9.]\+\)",/\1/p' package.json`
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
         export TIMESTAMP=`date +'%Y%m%d%H%M'`
         export IMAGE_TAG=$PACKAGE_VERSION-$TIMESTAMP
         echo "IMAGE_NAME=${{ SECRETS.DOCKER_REGISTRY }}/${{ SECRETS.DEPLOYMENT_NAME }}:$IMAGE_TAG" >> $GITHUB_ENV
         echo "::set-output name=tag::$IMAGE_TAG"
+    - name: Set environment file
+      run: printf "BROWSER=NONE\nREACT_APP_BASE_URL=${{ SECRETS.BASE_URL }}\nREACT_APP_VERSION=${{ env.PACKAGE_VERSION }}" > .env
+    - run: npm ci
+    - run: npm run build --if-present
     - uses: docker/setup-buildx-action@v1
     - uses: docker/login-action@v1
       with:
