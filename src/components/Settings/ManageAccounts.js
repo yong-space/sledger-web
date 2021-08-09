@@ -199,6 +199,7 @@ export default ({ assetClassLabel }) => {
                 onClick={(event) => sortUp(event, index)}
                 disabled={index === 0}
                 loading={sorting}
+                aria-label="Move order up"
             />
             <Button
                 shape="round"
@@ -208,6 +209,7 @@ export default ({ assetClassLabel }) => {
                 onClick={(event) => sortDown(event, index)}
                 disabled={index === accounts.length - 1}
                 loading={sorting}
+                aria-label="Move order down"
             />
         </>
     );
@@ -305,6 +307,7 @@ export default ({ assetClassLabel }) => {
                                 htmlType="submit"
                                 loading={editFormLoading}
                                 className="warning"
+                                aria-label="Edit"
                             >
                                 Edit {assetClassLabel === 'Cash' ? 'Account' : 'Card'}
                             </Button>
@@ -312,6 +315,7 @@ export default ({ assetClassLabel }) => {
                                 type="danger"
                                 icon={<AntIcon i={RiDeleteBinLine} />}
                                 onClick={() => confirmDelete(account)}
+                                aria-label="Delete"
                             >
                                 Delete {assetClassLabel === 'Cash' ? 'Account' : 'Card'}
                             </Button>
@@ -398,6 +402,7 @@ export default ({ assetClassLabel }) => {
                                 htmlType="submit"
                                 loading={addFormLoading}
                                 className="success"
+                                aria-label="Add"
                             >
                                 Add {assetClassLabel} {assetClassLabel === 'Cash' && 'Account'}
                             </Button>

@@ -87,6 +87,7 @@ export default () => {
                                 icon={<AntIcon i={AiOutlineLogin} />}
                                 onClick={submitLogin}
                                 loading={loading}
+                                aria-label="Login"
                             >
                                 Login
                             </Button>

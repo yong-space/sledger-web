@@ -108,6 +108,7 @@ export default () => {
                                 htmlType="submit"
                                 loading={savingProfile}
                                 className="warning"
+                                aria-label="Update Profile"
                             >
                                 Update Profile
                             </Button>
@@ -146,6 +147,7 @@ export default () => {
                                 icon={<AntIcon i={AiOutlineLock} />}
                                 htmlType="submit"
                                 loading={savingPassword}
+                                aria-label="Update Password"
                             >
                                 Update Password
                             </Button>

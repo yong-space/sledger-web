@@ -34,6 +34,7 @@ export default ({ collapsed, handleClick }) => (
             type="primary"
             icon={<AntIcon rotate={!collapsed} i={AiFillCaretRight} size={35} />}
             onClick={handleClick}
+            aria-label="Expand Side Menu"
         />
     </ButtonWrapper>
 );

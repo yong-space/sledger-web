@@ -84,7 +84,13 @@ export default () => {
     });
 
     const deleteButton = (text, record) => (
-        <Button danger onClick={() => confirmDelete(record)}>Delete</Button>
+        <Button
+            danger
+            onClick={() => confirmDelete(record)}
+            aria-label="Delete"
+        >
+            Delete
+        </Button>
     );
 
     const columns = [
@@ -224,6 +230,7 @@ export default () => {
                                 htmlType="submit"
                                 loading={savingAccountType}
                                 className="success"
+                                aria-label="Add Account Type"
                             >
                                 Add Account Type
                             </Button>

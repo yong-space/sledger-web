@@ -139,6 +139,7 @@ export default () => {
 
     const logoutButton = (
         <Button
+            aria-label="Logout"
             type="danger"
             icon={<AntIcon i={AiOutlineLogout} />}
             onClick={logout}
@@ -199,6 +200,7 @@ export default () => {
                 {avatarDesktop}
             </LoginStatus>
             <Button
+                aria-label="Show Navigation Menu"
                 style={{ margin: '.5rem' }}
                 className="mobile"
                 onClick={() => setDrawerVisible(!drawerVisible)}

@@ -217,6 +217,7 @@ export default ({ mode, setMode, account }) => {
                             htmlType="submit"
                             loading={loading}
                             className={label === 'Add' ? 'success' : 'warning'}
+                            aria-label={label.concat(' Transaction')}
                         >
                             {label} Transaction
                         </Button>
@@ -225,6 +226,7 @@ export default ({ mode, setMode, account }) => {
                             icon={<AntIcon i={TiCancel} />}
                             loading={loading}
                             onClick={hideForm}
+                            aria-label="Cancel"
                         >
                             Cancel
                         </Button>

@@ -119,6 +119,7 @@ export default ({ selectedAccount, setFormMode }) => {
                 onClick={button.handler}
                 disabled={!button.disabled ? false : button.disabled()}
                 title={button.tooltip}
+                aria-label={button.label}
             >
                 {button.label}
             </Button>
