@@ -9,7 +9,7 @@ const Styled = styled(Layout.Header)`
     position: fixed;
     width: 100vw;
     z-index: 999999;
-    
+
     .main { width: 100% }
 
     @media (max-width: 767px) {
@@ -62,6 +62,7 @@ const Styled = styled(Layout.Header)`
 const Logo = styled.a`
     img {
         float: left;
+        width: 5.3rem;
         height: 1.5rem;
         margin: 0.75rem 2rem
     }
