@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+    lazy, useEffect, useState,
+} from 'react';
 import {
     Switch, Route, useHistory,
 } from 'react-router-dom';
 import { Layout } from 'antd';
 import authServices from '../Login/AuthServices';
-import NavBar from '../NavBar/NavBar';
-import DashboardMain from '../Dashboard/DashboardMain';
-import TransactionsMain from '../Transactions/TransactionsMain';
-import SettingsMain from '../Settings/SettingsMain';
-import AdminMain from '../Admin/AdminMain';
+
+const NavBar = lazy(() => import('../NavBar/NavBar'));
+const DashboardMain = lazy(() => import('../Dashboard/DashboardMain'));
+const TransactionsMain = lazy(() => import('../Transactions/TransactionsMain'));
+const SettingsMain = lazy(() => import('../Settings/SettingsMain'));
+const AdminMain = lazy(() => import('../Admin/AdminMain'));
 
 export default () => {
     const [ loading, setLoading ] = useState(true);

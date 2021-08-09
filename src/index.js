@@ -1,24 +1,30 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import {
     BrowserRouter, Route, Switch,
 } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 import './index.css';
-import App from './components/App/App';
-import LoginPage from './components/Login/LoginPage';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import 'antd/dist/antd.dark.css';
+import LoadingSpinner from './components/Common/LoadingSpinner';
+
+const App = lazy(() => import('./components/App/App'));
+const LoginPage = lazy(() => import('./components/Login/LoginPage'));
+
+const renderLoader = () => <LoadingSpinner />;
 
 const index = (
-    <RecoilRoot>
-        <BrowserRouter>
-            <Switch>
-                <Route path="/login" component={LoginPage} />
-                <Route component={App} />
-            </Switch>
-        </BrowserRouter>
-    </RecoilRoot>
+    <Suspense fallback={renderLoader()}>
+        <RecoilRoot>
+            <BrowserRouter>
+                <Switch>
+                    <Route path="/login" component={LoginPage} />
+                    <Route component={App} />
+                </Switch>
+            </BrowserRouter>
+        </RecoilRoot>
+    </Suspense>
 );
 
 ReactDOM.render(index, document.getElementById('root'));

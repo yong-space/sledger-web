@@ -13,7 +13,7 @@ import SiderButton from './SiderButton';
 import Atom from './Atom';
 import AntIcon from './AntIcon';
 
-const Styled = styled(Layout)`
+const Styled = styled.div`
     height: 100%;
     .drawerWrapper .ant-menu-item {
         height: 3.5rem;
@@ -32,7 +32,7 @@ const Styled = styled(Layout)`
         position: fixed;
         left: 0;
     }
-    > .ant-layout { transition: all 0.2s }
+    .ant-layout { transition: all 0.2s }
 `;
 
 export default (props) => {
@@ -58,8 +58,8 @@ export default (props) => {
     };
 
     useEffect(() => {
-        document.querySelector('.drawerWrapper').addEventListener('touchend', closeDrawer);
-        return () => document.querySelector('.drawerWrapper').removeEventListener('touchend', closeDrawer);
+        document.querySelector('.drawerWrapper')?.addEventListener('touchend', closeDrawer);
+        return () => document.querySelector('.drawerWrapper')?.removeEventListener('touchend', closeDrawer);
         // eslint-disable-next-line
     }, []);
 
@@ -90,59 +90,61 @@ export default (props) => {
 
     return (
         <Styled {...swipeProps}>
-            <Sider
-                collapsible
-                collapsed={siderCollapsed}
-                onCollapse={setSiderCollapsed}
-                collapsedWidth="60"
-                breakpoint="sm"
-                width="12rem"
-            >
-                <Menu
-                    theme="dark"
-                    selectedKeys={selectedItems}
-                    mode="inline"
-                    onClick={handleMenuClick}
+            <Layout>
+                <Sider
+                    collapsible
+                    collapsed={siderCollapsed}
+                    onCollapse={setSiderCollapsed}
+                    collapsedWidth="60"
+                    breakpoint="sm"
+                    width="12rem"
                 >
-                    {menuLinks()}
-                </Menu>
-            </Sider>
-            <Layout style={{ marginLeft: siderCollapsed ? '4rem' : '12rem' }}>
-                <Content>
-                    <Switch>
-                        {routes}
-                        <Route render={() => <Redirect to={props.menuItems[0].route} />} />
-                    </Switch>
-                </Content>
+                    <Menu
+                        theme="dark"
+                        selectedKeys={selectedItems}
+                        mode="inline"
+                        onClick={handleMenuClick}
+                    >
+                        {menuLinks()}
+                    </Menu>
+                </Sider>
+                <Layout style={{ marginLeft: siderCollapsed ? '4rem' : '12rem' }}>
+                    <Content>
+                        <Switch>
+                            {routes}
+                            <Route render={() => <Redirect to={props.menuItems[0].route} />} />
+                        </Switch>
+                    </Content>
+                </Layout>
+
+                <div className="drawerWrapper" />
+
+                <Drawer
+                    placement="left"
+                    visible={!drawerCollapsed}
+                    closable={false}
+                    key="left"
+                    mask="true"
+                    width="300"
+                    style={{ paddingTop: '3rem' }}
+                    bodyStyle={{ padding: 0 }}
+                    getContainer=".drawerWrapper"
+                >
+                    <Menu
+                        theme="dark"
+                        selectedKeys={selectedItems}
+                        mode="inline"
+                        onClick={handleMenuClick}
+                    >
+                        {menuLinks(18)}
+                    </Menu>
+                </Drawer>
+
+                <SiderButton
+                    collapsed={drawerCollapsed}
+                    handleClick={() => setDrawerCollapsed(!drawerCollapsed)}
+                />
             </Layout>
-
-            <div className="drawerWrapper" />
-
-            <Drawer
-                placement="left"
-                visible={!drawerCollapsed}
-                closable={false}
-                key="left"
-                mask="true"
-                width="300"
-                style={{ paddingTop: '3rem' }}
-                bodyStyle={{ padding: 0 }}
-                getContainer=".drawerWrapper"
-            >
-                <Menu
-                    theme="dark"
-                    selectedKeys={selectedItems}
-                    mode="inline"
-                    onClick={handleMenuClick}
-                >
-                    {menuLinks(18)}
-                </Menu>
-            </Drawer>
-
-            <SiderButton
-                collapsed={drawerCollapsed}
-                handleClick={() => setDrawerCollapsed(!drawerCollapsed)}
-            />
         </Styled>
     );
 };
