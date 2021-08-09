@@ -1,6 +1,6 @@
 {
     "name": "sledger-web",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "private": true,
     "dependencies": {
         "@ant-design/colors": "^6.0.0",
@@ -28,8 +28,6 @@
         "workbox-strategies": "^6.2.2"
     },
     "devDependencies": {
-        "@craco/craco": "^6.2.0",
-        "craco-esbuild": "^0.3.3",
         "eslint": "^7.31.0",
         "eslint-config-airbnb": "^18.2.1",
         "eslint-plugin-import": "^2.23.4",
@@ -38,9 +36,9 @@
         "eslint-plugin-react-hooks": "^4.2.0"
     },
     "scripts": {
-        "start": "craco start",
-        "build": "craco build",
-        "test": "craco test"
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test"
     },
     "eslintConfig": {
         "extends": "react-app"
