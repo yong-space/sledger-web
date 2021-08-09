@@ -24,9 +24,9 @@ export default () => {
     }, []);
 
     return !loading && (
-        <Layout style={{ minHeight: '100%' }}>
+        <Layout id="app">
             <NavBar />
-            <Layout style={{ marginTop: '3rem' }}>
+            <Layout id="main">
                 <Switch>
                     <Route key="transactions" path="/transactions" component={TransactionsMain} />
                     <Route key="settings" path="/settings" component={SettingsMain} />

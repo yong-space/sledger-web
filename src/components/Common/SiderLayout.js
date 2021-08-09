@@ -13,7 +13,7 @@ import SiderButton from './SiderButton';
 import Atom from './Atom';
 import AntIcon from './AntIcon';
 
-const Styled = styled.div`
+const Styled = styled(Layout)`
     height: 100%;
     .drawerWrapper .ant-menu-item {
         height: 3.5rem;
@@ -26,6 +26,13 @@ const Styled = styled.div`
             padding: 0.7rem !important
         }
     }
+    .ant-layout-sider {
+        overflow: auto;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+    }
+    > .ant-layout { transition: all 0.2s }
 `;
 
 export default (props) => {
@@ -83,32 +90,30 @@ export default (props) => {
 
     return (
         <Styled {...swipeProps}>
-            <Layout style={{ height: '100%' }}>
-                <Sider
-                    collapsible
-                    collapsed={siderCollapsed}
-                    onCollapse={setSiderCollapsed}
-                    collapsedWidth="60"
-                    breakpoint="sm"
-                    width="12rem"
+            <Sider
+                collapsible
+                collapsed={siderCollapsed}
+                onCollapse={setSiderCollapsed}
+                collapsedWidth="60"
+                breakpoint="sm"
+                width="12rem"
+            >
+                <Menu
+                    theme="dark"
+                    selectedKeys={selectedItems}
+                    mode="inline"
+                    onClick={handleMenuClick}
                 >
-                    <Menu
-                        theme="dark"
-                        selectedKeys={selectedItems}
-                        mode="inline"
-                        onClick={handleMenuClick}
-                    >
-                        {menuLinks()}
-                    </Menu>
-                </Sider>
-                <Layout>
-                    <Content>
-                        <Switch>
-                            {routes}
-                            <Route render={() => <Redirect to={props.menuItems[0].route} />} />
-                        </Switch>
-                    </Content>
-                </Layout>
+                    {menuLinks()}
+                </Menu>
+            </Sider>
+            <Layout style={{ marginLeft: siderCollapsed ? '4rem' : '12rem' }}>
+                <Content>
+                    <Switch>
+                        {routes}
+                        <Route render={() => <Redirect to={props.menuItems[0].route} />} />
+                    </Switch>
+                </Content>
             </Layout>
 
             <div className="drawerWrapper" />
