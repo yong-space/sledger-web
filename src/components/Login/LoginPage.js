@@ -13,8 +13,6 @@ import logoWhite from '../../assets/logo-white.svg';
 export default () => {
     const history = useHistory();
     const { login, getAuthToken } = authServices();
-    const [ username, setUsername ] = useState('');
-    const [ password, setPassword ] = useState('');
     const [ errors, setErrors ] = useState();
     const [ loading, setLoading ] = useState(false);
 
@@ -27,14 +25,11 @@ export default () => {
         // eslint-disable-next-line
     }, []);
 
-    const submitLogin = async () => {
+    const submitLogin = async (credentials) => {
         setErrors(undefined);
-        if (username.trim().length === 0 || password.trim().length === 0) {
-            setErrors('Please enter both username and password');
-            return;
-        }
+
         setLoading(true);
-        const state = await login(username, password);
+        const state = await login(credentials);
         if (state.jwt && !state.error) {
             history.push('/dash/summary');
         } else {
@@ -56,18 +51,22 @@ export default () => {
             </Row>
             <Row justify="space-around" align="middle">
                 <Col xs={20} sm={16} md={12} lg={8} xl={6}>
-                    <Form>
-                        <Form.Item>
+                    <Form onFinish={submitLogin}>
+                        <Form.Item
+                            label="Username"
+                            name="username"
+                            rules={[{ required: true }]}
+                        >
                             <Input
-                                placeholder="Username"
-                                onChange={(e) => setUsername(e.target.value)}
                                 addonBefore={<AntIcon i={AiOutlineUser} />}
                             />
                         </Form.Item>
-                        <Form.Item>
+                        <Form.Item
+                            label="Password"
+                            name="password"
+                            rules={[{ required: true }]}
+                        >
                             <Input.Password
-                                placeholder="Password"
-                                onChange={(e) => setPassword(e.target.value)}
                                 addonBefore={<AntIcon i={AiOutlineLock} />}
                                 onKeyDown={handleEnter}
                             />
@@ -84,8 +83,8 @@ export default () => {
                                 size="large"
                                 shape="round"
                                 type="primary"
+                                htmlType="submit"
                                 icon={<AntIcon i={AiOutlineLogin} />}
-                                onClick={submitLogin}
                                 loading={loading}
                                 aria-label="Login"
                             >

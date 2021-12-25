@@ -29,32 +29,21 @@ export default () => {
 
     const getJwt = () => (loginState && loginState.jwt) || localStorage.getItem('jwt');
 
-    const login = async (username, password) => {
+    const login = async (credentials) => {
         const config = {
             method: 'POST',
             cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(credentials),
         };
-
-        if (username && password) {
-            const formData = new FormData();
-            formData.append('username', username.trim());
-            formData.append('password', password.trim());
-            config.body = formData;
-        } else {
-            config.headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getJwt()}`,
-            };
-        }
-
         const state = fetch(`${baseUrl}/api/authenticate`, config)
             .then((res) => {
                 if (!res.ok) {
                     throw Error(res.statusText);
                 }
-                return res.text();
+                return res.json();
             })
-            .then((token) => {
+            .then(({ token }) => {
                 const parsedState = parseLoginState(token);
                 localStorage.setItem('jwt', token);
                 return parsedState;
