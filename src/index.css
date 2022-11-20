@@ -1,0 +1,2 @@
+html, body, #root { height: 100% }
+#root > header + * { padding-top: 5rem; height: 100% }
