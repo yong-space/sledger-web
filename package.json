@@ -1,7 +1,7 @@
 {
   "name": "sledger-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,19 +10,19 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
-    "@mui/icons-material": "^5.10.14",
-    "@mui/lab": "5.0.0-alpha.108",
-    "@mui/material": "^5.10.14",
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
-    "dayjs": "^1.11.6",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/lab": "5.0.0-alpha.114",
+    "@mui/material": "^5.11.2",
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@5.11.0",
+    "dayjs": "^1.11.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.4.3",
+    "react-router-dom": "^6.6.1",
     "recoil": "^0.7.6",
     "styled-components": "^5.3.6"
   },
   "resolutions": {
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@5.11.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
