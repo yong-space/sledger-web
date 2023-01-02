@@ -1,2 +1,3 @@
-html, body, #root { height: 100% }
+html, body, #root { height: 100%; background-color: #121212; }
 #root > header + * { padding-top: 5rem; height: 100% }
+a, a:active, a:visited { color: white; text-decoration: none }

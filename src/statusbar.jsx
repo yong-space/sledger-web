@@ -5,7 +5,7 @@ import SnackbarContent from '@mui/material/SnackbarContent';
 
 const StatusBar = () => {
   const [ status, setStatus ] = useRecoilState(atoms.status);
-  const snackbarStyle = { color: "white", fontWeight: "bold" };
+  const snackbarStyle = { color: 'white', fontWeight: 'bold' };
 
   return (
     <Snackbar
@@ -16,7 +16,7 @@ const StatusBar = () => {
       <SnackbarContent
         style={{
           ...snackbarStyle,
-          backgroundColor: status.error ? "#d74545" : "#4e9a51",
+          backgroundColor: status.error ? '#d74545' : '#4e9a51',
         }}
         message={status.msg}
       />
