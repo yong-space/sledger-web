@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { atoms } from './atoms';
 
-const Session = ({ children }) => {
+const App = lazy(() => import('./app'));
+const Public = lazy(() => import('./public'));
+
+const Session = () => {
     let navigate = useNavigate();
     const [ session, setSession ] = useRecoilState(atoms.session);
 
@@ -22,7 +25,7 @@ const Session = ({ children }) => {
         }
     }, []);
 
-    return children;
+    return !session ? <Public /> : <App />;
 }
 
 export default Session;
