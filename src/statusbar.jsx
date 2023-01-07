@@ -18,7 +18,7 @@ const StatusBar = () => {
           ...snackbarStyle,
           backgroundColor: status.error ? '#d74545' : '#4e9a51',
         }}
-        message={status.msg}
+        message={status?.msg}
       />
     </Snackbar>
   );

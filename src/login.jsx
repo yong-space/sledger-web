@@ -1,17 +1,27 @@
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { atoms } from './atoms';
+import { Link } from 'react-router-dom';
+import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import api from './api';
 
 const Login = () => {
     let navigate = useNavigate();
+    const { authenticate } = api();
     const [ , setSession ] = useRecoilState(atoms.session);
 
-    const login = () => {
-        setSession({ session: 'abc' });
-        navigate('/', { replace: true });
+    const login = (event) => {
+        event.preventDefault();
+        const credentials = Object.fromEntries(new FormData(event.target).entries());
+
+        authenticate(credentials, ({ token }) => {
+            window.localStorage.setItem('token', token);
+            setSession({ session: token });
+            navigate('/', { replace: true });
+        });
     };
 
     return (
@@ -19,11 +29,21 @@ const Login = () => {
             <Typography variant="h5" mb={4}>
                 Login
             </Typography>
-            <TextField label="Email" />
-            <TextField label="Password" />
-            <Button variant="contained" onClick={login}>
-                Login
-            </Button>
+            <form id="login" onSubmit={login} autoComplete="off">
+                <Grid
+                    container item
+                    direction="column"
+                    sx={{ gap: '.8rem' }}
+                    xs={12}
+                >
+                    <TextField required name="username" type="email" label="Email" minLength="7" />
+                    <TextField required name="password" type="password" label="Password" minLength="8" />
+                    <Button variant="contained" type="submit">
+                        Login
+                    </Button>
+                </Grid>
+            </form>
+            <Link to="/register">Get an account</Link>
         </>
     );
 };
