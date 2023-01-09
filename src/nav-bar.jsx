@@ -70,22 +70,22 @@ const DesktopMenu = ({ pages }) => (
 
 const NavBar = () => {
   const [ session ] = useRecoilState(atoms.session);
-
-  const pages = session ? [
+  const pages = [
     { label: 'Dashboard', link: '/' },
     { label: 'Transactions', link: 'tx' },
-  ] : [];
-
-  const link = session ? '/' : 'login';
+  ];
+  if (session.isAdmin) {
+    pages.push({ label: 'Admin', link: 'admin' });
+  }
 
   return (
     <AppBar position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Brand mobile={false} link={link} />
-          <MobileMenu {...{ pages }} />
-          <Brand mobile={true} link={link} />
-          <DesktopMenu {...{ pages }} />
+          <Brand mobile={false} link="/" />
+          <MobileMenu pages={pages} />
+          <Brand mobile={true} link="/" />
+          <DesktopMenu pages={pages} />
         </Toolbar>
       </Container>
     </AppBar>
