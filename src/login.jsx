@@ -10,8 +10,8 @@ import api from './api';
 
 const Login = () => {
     let navigate = useNavigate();
-    const { authenticate } = api();
-    const [ , setSession ] = useRecoilState(atoms.session);
+    const { authenticate, showStatus } = api();
+    const setSession = useRecoilState(atoms.session)[1];
 
     const login = (event) => {
         event.preventDefault();
@@ -21,6 +21,7 @@ const Login = () => {
             window.localStorage.setItem('token', token);
             setSession({ session: token });
             navigate('/', { replace: true });
+            showStatus('success', 'Logged in successfully');
         });
     };
 

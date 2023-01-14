@@ -7,7 +7,7 @@ const api = () => {
     const apiRoot = window.location.hostname === 'localhost' ? '//localhost:8080/' : '';
     const setStatus = useRecoilState(atoms.status)[1];
     const [ session, setSession ] = useRecoilState(atoms.session);
-    const showStatus = (error, msg) => setStatus({ open: true, error, msg });
+    const showStatus = (severity, msg) => setStatus({ open: true, severity, msg });
 
     const process = async (response) => {
         if (response.ok) {
@@ -26,7 +26,7 @@ const api = () => {
         }
     };
 
-    const apiCall = (method, uri, body, callback, errorCallback) => {
+    const apiCall = (method, uri, body, callback) => {
         const headers = { 'Content-Type': 'application/json' };
         if (session?.token && uri.indexOf('api/public') === -1) {
             headers.Authorization = 'Bearer ' + session.token;
@@ -38,7 +38,7 @@ const api = () => {
         fetch(apiRoot + uri, config)
             .then(process)
             .then(callback)
-            .catch(({ message }) => showStatus(true, message));
+            .catch(({ message }) => showStatus('error', message));
     };
 
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
