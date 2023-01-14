@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -14,12 +14,8 @@ import Typography from '@mui/material/Typography';
 const isSelected = (path, link) => path.indexOf(link) === 0;
 
 const MobileMenu = ({ pages, currentPath }) => {
-  let navigate = useNavigate();
   const [ isOpen, setOpen ] = useState(false);
-  const goto = (link) => {
-    setOpen(false);
-    navigate(link, { replace: true });
-  };
+  const delayedClose = () => setTimeout(() => setOpen(false), 100);
 
   return (
     <Box sx={{ display: { xs: "flex", md: "none" } }}>
@@ -27,10 +23,7 @@ const MobileMenu = ({ pages, currentPath }) => {
         <MenuIcon />
       </IconButton>
       <Drawer
-        container={window?.document.body}
-        variant="temporary"
         open={isOpen}
-        onClose={() => setOpen(false)}
         PaperProps={{ sx: { width: "20rem" } }}
       >
         <Box>
@@ -48,7 +41,7 @@ const MobileMenu = ({ pages, currentPath }) => {
           <Divider />
           <List>
             {pages.map(({ label, link }) => (
-              <ListItem key={link} onClick={() => goto(link)}>
+              <ListItem key={link} component={Link} to={link} onClick={delayedClose}>
                 <ListItemButton selected={isSelected(currentPath, link)}>
                   <ListItemText primary={label} />
                 </ListItemButton>
