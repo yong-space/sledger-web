@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import styled from 'styled-components';
 
-const NavBar = lazy(() => import('./nav-bar'));
+const NavBar = lazy(() => import('./nav-bar/main-menu'));
 const Dashboard = lazy(() => import('./dashboard'));
 const Transactions = lazy(() => import('./transactions'));
 
