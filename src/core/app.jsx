@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import styled from 'styled-components';
 
@@ -19,6 +19,7 @@ const App = () => (
         <Routes>
             <Route path="dash/*" element={<Dashboard />} />
             <Route path="tx/*" element={<Transactions /> } />
+            <Route path="/" element={<Navigate to="/dash" />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     </Root>

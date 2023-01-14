@@ -10,6 +10,7 @@ export default defineConfig({
       manifest: {
         name: "Sledger",
         short_name: "Sledger",
+        start_url: "/dash",
         description: "The savings ledger app",
         background_color: "#375a7f",
         theme_color: "#375a7f",
