@@ -11,6 +11,7 @@ export default defineConfig({
         name: "Sledger",
         short_name: "Sledger",
         description: "The savings ledger app",
+        background_color: "#375a7f",
         theme_color: "#375a7f",
         icons: [
           {
