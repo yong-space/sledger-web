@@ -6,6 +6,7 @@ const api = () => {
     let navigate = useNavigate();
     const apiRoot = window.location.hostname === 'localhost' ? '//localhost:8080/' : '';
     const setStatus = useRecoilState(atoms.status)[1];
+    const setLoading = useRecoilState(atoms.loading)[1];
     const [ session, setSession ] = useRecoilState(atoms.session);
     const showStatus = (severity, msg) => setStatus({ open: true, severity, msg });
 
@@ -26,6 +27,13 @@ const api = () => {
         }
     };
 
+    const handleError = ({ message }) => {
+        setLoading(false);
+        const msg = message.startsWith('NetworkError') || message.startsWith('Failed to fetch')
+            ? 'Unable to establish connectivity' : message;
+        showStatus('error', msg);
+    };
+
     const apiCall = (method, uri, body, callback) => {
         const headers = { 'Content-Type': 'application/json' };
         if (session?.token && uri.indexOf('api/public') === -1) {
@@ -36,9 +44,7 @@ const api = () => {
             config.body = JSON.stringify(body);
         }
         fetch(apiRoot + uri, config)
-            .then(process)
-            .then(callback)
-            .catch(({ message }) => showStatus('error', message));
+            .then(process).then(callback).catch(handleError);
     };
 
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
