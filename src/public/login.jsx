@@ -1,28 +1,34 @@
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { atoms } from '../core/atoms';
+import { Link } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import api from './api';
+import api from '../core/api';
 
-const Register = () => {
+const Login = () => {
     let navigate = useNavigate();
-    const { register, showStatus } = api();
+    const { authenticate, showStatus } = api();
+    const setSession = useRecoilState(atoms.session)[1];
 
     const login = (event) => {
         event.preventDefault();
-        const registration = Object.fromEntries(new FormData(event.target).entries());
+        const credentials = Object.fromEntries(new FormData(event.target).entries());
 
-        register(registration, () => {
-            showStatus(false, 'Registration successful');
-            navigate('/login', { replace: true });
+        authenticate(credentials, ({ token }) => {
+            window.localStorage.setItem('token', token);
+            setSession({ session: token });
+            navigate('/dash', { replace: true });
+            showStatus('success', 'Logged in successfully');
         });
     };
 
     return (
         <>
             <Typography variant="h5" mb={4}>
-                Register
+                Login
             </Typography>
             <form id="login" onSubmit={login} autoComplete="off">
                 <Grid
@@ -31,18 +37,16 @@ const Register = () => {
                     sx={{ gap: '.8rem' }}
                     xs={12}
                 >
-                    <TextField required name="displayName" label="Name" minLength="3" />
                     <TextField required name="username" type="email" label="Email" minLength="7" />
                     <TextField required name="password" type="password" label="Password" minLength="8" />
-                    <TextField required name="password2" type="password" label="Repeat Password" minLength="8" />
                     <Button variant="contained" type="submit">
-                        Register
+                        Login
                     </Button>
                 </Grid>
             </form>
-            <Link to="/login">Have an account?</Link>
+            <Link to="/register">Get an account</Link>
         </>
     );
 };
 
-export default Register;
+export default Login;

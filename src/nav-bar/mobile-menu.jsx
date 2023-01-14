@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -11,34 +11,45 @@ import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import Typography from '@mui/material/Typography';
 
-const MobileMenu = ({ pages }) => {
-  const [ open, setOpen ] = useState(false);
-  const toggle = () => setOpen((prev) => !prev);
+const isSelected = (path, link) => path.indexOf(link) === 0;
+
+const MobileMenu = ({ pages, currentPath }) => {
+  let navigate = useNavigate();
+  const [ isOpen, setOpen ] = useState(false);
+  const goto = (link) => {
+    setOpen(false);
+    navigate(link, { replace: true });
+  };
 
   return (
     <Box sx={{ display: { xs: "flex", md: "none" } }}>
-      <IconButton size="large" onClick={toggle}>
+      <IconButton size="large" onClick={() => setOpen(true)}>
         <MenuIcon />
       </IconButton>
       <Drawer
         container={window?.document.body}
         variant="temporary"
-        open={open}
-        onClose={toggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: "20rem" },
-        }}
+        open={isOpen}
+        onClose={() => setOpen(false)}
+        PaperProps={{ sx: { width: "20rem" } }}
       >
-        <Box onClick={toggle}>
-          <Typography variant="h6" sx={{ my: 2, mx: 4 }}>
+        <Box>
+          <Typography
+            variant="h6"
+            sx={{
+              my: 2, mx: 4,
+              fontWeight: 200,
+              letterSpacing: '.15rem',
+              userSelect: 'none'
+            }}
+          >
             Sledger
           </Typography>
           <Divider />
           <List>
             {pages.map(({ label, link }) => (
-              <ListItem key={link} component={Link} to={link}>
-                <ListItemButton>
+              <ListItem key={link} onClick={() => goto(link)}>
+                <ListItemButton selected={isSelected(currentPath, link)}>
                   <ListItemText primary={label} />
                 </ListItemButton>
               </ListItem>

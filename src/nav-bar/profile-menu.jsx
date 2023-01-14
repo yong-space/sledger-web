@@ -1,4 +1,4 @@
-import { atoms } from '../atoms';
+import { atoms } from '../core/atoms';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { useState } from 'react';
@@ -6,7 +6,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import api from '../api';
+import api from '../core/api';
 
 const ProfileMenu = () => {
   let navigate = useNavigate();

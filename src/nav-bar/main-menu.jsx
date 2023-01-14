@@ -1,5 +1,5 @@
-import { atoms } from '../atoms';
-import { Link } from 'react-router-dom';
+import { atoms } from '../core/atoms';
+import { useLocation } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
@@ -12,7 +12,7 @@ import styled from 'styled-components';
 
 const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 
-const Brand = ({ mobile, link }) => (
+const Brand = ({ mobile }) => (
   <Typography
     variant="h6"
     noWrap
@@ -20,37 +20,36 @@ const Brand = ({ mobile, link }) => (
       mr: 2,
       display: mobile ? { xs: 'flex', md: 'none' } : { xs: 'none', md: 'flex' },
       fontWeight: 200,
-      letterSpacing: '.1rem',
+      letterSpacing: '.15rem',
       flexGrow: mobile ? 1 : 0,
-      cursor: 'pointer',
-      userSelect: 'none',
+      userSelect: 'none'
     }}
-    component={Link}
-    to={link}
   >
     Sledger
   </Typography>
 );
 
 const NavBar = () => {
+  const location = useLocation();
   const [ session ] = useRecoilState(atoms.session);
   const pages = [
-    { label: 'Dashboard', link: '/' },
-    { label: 'Transactions', link: 'tx' },
+    { label: 'Dashboard', link: '/dash' },
+    { label: 'Transactions', link: '/tx' },
   ];
   if (session.isAdmin) {
     pages.push({ label: 'Admin', link: 'admin' });
   }
+  const props = { pages, currentPath: location.pathname };
 
   return (
     <>
       <AppBar position="fixed">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <Brand mobile={false} link="/" />
-            <MobileMenu pages={pages} />
-            <Brand mobile={true} link="/" />
-            <DesktopMenu pages={pages} />
+            <Brand mobile={false} />
+            <MobileMenu {...props} />
+            <Brand mobile={true} />
+            <DesktopMenu {...props} />
             <ProfileMenu />
           </Toolbar>
         </Container>

@@ -4,7 +4,7 @@ import { useRecoilState } from 'recoil';
 import { atoms } from './atoms';
 
 const App = lazy(() => import('./app'));
-const Public = lazy(() => import('./public'));
+const Public = lazy(() => import('../public/public'));
 
 const Session = () => {
     let navigate = useNavigate();
@@ -20,7 +20,7 @@ const Session = () => {
         const token = window.localStorage.getItem('token');
         if (token === null) {
             if (!isPublicEndpoint()) {
-                navigate('login', { replace: true });
+                navigate('/login', { replace: true });
             }
         } else {
             // TODO: validate ok
