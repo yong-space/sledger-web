@@ -2,14 +2,18 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Drawer from "@mui/material/Drawer";
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
 import { useRecoilState } from 'recoil';
 import { atoms } from './atoms';
 
@@ -34,26 +38,38 @@ const Brand = ({ mobile, link }) => (
 );
 
 const MobileMenu = ({ pages }) => {
-  const [ anchor, setAnchor ] = useState(null);
+  const [open, setOpen] = useState(false);
+  const toggle = () => setOpen((prev) => !prev);
 
   return (
-    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-      <IconButton size="large" onClick={(e) => setAnchor(e.currentTarget)}>
+    <Box sx={{ display: { xs: "flex", md: "none" } }}>
+      <IconButton size="large" onClick={toggle}>
         <MenuIcon />
       </IconButton>
-      <Menu
-        anchorEl={anchor}
-        keepMounted
-        open={Boolean(anchor)}
-        onClose={() => setAnchor(null)}
-        sx={{ display: { xs: "block", md: "none" } }}
+      <Drawer
+        container={window?.document.body}
+        variant="temporary"
+        open={open}
+        onClose={toggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{ "& .MuiDrawer-paper": { boxSizing: "border-box", width: "20rem" }}}
       >
-        {pages.map(({ label, link}) => (
-          <MenuItem key={link} component={Link} to={link} onClick={() => setAnchor(null)}>
-            <Typography>{label}</Typography>
-          </MenuItem>
-        ))}
-      </Menu>
+        <Box onClick={toggle}>
+          <Typography variant="h6" sx={{ my: 2, mx: 4 }}>
+            Sledger
+          </Typography>
+          <Divider />
+          <List>
+            {pages.map(({ label, link }) => (
+              <ListItem key={link} component={Link} to={link}>
+                <ListItemButton>
+                  <ListItemText primary={label} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
     </Box>
   );
 };
