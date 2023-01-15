@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
 import styled from 'styled-components';
 
 const Register = lazy(() => import('./register'));
@@ -16,17 +16,12 @@ const Root = styled(Container)`
 
 const Public = () => (
     <Root>
-        <Grid
-            container item
-            direction="column"
-            sx={{ gap: '.8rem' }}
-            xs={12} sm={8} lg={5}
-        >
+        <Box>
             <Routes>
                 <Route path="register" element={<Register /> } />
                 <Route path="login" element={<Login /> } />
             </Routes>
-        </Grid>
+        </Box>
     </Root>
 );
 export default Public;
