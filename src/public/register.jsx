@@ -34,7 +34,7 @@ const Register = () => {
     return (
         <form id="login" onSubmit={login} autoComplete="off">
             <Stack spacing={2}>
-                <Typography variant="h5" mb={4}>
+                <Typography variant="h5" mb={2}>
                     Register
                 </Typography>
                 <TextField required name="displayName" label="Name" minLength="3" />

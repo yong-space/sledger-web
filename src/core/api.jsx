@@ -2,6 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { atoms } from './atoms';
 
+const parseJwt = (token) => {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = window.atob(base64).split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('');
+    return JSON.parse(decodeURIComponent(payload));
+};
+
 const api = () => {
     let navigate = useNavigate();
     const apiRoot = window.location.hostname === 'localhost' ? '//localhost:8080/' : '';
@@ -51,6 +58,7 @@ const api = () => {
 
     return {
         showStatus,
+        parseJwt,
         register: (registration, callback) => apiCall(POST, 'api/public/register', registration, callback),
         authenticate: (credentials, callback) => apiCall(POST, 'api/public/authenticate', credentials, callback),
     };

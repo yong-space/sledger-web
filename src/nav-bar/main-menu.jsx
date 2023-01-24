@@ -36,8 +36,8 @@ const NavBar = () => {
     { label: 'Dashboard', link: '/dash' },
     { label: 'Transactions', link: '/tx' },
   ];
-  if (session.isAdmin) {
-    pages.push({ label: 'Admin', link: 'admin' });
+  if (session.admin) {
+    pages.push({ label: 'Admin', link: '/admin' });
   }
   const props = { pages, currentPath: location.pathname };
 

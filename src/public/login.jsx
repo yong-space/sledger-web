@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
 const Login = () => {
     let navigate = useNavigate();
     const location = useLocation();
-    const { authenticate, showStatus } = api();
+    const { authenticate, showStatus, parseJwt } = api();
     const setSession = useRecoilState(atoms.session)[1];
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
 
@@ -32,7 +32,8 @@ const Login = () => {
         authenticate(credentials, ({ token }) => {
             setLoading(false);
             window.localStorage.setItem('token', token);
-            setSession({ session: token });
+            const jwt = parseJwt(token);
+            setSession({ session: token, name: jwt.name, admin: jwt.admin });
             navigate('/dash', { replace: true });
             showStatus('success', 'Logged in successfully');
         });
@@ -41,7 +42,7 @@ const Login = () => {
     return (
         <form id="login" onSubmit={login} autoComplete="off">
             <Stack spacing={2}>
-                <Typography variant="h5">
+                <Typography variant="h5" mb={2}>
                     Login
                 </Typography>
                 <TextField required name="username" type="email" label="Email" minLength="7" />
