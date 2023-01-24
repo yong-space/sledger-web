@@ -59,8 +59,12 @@ const api = () => {
     return {
         showStatus,
         parseJwt,
-        register: (registration, callback) => apiCall(POST, 'api/public/register', registration, callback),
-        authenticate: (credentials, callback) => apiCall(POST, 'api/public/authenticate', credentials, callback),
+        register: (payload, callback) => apiCall(POST, 'api/public/register', payload, callback),
+        authenticate: (payload, callback) => apiCall(POST, 'api/public/authenticate', payload, callback),
+        listIssuers: (callback) => apiCall(GET, '/api/account-issuer', callback),
+        addIssuer: (payload, callback) => apiCall(POST, '/api/admin/account-issuer', payload, callback),
+        editIssuer: (payload, callback) => apiCall(PUT, '/api/admin/account-issuer', payload, callback),
+        deleteIssuer: (id, callback) => apiCall(DELETE, `/api/admin/account-issuer/${id}`, callback),
     };
 };
 export default api;
