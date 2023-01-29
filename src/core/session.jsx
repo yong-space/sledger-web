@@ -34,7 +34,7 @@ const Session = () => {
                 navigate("/login", { replace: true });
                 showStatus("warning", "Your session has expired. Please login again.");
             } else {
-                setSession({ session: token, name: jwt.name, admin: jwt.admin });
+                setSession({ token, name: jwt.name, admin: jwt.admin });
 
                 // TODO: if more than an hour from last login
                 // TODO: call refresh token

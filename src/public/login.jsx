@@ -33,7 +33,7 @@ const Login = () => {
             setLoading(false);
             window.localStorage.setItem('token', token);
             const jwt = parseJwt(token);
-            setSession({ session: token, name: jwt.name, admin: jwt.admin });
+            setSession({ token, name: jwt.name, admin: jwt.admin });
             navigate('/dash', { replace: true });
             showStatus('success', 'Logged in successfully');
         });
