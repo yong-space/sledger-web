@@ -1,7 +1,9 @@
+import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from 'styled-components';
 
-const LoaderRoot = styled.div`
+const LoaderCircularRoot = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
@@ -9,10 +11,19 @@ const LoaderRoot = styled.div`
   align-items: center;
 `;
 
-const Loader = () => (
-  <LoaderRoot>
+const CircularLoader = () => (
+  <LoaderCircularRoot>
     <CircularProgress size="5rem" thickness={2} />
-  </LoaderRoot>
+  </LoaderCircularRoot>
 );
 
-export default Loader;
+const HorizontalLoader = () => (
+  <Box width="100%" height="100%">
+    <Skeleton animation="wave" />
+    <Skeleton animation="wave"  />
+    <Skeleton animation="wave" />
+    <Skeleton animation="wave" />
+  </Box>
+);
+
+export { CircularLoader, HorizontalLoader }

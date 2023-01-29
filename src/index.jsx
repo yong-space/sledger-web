@@ -6,7 +6,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Session from './core/session';
 import StatusBar from './core/statusbar';
-import Loader from './core/loader';
+import { CircularLoader } from './core/loader';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -28,7 +28,7 @@ const Index = () => (
   <RecoilRoot>
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={<CircularLoader />}>
         <BrowserRouter>
           <Session />
         </BrowserRouter>

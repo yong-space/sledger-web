@@ -11,7 +11,7 @@ const parseJwt = (token) => {
 
 const api = () => {
     let navigate = useNavigate();
-    const apiRoot = window.location.hostname === 'localhost' ? '//localhost:8080/' : '';
+    const apiRoot = window.location.hostname === 'localhost' ? '//localhost:8080' : '';
     const setStatus = useRecoilState(atoms.status)[1];
     const setLoading = useRecoilState(atoms.loading)[1];
     const [ session, setSession ] = useRecoilState(atoms.session);
@@ -19,6 +19,9 @@ const api = () => {
 
     const process = async (response) => {
         if (response.ok) {
+            if (response.headers.get('Content-Length') === 0) {
+                return resolve("");
+            }
             const contentType = response.headers.get('Content-type').split(';')[0];
             return contentType === 'text/plain' ? response.text() : response.json();
         } else {
@@ -50,7 +53,7 @@ const api = () => {
         if (body) {
             config.body = JSON.stringify(body);
         }
-        fetch(apiRoot + uri, config)
+        fetch(`${apiRoot}/api/${uri}`, config)
             .then(process).then(callback).catch(handleError);
     };
 
@@ -59,12 +62,12 @@ const api = () => {
     return {
         showStatus,
         parseJwt,
-        register: (payload, callback) => apiCall(POST, 'api/public/register', payload, callback),
-        authenticate: (payload, callback) => apiCall(POST, 'api/public/authenticate', payload, callback),
-        listIssuers: (callback) => apiCall(GET, '/api/account-issuer', callback),
-        addIssuer: (payload, callback) => apiCall(POST, '/api/admin/account-issuer', payload, callback),
-        editIssuer: (payload, callback) => apiCall(PUT, '/api/admin/account-issuer', payload, callback),
-        deleteIssuer: (id, callback) => apiCall(DELETE, `/api/admin/account-issuer/${id}`, callback),
+        register: (payload, callback) => apiCall(POST, 'public/register', payload, callback),
+        authenticate: (payload, callback) => apiCall(POST, 'public/authenticate', payload, callback),
+        listIssuers: (callback) => apiCall(GET, 'account-issuer', null, callback),
+        addIssuer: (payload, callback) => apiCall(POST, 'admin/account-issuer', payload, callback),
+        editIssuer: (payload, callback) => apiCall(PUT, 'admin/account-issuer', payload, callback),
+        deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, callback),
     };
 };
 export default api;

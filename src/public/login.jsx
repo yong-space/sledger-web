@@ -24,7 +24,7 @@ const Login = () => {
         }
     }, []);
 
-    const login = (event) => {
+    const submitLogin = (event) => {
         event.preventDefault();
         setLoading(true);
         const credentials = Object.fromEntries(new FormData(event.target).entries());
@@ -40,13 +40,13 @@ const Login = () => {
     };
 
     return (
-        <form id="login" onSubmit={login} autoComplete="off">
+        <form onSubmit={submitLogin} autoComplete="off">
             <Stack spacing={2}>
                 <Typography variant="h5" mb={2}>
                     Login
                 </Typography>
-                <TextField required name="username" type="email" label="Email" minLength="7" />
-                <TextField required name="password" type="password" label="Password" minLength="8" />
+                <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />
+                <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8 }} />
                 <LoadingButton
                     type="submit"
                     endIcon={<LoginIcon />}
