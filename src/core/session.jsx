@@ -11,7 +11,7 @@ const Session = () => {
     let navigate = useNavigate();
     const location = useLocation();
     const [ session, setSession ] = useRecoilState(atoms.session);
-    const { parseJwt } = api();
+    const { parseJwt, showStatus } = api();
 
     const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;
 
