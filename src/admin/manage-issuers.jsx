@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import api from '../core/api';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import ConfirmDialog from '../core/confirm-dialog';
 import Grid from '@mui/material/Grid';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
@@ -14,6 +15,8 @@ import Typography from '@mui/material/Typography';
 
 const IssuersGrid = ({ issuers, setIssuers }) => {
     const { deleteIssuer, showStatus } = api();
+    const [ showConfirm, setShowConfirm ] = useState(false);
+    const [ issuerId, setIssuerId ] = useState();
 
     const columns = [
         { field: 'id', headerName: 'ID' },
@@ -22,27 +25,46 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
             field: 'delete', headerName: 'Delete',
             sortable: false,
             renderCell: ({ id }) => {
-                const onClick = (e) => {
+                const confirm = (e) => {
                     e.stopPropagation();
-                    deleteIssuer(id, () => {
-                        setIssuers(issuers.filter(i => i.id !== id));
-                        showStatus("Issuer deleted");
-                    });
+                    setIssuerId(id);
+                    setShowConfirm(true);
                 };
-                return <Button variant="outlined" color="error" onClick={onClick}>Delete</Button>;
+                return <Button size="small" variant="outlined" color="error" onClick={confirm}>Delete</Button>;
             }
         },
     ];
-    const IssuersDataGrid = () => {
-        return issuers.length === 0 ? 'No issuers added yet' : (
-            <Box height="20rem">
+
+    const submitDelete = () => {
+        deleteIssuer(issuerId, () => {
+            setIssuers(issuers.filter(i => i.id !== issuerId));
+            showStatus('success', 'Issuer deleted');
+            setShowConfirm(false);
+        });
+    };
+
+    const IssuersDataGrid = () => issuers.length === 0 ?
+        'No issuers added yet' :
+        (
+            <>
                 <DataGrid
                     rows={issuers}
                     columns={columns}
+                    autoHeight
+                    disableColumnMenu
+                    showColumnRightBorder
+                    hideFooter
+
                 />
-            </Box>
+                <ConfirmDialog
+                    title="Confirm delete issuer?"
+                    message="This is a permanent change"
+                    open={showConfirm}
+                    setOpen={setShowConfirm}
+                    confirm={submitDelete}
+                />
+            </>
         );
-    }
     return <Box><IssuersDataGrid /></Box>;
 };
 
@@ -59,11 +81,12 @@ const IssuersForm = ({ setIssuers }) => {
             setLoading(false);
             setIssuers((existing) => [ ...existing, response ]);
             showStatus('success', 'New issuer added');
+            document.querySelector('#manage-issuers').reset();
         });
     };
 
     return (
-        <form id="login" onSubmit={submitAddIssuer} autoComplete="off">
+        <form id="manage-issuers" onSubmit={submitAddIssuer} autoComplete="off">
             <Grid container item xs={12} md={5} direction="column" gap={2}>
                 <Typography variant="h6">
                     Add New Issuer

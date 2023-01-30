@@ -19,8 +19,8 @@ const api = () => {
 
     const process = async (response) => {
         if (response.ok) {
-            if (response.headers.get('Content-Length') === 0) {
-                return resolve("");
+            if (response.headers.get('Content-Length') === '0') {
+                return new Promise((r) => r(""));
             }
             const contentType = response.headers.get('Content-type').split(';')[0];
             return contentType === 'text/plain' ? response.text() : response.json();
@@ -67,7 +67,7 @@ const api = () => {
         listIssuers: (callback) => apiCall(GET, 'account-issuer', null, callback),
         addIssuer: (payload, callback) => apiCall(POST, 'admin/account-issuer', payload, callback),
         editIssuer: (payload, callback) => apiCall(PUT, 'admin/account-issuer', payload, callback),
-        deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, callback),
+        deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, null, callback),
     };
 };
 export default api;
