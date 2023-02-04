@@ -13,7 +13,7 @@ const Register = () => {
     const { register, showStatus } = api();
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
 
-    const submitRegistration = (event) => {
+    const submit = (event) => {
         event.preventDefault();
         setLoading(true);
         const registration = Object.fromEntries(new FormData(event.target).entries());
@@ -32,13 +32,13 @@ const Register = () => {
     };
 
     return (
-        <form onSubmit={submitRegistration} autoComplete="off">
+        <form onSubmit={submit} autoComplete="off">
             <Stack spacing={2}>
                 <Title>Register</Title>
                 <TextField required name="displayName" label="Name" inputProps={{ minLength: 3 }}/>
                 <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />
                 <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                <TextField required name="password2" type="password" label="Repeat Password" inputProps={{ minLength: 8 }}  autoComplete="new-password" />
+                <TextField required name="password2" type="password" label="Repeat Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
                 <LoadingButton
                     type="submit"
                     endIcon={<HowToRegIcon />}

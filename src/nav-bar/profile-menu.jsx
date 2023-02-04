@@ -17,9 +17,9 @@ const ProfileMenu = ({ currentPath }) => {
     let navigate = useNavigate();
     const { showStatus } = api();
     const [ session, setSession ] = useRecoilState(atoms.session);
-    const [ anchorEl, setAnchorEl ] = useState(null);
-    const handleMenu = (event) => setAnchorEl(event.currentTarget);
-    const handleClose = () => setAnchorEl(null);
+    const [ open, setOpen ] = useState(false);
+    const handleClose = () => setOpen(false);
+    const delayedClose = () => setTimeout(handleClose, 100);
 
     const logout = () => {
         window.localStorage.clear();
@@ -31,33 +31,33 @@ const ProfileMenu = ({ currentPath }) => {
     return (
         <>
             <Button
+                id="avatar"
                 startIcon={<AccountCircle />}
                 size="large"
                 aria-label="Profile Menu"
-                aria-controls="menu-appbar"
+                aria-controls="profile-menu"
                 aria-haspopup="true"
-                onClick={handleMenu}
+                onClick={() => setOpen(true)}
                 sx={{ color: "white" }}
                 variant={currentPath.indexOf('/settings') === 0 ? 'contained' : 'text'}
             >
                 { session.name }
             </Button>
             <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                keepMounted
+                id="profile-menu"
+                anchorEl={() => document.querySelector('#avatar')}
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
-                open={Boolean(anchorEl)}
+                open={open}
                 onClose={handleClose}
             >
-                <MenuItem component={Link} to="/settings/profile" onClick={handleClose}>
+                <MenuItem component={Link} to="/settings/profile" onClick={delayedClose}>
                     <ListItemIcon>
                         <FaceIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Profile</ListItemText>
                 </MenuItem>
-                <MenuItem component={Link} to="/settings/accounts" onClick={handleClose} divider>
+                <MenuItem component={Link} to="/settings/accounts" onClick={delayedClose} divider>
                     <ListItemIcon>
                         <AccountBalanceWalletIcon fontSize="small" />
                     </ListItemIcon>

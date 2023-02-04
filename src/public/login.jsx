@@ -24,7 +24,7 @@ const Login = () => {
         }
     }, []);
 
-    const submitLogin = (event) => {
+    const submit = (event) => {
         event.preventDefault();
         setLoading(true);
         const credentials = Object.fromEntries(new FormData(event.target).entries());
@@ -40,7 +40,7 @@ const Login = () => {
     };
 
     return (
-        <form onSubmit={submitLogin} autoComplete="off">
+        <form onSubmit={submit} autoComplete="off">
             <Stack spacing={2}>
                 <Title>Login</Title>
                 <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />

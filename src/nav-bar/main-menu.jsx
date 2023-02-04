@@ -8,9 +8,6 @@ import Typography from '@mui/material/Typography';
 import DesktopMenu from './desktop-menu';
 import MobileMenu from './mobile-menu';
 import ProfileMenu from './profile-menu';
-import styled from 'styled-components';
-
-const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
 
 const Brand = ({ mobile }) => (
   <Typography
@@ -42,20 +39,17 @@ const NavBar = () => {
   const props = { pages, currentPath: location.pathname };
 
   return (
-    <>
-      <AppBar position="fixed">
+    <AppBar position="fixed">
         <Container maxWidth="xl">
-          <Toolbar disableGutters>
+            <Toolbar disableGutters>
             <Brand mobile={false} />
             <MobileMenu {...props} />
             <Brand mobile={true} />
             <DesktopMenu {...props} />
             <ProfileMenu currentPath={location.pathname} />
-          </Toolbar>
+            </Toolbar>
         </Container>
-      </AppBar>
-      <Offset />
-    </>
+    </AppBar>
   );
 }
 export default NavBar;

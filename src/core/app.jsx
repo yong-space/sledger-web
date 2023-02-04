@@ -12,7 +12,7 @@ const NotFound = lazy(() => import('./not-found'));
 
 const Root = styled(Container)`
     height: 100%;
-    padding-top: 2rem;
+    padding-top: 5rem;
 `;
 
 const App = () => (
