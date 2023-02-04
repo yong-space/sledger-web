@@ -8,7 +8,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import Title from '../core/title';
 
 const Login = () => {
     let navigate = useNavigate();
@@ -33,7 +33,7 @@ const Login = () => {
             setLoading(false);
             window.localStorage.setItem('token', token);
             const jwt = parseJwt(token);
-            setSession({ token, name: jwt.name, admin: jwt.admin });
+            setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
             navigate('/dash', { replace: true });
             showStatus('success', 'Logged in successfully');
         });
@@ -42,9 +42,7 @@ const Login = () => {
     return (
         <form onSubmit={submitLogin} autoComplete="off">
             <Stack spacing={2}>
-                <Typography variant="h5" mb={2}>
-                    Login
-                </Typography>
+                <Title>Login</Title>
                 <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />
                 <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8 }} />
                 <LoadingButton

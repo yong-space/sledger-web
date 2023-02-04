@@ -7,6 +7,7 @@ const NavBar = lazy(() => import('../nav-bar/main-menu'));
 const Dashboard = lazy(() => import('../dashboard/dashboard'));
 const Transactions = lazy(() => import('../transactions/transactions'));
 const Admin = lazy(() => import('../admin/admin'));
+const Settings = lazy(() => import('../settings/settings'));
 const NotFound = lazy(() => import('./not-found'));
 
 const Root = styled(Container)`
@@ -21,6 +22,7 @@ const App = () => (
             <Route path="dash/*" element={<Dashboard />} />
             <Route path="tx/*" element={<Transactions /> } />
             <Route path="admin/*" element={<Admin /> } />
+            <Route path="settings/*" element={<Settings /> } />
             <Route path="/" element={<Navigate to="/dash" />} />
             <Route path="register" element={<Navigate to="/dash" /> } />
             <Route path="login" element={<Navigate to="/dash" /> } />

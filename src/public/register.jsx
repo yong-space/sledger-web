@@ -2,11 +2,11 @@ import { atoms } from '../core/atoms';
 import { useNavigate, Link } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import api from '../core/api';
-import LoadingButton from '@mui/lab/LoadingButton';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import Title from '../core/title';
 
 const Register = () => {
     let navigate = useNavigate();
@@ -34,9 +34,7 @@ const Register = () => {
     return (
         <form onSubmit={submitRegistration} autoComplete="off">
             <Stack spacing={2}>
-                <Typography variant="h5" mb={2}>
-                    Register
-                </Typography>
+                <Title>Register</Title>
                 <TextField required name="displayName" label="Name" inputProps={{ minLength: 3 }}/>
                 <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />
                 <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />

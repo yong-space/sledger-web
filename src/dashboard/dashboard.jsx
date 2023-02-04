@@ -1,7 +1,9 @@
+import Title from '../core/title';
+
 const Dashboard = () => {
     return (
         <>
-            Dashboard
+            <Title>Dashboard</Title>
         </>
     )
 };

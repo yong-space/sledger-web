@@ -50,7 +50,7 @@ const NavBar = () => {
             <MobileMenu {...props} />
             <Brand mobile={true} />
             <DesktopMenu {...props} />
-            <ProfileMenu />
+            <ProfileMenu currentPath={location.pathname} />
           </Toolbar>
         </Container>
       </AppBar>

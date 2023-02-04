@@ -1,7 +1,9 @@
+import Title from '../core/title';
+
 const Transactions = () => {
     return (
         <>
-            Transactions
+            <Title>Transactions</Title>
         </>
     )
 };

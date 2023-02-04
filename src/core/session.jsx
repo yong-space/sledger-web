@@ -31,13 +31,11 @@ const Session = () => {
             if (new Date() > expiry) {
                 window.localStorage.clear();
                 setSession(undefined);
-                // navigate("/login", { replace: true });
-
                 if (location.pathname !== '/') {
                     showStatus("warning", "Your session has expired. Please login again.");
                 }
             } else {
-                setSession({ token, name: jwt.name, admin: jwt.admin });
+                setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
 
                 // TODO: if more than an hour from last login
                 // TODO: call refresh token

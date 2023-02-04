@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import Typography from '@mui/material/Typography';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
 import { lazy } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Title from '../core/title';
 
 const ManageIssuers = lazy(() => import('./manage-issuers'));
 const ManageUsers = lazy(() => import('./manage-users'));
@@ -15,9 +15,7 @@ const Admin = () => {
 
     return (
         <>
-            <Typography variant="h5" mb={2}>
-                Admin
-            </Typography>
+            <Title>Admin</Title>
             <Tabs
                 value={value}
                 onChange={handleChange}
