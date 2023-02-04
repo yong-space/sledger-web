@@ -31,8 +31,11 @@ const Session = () => {
             if (new Date() > expiry) {
                 window.localStorage.clear();
                 setSession(undefined);
-                navigate("/login", { replace: true });
-                showStatus("warning", "Your session has expired. Please login again.");
+                // navigate("/login", { replace: true });
+
+                if (location.pathname !== '/') {
+                    showStatus("warning", "Your session has expired. Please login again.");
+                }
             } else {
                 setSession({ token, name: jwt.name, admin: jwt.admin });
 
@@ -44,7 +47,7 @@ const Session = () => {
         setLoading(false);
     }, []);
 
-    return loading ? <></> : (!session || isPublicEndpoint()) ? <Public /> : <App />;
+    return loading ? <></> : !session ? <Public /> : <App />;
 }
 
 export default Session;

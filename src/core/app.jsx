@@ -22,6 +22,8 @@ const App = () => (
             <Route path="tx/*" element={<Transactions /> } />
             <Route path="admin/*" element={<Admin /> } />
             <Route path="/" element={<Navigate to="/dash" />} />
+            <Route path="register" element={<Navigate to="/dash" /> } />
+            <Route path="login" element={<Navigate to="/dash" /> } />
             <Route path="*" element={<NotFound />} />
         </Routes>
     </Root>
