@@ -2,12 +2,12 @@ import { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import styled from 'styled-components';
+import Settings from '../settings/settings';
 
 const NavBar = lazy(() => import('../nav-bar/main-menu'));
 const Dashboard = lazy(() => import('../dashboard/dashboard'));
 const Transactions = lazy(() => import('../transactions/transactions'));
 const Admin = lazy(() => import('../admin/admin'));
-const Settings = lazy(() => import('../settings/settings'));
 const NotFound = lazy(() => import('./not-found'));
 
 const Root = styled(Container)`

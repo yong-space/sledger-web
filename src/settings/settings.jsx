@@ -1,8 +1,6 @@
-import { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-
-const Profile = lazy(() => import('./profile'));
-const Accounts = lazy(() => import('./accounts'));
+import Profile from './profile';
+import Accounts from './accounts';
 
 const Settings = () => {
     return (
