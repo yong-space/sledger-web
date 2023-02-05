@@ -12,7 +12,7 @@ const Session = () => {
     const location = useLocation();
     const [ loading, setLoading ] = useState(true);
     const [ session, setSession ] = useRecoilState(atoms.session);
-    const { parseJwt, showStatus } = api();
+    const { parseJwt, getProfile, showStatus } = api();
 
     const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;
 
@@ -25,25 +25,36 @@ const Session = () => {
             if (!isPublicEndpoint()) {
                 navigate('/login', { replace: true });
             }
-        } else {
-            const jwt = parseJwt(token);
-            const expiry = jwt.exp * 1000;
-            if (new Date() > expiry) {
-                window.localStorage.clear();
-                setSession(undefined);
-                if (location.pathname !== '/') {
-                    showStatus("warning", "Your session has expired. Please login again.");
-                }
-            } else {
-                setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
-
-                // TODO: if more than an hour from last login
-                // TODO: call refresh token
-                // TODO: write to localStorage
+            setLoading(false);
+            return;
+        }
+        const jwt = parseJwt(token);
+        if (new Date().getTime() >= (jwt.exp * 1000)) {
+            window.localStorage.clear();
+            setSession(undefined);
+            if (location.pathname !== '/') {
+                showStatus("warning", "Your session has expired. Please login again.");
             }
+        } else {
+            setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
         }
         setLoading(false);
     }, []);
+
+    useEffect(() => {
+        if (!session) {
+            return;
+        }
+        const expiryDelta = (parseJwt(session.token).exp * 1000) - (new Date()).getTime();
+        if (expiryDelta > 86340000) {
+            return;
+        }
+        getProfile(({ token }) => {
+            window.localStorage.setItem('token', token);
+            const jwt = parseJwt(token);
+            setSession({ token: token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
+        });
+    }, [ session ]);
 
     return loading ? <></> : !session ? <Public /> : <App />;
 }

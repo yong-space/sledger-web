@@ -68,6 +68,7 @@ const api = () => {
         addIssuer: (payload, callback) => apiCall(POST, 'admin/account-issuer', payload, callback),
         editIssuer: (payload, callback) => apiCall(PUT, 'admin/account-issuer', payload, callback),
         deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, null, callback),
+        getProfile: (callback) => apiCall(GET, 'profile', null, callback),
         updateProfile: (payload, callback) => apiCall(PUT, 'profile', payload, callback),
     };
 };
