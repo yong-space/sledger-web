@@ -1,5 +1,5 @@
 import { atoms } from '../core/atoms';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
@@ -12,21 +12,39 @@ import ListItemText from '@mui/material/ListItemText';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Divider from '@mui/material/Divider';
 
 const ProfileMenu = ({ currentPath }) => {
     let navigate = useNavigate();
     const { showStatus } = api();
     const [ session, setSession ] = useRecoilState(atoms.session);
     const [ open, setOpen ] = useState(false);
-    const handleClose = () => setOpen(false);
-    const delayedClose = () => setTimeout(handleClose, 100);
 
     const logout = () => {
         window.localStorage.clear();
         setSession(undefined);
-        navigate("/login", { replace: true });
-        showStatus("success", "Logged out successfully");
+        navigate('/login', { replace: true });
+        showStatus('success', 'Logged out successfully');
     };
+
+    const goto = (uri) => {
+        setOpen(false);
+        navigate(`/settings/${uri}`);
+    };
+
+    const menuItems = [
+        { uri: 'profile', label: 'Profile', icon: <FaceIcon fontSize="small" /> },
+        { uri: 'accounts', label: 'Accounts', icon: <AccountBalanceWalletIcon fontSize="small" /> },
+    ];
+
+    const ProfileMenuItem = ({ uri, label, icon }) => (
+        <MenuItem onClick={() => goto(uri)}>
+            <ListItemIcon>
+                {icon}
+            </ListItemIcon>
+            <ListItemText>{label}</ListItemText>
+        </MenuItem>
+    );
 
     return (
         <>
@@ -49,20 +67,10 @@ const ProfileMenu = ({ currentPath }) => {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
                 open={open}
-                onClose={handleClose}
+                onClose={() => setOpen(false)}
             >
-                <MenuItem component={Link} to="/settings/profile" onClick={delayedClose}>
-                    <ListItemIcon>
-                        <FaceIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Profile</ListItemText>
-                </MenuItem>
-                <MenuItem component={Link} to="/settings/accounts" onClick={delayedClose} divider>
-                    <ListItemIcon>
-                        <AccountBalanceWalletIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Accounts</ListItemText>
-                </MenuItem>
+                { menuItems.map((item) => <ProfileMenuItem key={item.uri} {...item} />) }
+                <Divider />
                 <MenuItem onClick={logout}>
                     <ListItemIcon>
                         <LogoutIcon fontSize="small" />
