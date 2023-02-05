@@ -3,6 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
 import { useRecoilState } from 'recoil';
 import { useState, useEffect } from 'react';
+import Alert from '@mui/material/Alert';
 import api from '../core/api';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -35,16 +36,14 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
         },
     ];
 
-    const submitDelete = () => {
-        deleteIssuer(issuerId, () => {
-            setIssuers(issuers.filter(i => i.id !== issuerId));
-            showStatus('success', 'Issuer deleted');
-            setShowConfirm(false);
-        });
-    };
+    const submitDelete = () => deleteIssuer(issuerId, () => {
+        setIssuers(issuers.filter(i => i.id !== issuerId));
+        showStatus('success', 'Issuer deleted');
+        setShowConfirm(false);
+    });
 
     const IssuersDataGrid = () => issuers.length === 0 ?
-        'No issuers added yet' :
+        <Alert severity="info" variant="outlined">No issuers added yet</Alert> :
         (
             <>
                 <DataGrid
@@ -91,7 +90,7 @@ const IssuersForm = ({ setIssuers }) => {
                 <Typography variant="h6">
                     Add New Issuer
                 </Typography>
-                <TextField required name="name" label="Name" inputProps={{ minLength: 3 }} />
+                <TextField required name="name" label="Issuer name" inputProps={{ minLength: 3 }} />
                 <LoadingButton
                     type="submit"
                     loading={loading}

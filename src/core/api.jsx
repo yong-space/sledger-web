@@ -70,6 +70,10 @@ const api = () => {
         deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, null, callback),
         getProfile: (callback) => apiCall(GET, 'profile', null, callback),
         updateProfile: (payload, callback) => apiCall(PUT, 'profile', payload, callback),
+        listAccounts: (callback) => apiCall(GET, 'account', null, callback),
+        addAccount: (payload, callback) => apiCall(POST, 'account', payload, callback),
+        editAccount: (payload, callback) => apiCall(PUT, 'account', payload, callback),
+        deleteAccount: (id, callback) => apiCall(DELETE, `account/${id}`, null, callback),
     };
 };
 export default api;
