@@ -34,8 +34,10 @@ const ProfileMenu = ({ currentPath }) => {
 
     const menuItems = [
         { uri: 'profile', label: 'Profile', icon: <FaceIcon fontSize="small" /> },
-        { uri: 'accounts', label: 'Accounts', icon: <AccountBalanceWalletIcon fontSize="small" /> },
     ];
+    if (session.admin) {
+        menuItems.push({ uri: '../admin', label: 'Admin', icon: <AccountBalanceWalletIcon fontSize="small" /> });
+    }
 
     const ProfileMenuItem = ({ uri, label, icon }) => (
         <MenuItem onClick={() => goto(uri)}>
