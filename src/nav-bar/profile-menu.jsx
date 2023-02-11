@@ -59,7 +59,7 @@ const ProfileMenu = ({ currentPath }) => {
                 aria-haspopup="true"
                 onClick={() => setOpen(true)}
                 sx={{ color: "white" }}
-                variant={currentPath.indexOf('/settings') === 0 ? 'contained' : 'text'}
+                variant={currentPath.indexOf('profile') > -1 ? 'contained' : 'text'}
             >
                 { session.name }
             </Button>

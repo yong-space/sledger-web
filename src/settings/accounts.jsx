@@ -89,16 +89,23 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
 };
 
 const AccountsForm = ({ setAccounts }) => {
-    const [ issuers, setIssuers ] = useState();
+    const [ issuers, setIssuers ] = useRecoilState(atoms.issuers);
     const [ issuerId, setIssuerId ] = useState();
     const [ type, setType ] = useState('Cash');
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const { addAccount, listIssuers, showStatus } = api();
 
-    useEffect(() => listIssuers((data) => {
-        setIssuers(data);
-        setIssuerId(data[0].id);
-    }), []);
+    useEffect(() => {
+        if (!issuers) {
+            listIssuers((data) => setIssuers(data));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (issuers) {
+            setIssuerId(issuers[0].id);
+        }
+    }, [ issuers ]);
 
     const submit = (event) => {
         event.preventDefault();
@@ -113,7 +120,7 @@ const AccountsForm = ({ setAccounts }) => {
         });
     };
 
-    return !issuers ? <HorizontalLoader /> : (
+    return !(issuers && issuerId) ? <HorizontalLoader /> : (
         <form id="manage-accounts" onSubmit={submit} autoComplete="off">
             <Grid container item xs={12} md={5} direction="column" gap={2}>
                 <Typography variant="h6">
@@ -163,10 +170,14 @@ const AccountsForm = ({ setAccounts }) => {
 };
 
 const Accounts = () => {
-    const [ accounts, setAccounts ] = useState();
+    const [ accounts, setAccounts ] = useRecoilState(atoms.accounts);
     const { listAccounts } = api();
 
-    useEffect(() => listAccounts((data) => setAccounts(data)), []);
+    useEffect(() => {
+        if (!accounts) {
+            listAccounts((data) => setAccounts(data));
+        }
+    }, []);
 
     return (
         <>
