@@ -17,14 +17,9 @@ import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Title from '../core/title';
-import Typography from '@mui/material/Typography';
-
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Typography from '@mui/material/Typography';
 
 const AccountsGrid = ({ accounts, setAccounts }) => {
     const { deleteAccount, showStatus } = api();
@@ -32,9 +27,24 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
     const [ accountId, setAccountId ] = useState();
 
     const columns = [
-        { field: 'id', headerName: 'ID' },
-        { field: 'name', headerName: 'Name' },
         {
+            flex: 1,
+            field: 'issuer',
+            headerName: 'Issuer',
+            valueGetter: (params) => params.row.issuer.name,
+        },
+        {
+            flex: 1,
+            field: 'type',
+            headerName: 'Type',
+        },
+        {
+            flex: 2,
+            field: 'name',
+            headerName: 'Name',
+        },
+        {
+            flex: 1,
             field: 'delete', headerName: 'Delete',
             sortable: false,
             renderCell: ({ id }) => {
@@ -65,7 +75,6 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
                     disableColumnMenu
                     showColumnRightBorder
                     hideFooter
-
                 />
                 <ConfirmDialog
                     title="Confirm delete account?"
@@ -81,16 +90,20 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
 
 const AccountsForm = ({ setAccounts }) => {
     const [ issuers, setIssuers ] = useState();
-    const [ accountType, setAccountType ] = useState('Cash');
+    const [ issuerId, setIssuerId ] = useState();
+    const [ type, setType ] = useState('Cash');
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const { addAccount, listIssuers, showStatus } = api();
 
-    useEffect(() => listIssuers((data) => setIssuers(data)), []);
+    useEffect(() => listIssuers((data) => {
+        setIssuers(data);
+        setIssuerId(data[0].id);
+    }), []);
 
     const submit = (event) => {
         event.preventDefault();
         setLoading(true);
-        const newAccount = Object.fromEntries(new FormData(event.target).entries());
+        const newAccount = { name: new FormData(event.target).get('name'), type, issuerId };
 
         addAccount(newAccount, (response) => {
             setLoading(false);
@@ -109,10 +122,10 @@ const AccountsForm = ({ setAccounts }) => {
 
                 <ToggleButtonGroup
                     color="primary"
-                    value={accountType}
+                    value={type}
                     exclusive
                     fullWidth
-                    onChange={(event, type) => setAccountType(type)}
+                    onChange={(event, type) => setType(type)}
                     aria-label="account-type"
                 >
                     <ToggleButton value="Cash" aria-label="Cash">
@@ -129,6 +142,8 @@ const AccountsForm = ({ setAccounts }) => {
                         labelId="issuer-label"
                         label="Issuer"
                         defaultValue={issuers[0].id}
+                        value={issuerId}
+                        onChange={({ target }) => setIssuerId(target.value)}
                     >
                         { issuers.map(({ id, name }) => <MenuItem key={id} value={id}>{name}</MenuItem>) }
                     </Select>
