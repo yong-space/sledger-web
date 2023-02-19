@@ -9,7 +9,7 @@ import Select from '@mui/material/Select';
 
 const AccountSelector = ({ handleChange }) => {
     const [ accounts, setAccounts ] = useRecoilState(atoms.accounts);
-    const accountId = useRecoilState(atoms.accountId)[0];
+    const selectedAccount = useRecoilState(atoms.selectedAccount)[0];
     const { listAccounts } = api();
 
     useEffect(() => {
@@ -18,13 +18,13 @@ const AccountSelector = ({ handleChange }) => {
         }
     }, []);
 
-    return !accounts ? <></> : (
-        <FormControl>
+    return !(accounts && selectedAccount) ? <></> : (
+        <FormControl size="small" sx={{ width: { sm: 200, md: 300 } }}>
             <InputLabel id="account-label">Account</InputLabel>
             <Select
                 labelId="account-label"
                 label="Account"
-                value={accountId}
+                value={selectedAccount.id}
                 onChange={handleChange}
             >
                 { accounts.map(({ id, name, issuer, type }) => <MenuItem key={id} value={id}>{issuer.name}: {type}: {name}</MenuItem>) }

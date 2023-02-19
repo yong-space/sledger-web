@@ -9,14 +9,14 @@ const ConfirmDialog = ({ open, setOpen, title, message, confirm }) => (
     <Dialog
         open={open}
         onClose={() => setOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
     >
-        <DialogTitle id="alert-dialog-title">
+        <DialogTitle id="confirm-dialog-title">
             {title}
         </DialogTitle>
         <DialogContent>
-            <DialogContentText id="alert-dialog-description">
+            <DialogContentText id="confirm-dialog-description">
                 {message}
             </DialogContentText>
         </DialogContent>
