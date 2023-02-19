@@ -44,7 +44,7 @@ const api = () => {
         showStatus('error', msg);
     };
 
-    const apiCall = (method, uri, body, callback) => {
+    const apiCall = (method, uri, callback, body) => {
         const headers = { 'Content-Type': 'application/json' };
         if (session?.token && uri.indexOf('api/public') === -1) {
             headers.Authorization = 'Bearer ' + session.token;
@@ -62,18 +62,22 @@ const api = () => {
     return {
         showStatus,
         parseJwt,
-        register: (payload, callback) => apiCall(POST, 'public/register', payload, callback),
-        authenticate: (payload, callback) => apiCall(POST, 'public/authenticate', payload, callback),
-        listIssuers: (callback) => apiCall(GET, 'account-issuer', null, callback),
-        addIssuer: (payload, callback) => apiCall(POST, 'admin/account-issuer', payload, callback),
-        editIssuer: (payload, callback) => apiCall(PUT, 'admin/account-issuer', payload, callback),
-        deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, null, callback),
-        getProfile: (callback) => apiCall(GET, 'profile', null, callback),
-        updateProfile: (payload, callback) => apiCall(PUT, 'profile', payload, callback),
-        listAccounts: (callback) => apiCall(GET, 'account', null, callback),
-        addAccount: (payload, callback) => apiCall(POST, 'account', payload, callback),
-        editAccount: (payload, callback) => apiCall(PUT, 'account', payload, callback),
-        deleteAccount: (id, callback) => apiCall(DELETE, `account/${id}`, null, callback),
+        register: (payload, callback) => apiCall(POST, 'public/register', callback, payload),
+        authenticate: (payload, callback) => apiCall(POST, 'public/authenticate', callback, payload),
+        listIssuers: (callback) => apiCall(GET, 'account-issuer', callback),
+        addIssuer: (payload, callback) => apiCall(POST, 'admin/account-issuer', callback, payload),
+        editIssuer: (payload, callback) => apiCall(PUT, 'admin/account-issuer', callback, payload),
+        deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, callback),
+        getProfile: (callback) => apiCall(GET, 'profile', callback),
+        updateProfile: (payload, callback) => apiCall(PUT, 'profile', callback, payload),
+        listAccounts: (callback) => apiCall(GET, 'account', callback),
+        addAccount: (payload, callback) => apiCall(POST, 'account', callback, payload),
+        editAccount: (payload, callback) => apiCall(PUT, 'account', callback, payload),
+        deleteAccount: (id, callback) => apiCall(DELETE, `account/${id}`, callback),
+        listTransactions: (id, callback) => apiCall(GET, `transaction/${id}`, callback),
+        addTransaction: (payload, callback) => apiCall(POST, 'transaction', callback, payload),
+        editTransaction: (payload, callback) => apiCall(PUT, 'transaction', callback, payload),
+        deleteTransaction: (id, callback) => apiCall(DELETE, `transaction/${id}`, callback),
     };
 };
 export default api;
