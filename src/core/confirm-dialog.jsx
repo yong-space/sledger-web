@@ -21,10 +21,10 @@ const ConfirmDialog = ({ open, setOpen, title, message, confirm }) => (
             </DialogContentText>
         </DialogContent>
         <DialogActions>
-            <Button variant="outlined" color="error" onClick={confirm}>
+            <Button variant="contained" color="error" onClick={confirm}>
                 Confirm
             </Button>
-            <Button variant="outlined" onClick={() => setOpen(false)} autoFocus>
+            <Button variant="contained" onClick={() => setOpen(false)} autoFocus>
                 Cancel
             </Button>
         </DialogActions>

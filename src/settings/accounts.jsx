@@ -83,7 +83,7 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
                 />
                 <ConfirmDialog
                     title="Confirm delete account?"
-                    message="This is a permanent change"
+                    message="All transactions under this account will be permanently deleted"
                     open={showConfirm}
                     setOpen={setShowConfirm}
                     confirm={submitDelete}
