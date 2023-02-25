@@ -45,6 +45,11 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
         },
         {
             flex: 1,
+            field: 'transactions',
+            headerName: 'Transactions',
+        },
+        {
+            flex: 1,
             field: 'delete', headerName: 'Delete',
             sortable: false,
             renderCell: ({ id }) => {
