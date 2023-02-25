@@ -9,21 +9,24 @@ import AddTransactionForm from './add-transaction-form';
 import api from '../core/api';
 import Button from '@mui/material/Button';
 import ConfirmDialog from '../core/confirm-dialog';
+import dayjs from 'dayjs';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
 import Title from '../core/title';
 import TransactionsGrid from './transactions-grid';
 
 const Transactions = () => {
+    dayjs.extend(minMax);
     const accounts = useRecoilState(atoms.accounts)[0];
     const [ showAddForm, setShowAddForm ] = useState(false);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const [ selectedAccount, setSelectedAccount ] = useRecoilState(atoms.selectedAccount);
     const selectedRows = useRecoilState(atoms.selectedRows)[0];
-    const setTransactions = useRecoilState(atoms.transactions)[1];
+    const [ transactions, setTransactions ] = useRecoilState(atoms.transactions);
     const location = useLocation();
     const navigate = useNavigate();
-    const { deleteTransaction, showStatus } = api();
+    const { deleteTransaction, listTransactions, showStatus } = api();
 
     useEffect(() => {
         if (!accounts) {
@@ -37,11 +40,23 @@ const Transactions = () => {
         }
     }, [ accounts, location.pathname ]);
 
-    const submitDelete = () => deleteTransaction(selectedRows[0], () => {
-        setShowConfirmDelete(false);
-        setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
-        showStatus('success', 'Transaction deleted');
-    });
+    const submitDelete = () => {
+        const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
+        const txDate = dayjs(transactions.filter((t) => t.id === selectedRows[0])[0].date);
+
+        deleteTransaction(selectedRows[0], () => {
+            setShowConfirmDelete(false);
+            if (txDate.isSame(maxDate)) {
+                setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
+                showStatus('success', 'Transaction deleted');
+            } else {
+                listTransactions(selectedAccount.id, (response) => {
+                    setTransactions(response);
+                    showStatus('success', 'Transaction deleted');
+                });
+            }
+        });
+    }
 
     return (
         <Stack spacing={2} height="98%">

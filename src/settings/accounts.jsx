@@ -114,9 +114,16 @@ const AccountsForm = ({ setAccounts }) => {
 
     const submit = (event) => {
         event.preventDefault();
-        setLoading(true);
-        const newAccount = { name: new FormData(event.target).get('name'), type, issuerId };
+        const newAccount = {
+            ...Object.fromEntries(new FormData(event.target).entries()),
+            type, issuerId,
+        };
+        if (newAccount.type === 'Credit' && (newAccount.billingCycle < 1 || newAccount.billingCycle > 30)) {
+            showStatus('error', 'Billing cycle should be between 1 and 30');
+            return;
+        }
 
+        setLoading(true);
         addAccount(newAccount, (response) => {
             setLoading(false);
             setAccounts((existing) => [ ...existing, response ]);
@@ -133,7 +140,7 @@ const AccountsForm = ({ setAccounts }) => {
                 </Typography>
 
                 <ToggleButtonGroup
-                    color="primary"
+                    color="info"
                     value={type}
                     exclusive
                     fullWidth
@@ -161,6 +168,7 @@ const AccountsForm = ({ setAccounts }) => {
                     </Select>
                 </FormControl>
                 <TextField required name="name" label="Account name" inputProps={{ minLength: 3 }} />
+                { type === 'Credit' && <TextField required name="billingCycle" label="Billing Cycle Start Date" defaultValue={1} inputProps={{ inputMode: 'numeric', pattern: '[0-9]+' }} /> }
                 <LoadingButton
                     type="submit"
                     loading={loading}
@@ -171,7 +179,7 @@ const AccountsForm = ({ setAccounts }) => {
                 </LoadingButton>
             </Grid>
         </form>
-    )
+    );
 };
 
 const Accounts = () => {

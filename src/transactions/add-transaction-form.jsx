@@ -1,5 +1,4 @@
 import 'dayjs/locale/en-sg';
-import utc from 'dayjs/plugin/utc';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { atoms } from '../core/atoms';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -14,40 +13,56 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
+import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import utc from 'dayjs/plugin/utc';
 
 const AddTransactionForm = ({ open, setOpen }) => {
     dayjs.extend(utc);
+    dayjs.extend(minMax);
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = useState(dayjs().utc().startOf('day'));
+    const [ billingMonth, setBillingMonth ] = useState(dayjs().utc().startOf('month'));
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const selectedAccount = useRecoilState(atoms.selectedAccount)[0];
-    const setTransactions = useRecoilState(atoms.transactions)[1];
-    const { addTransaction, showStatus } = api();
+    const [ transactions, setTransactions ] = useRecoilState(atoms.transactions);
+    const { addTransaction, listTransactions, showStatus } = api();
 
     const submit = (event) => {
         event.preventDefault();
         const tx = {
-            date,
+            date: date.toISOString(),
             account: { id: selectedAccount.id },
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
         tx.amount *= side;
         tx['@type'] = selectedAccount.type.toLowerCase();
-        setLoading(true);
+        if (selectedAccount.type === 'Credit') {
+            tx.billingMonth = billingMonth.toISOString()
+        }
+        const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
 
+        setLoading(true);
         addTransaction(tx, (response) => {
             setLoading(false);
-            setTransactions((t) => [ ...t, response ]);
-            setOpen(false);
-            showStatus('success', 'Transaction added');
+            if (dayjs(response.date).isAfter(maxDate)) {
+                setTransactions((t) => [ ...t, response ]);
+                setOpen(false);
+                showStatus('success', 'Transaction added');
+            } else {
+                listTransactions(selectedAccount.id, (response) => {
+                    setTransactions(response);
+                    setOpen(false);
+                    showStatus('success', 'Transaction added');
+                });
+            }
         });
     };
 
-    return (
+    return !selectedAccount ? <></> : (
         <Dialog
             open={open}
             aria-labelledby="add-transaction-dialog-title"
@@ -66,9 +81,18 @@ const AddTransactionForm = ({ open, setOpen }) => {
                                 onChange={(newValue) => setDate(newValue)}
                                 renderInput={(params) => <TextField {...params} />}
                             />
+                            { selectedAccount.type === 'Credit' && (
+                                <DatePicker
+                                    views={[ 'year', 'month' ]}
+                                    label="Billing Month"
+                                    value={billingMonth}
+                                    onChange={(newValue) => setBillingMonth(newValue)}
+                                    renderInput={(params) => <TextField {...params} />}
+                                />
+                            ) }
                         </LocalizationProvider>
                         <ToggleButtonGroup
-                            color="primary"
+                            color="info"
                             value={side}
                             exclusive
                             fullWidth
@@ -97,7 +121,7 @@ const AddTransactionForm = ({ open, setOpen }) => {
                     >
                         Add Transaction
                     </LoadingButton>
-                    <Button variant="outlined" onClick={() => setOpen(false)} autoFocus>
+                    <Button variant="contained" onClick={() => setOpen(false)} autoFocus>
                         Cancel
                     </Button>
                 </DialogActions>
