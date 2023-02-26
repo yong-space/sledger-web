@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import AccountSelector from './account-selector';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import AddTransactionForm from './add-transaction-form';
+import AddTransactionDialog from './add-transaction-form';
 import api from '../core/api';
 import Button from '@mui/material/Button';
 import ConfirmDialog from '../core/confirm-dialog';
@@ -83,7 +83,7 @@ const Transactions = () => {
                 <TextField placeholder="Search.." size="small" sx={{ justifySelf: 'flex-end' }} />
             </Stack>
             <TransactionsGrid />
-            <AddTransactionForm
+            <AddTransactionDialog
                 open={showAddForm}
                 setOpen={setShowAddForm}
             />

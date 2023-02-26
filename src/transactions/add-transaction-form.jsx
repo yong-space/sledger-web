@@ -4,7 +4,7 @@ import { atoms } from '../core/atoms';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useRecoilState } from 'recoil';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../core/api';
 import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
@@ -20,16 +20,31 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import utc from 'dayjs/plugin/utc';
 
-const AddTransactionForm = ({ open, setOpen }) => {
+const AddTransactionDialog = ({ open, setOpen }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
     const [ side, setSide ] = useState(-1);
-    const [ date, setDate ] = useState(dayjs().utc().startOf('day'));
-    const [ billingMonth, setBillingMonth ] = useState(dayjs().utc().startOf('month'));
+    const [ date, setDate ] = useState();
+    const [ billingMonth, setBillingMonth ] = useState();
     const [ loading, setLoading ] = useRecoilState(atoms.loading);
     const selectedAccount = useRecoilState(atoms.selectedAccount)[0];
     const [ transactions, setTransactions ] = useRecoilState(atoms.transactions);
     const { addTransaction, listTransactions, showStatus } = api();
+
+    useEffect(() => {
+        setDate(dayjs().utc().startOf('day'));
+    }, []);
+
+    useEffect(() => {
+        if (selectedAccount?.type !== 'Credit' || !date) {
+            return;
+        }
+        if (date.get('date') < selectedAccount.billingCycle) {
+            setBillingMonth(date.subtract(1, 'month').startOf('month'));
+        } else {
+            setBillingMonth(date.startOf('month'));
+        }
+    }, [ selectedAccount, date ]);
 
     const submit = (event) => {
         event.preventDefault();
@@ -62,7 +77,49 @@ const AddTransactionForm = ({ open, setOpen }) => {
         });
     };
 
-    return !selectedAccount ? <></> : (
+    const AddTransactionForm = () => {
+        return !selectedAccount ? <></> : (
+            <Stack spacing={2} mt={1}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
+                    <DatePicker
+                        label="Date"
+                        value={date}
+                        onChange={(newValue) => setDate(newValue)}
+                        renderInput={(params) => <TextField {...params} />}
+                    />
+                    { selectedAccount.type === 'Credit' && (
+                        <DatePicker
+                            views={[ 'year', 'month' ]}
+                            label="Billing Month"
+                            value={billingMonth}
+                            onChange={(newValue) => setBillingMonth(newValue)}
+                            renderInput={(params) => <TextField {...params} />}
+                        />
+                    ) }
+                </LocalizationProvider>
+                <ToggleButtonGroup
+                    color="info"
+                    value={side}
+                    exclusive
+                    fullWidth
+                    onChange={(event, s) => setSide(s)}
+                    aria-label="account-type"
+                >
+                    <ToggleButton value={1} aria-label="Credit">
+                        Credit
+                    </ToggleButton>
+                    <ToggleButton value={-1} aria-label="Debit">
+                        Debit
+                    </ToggleButton>
+                </ToggleButtonGroup>
+                <TextField required name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
+                <TextField required name="category" label="Category" inputProps={{ minLength: 2 }} />
+                <TextField required name="remarks" label="Remarks" inputProps={{ minLength: 2 }} />
+            </Stack>
+        );
+    };
+
+    return (
         <Dialog
             open={open}
             aria-labelledby="add-transaction-dialog-title"
@@ -73,43 +130,7 @@ const AddTransactionForm = ({ open, setOpen }) => {
                     Add Transaction
                 </DialogTitle>
                 <DialogContent>
-                    <Stack spacing={2} mt={1}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
-                            <DatePicker
-                                label="Date"
-                                value={date}
-                                onChange={(newValue) => setDate(newValue)}
-                                renderInput={(params) => <TextField {...params} />}
-                            />
-                            { selectedAccount.type === 'Credit' && (
-                                <DatePicker
-                                    views={[ 'year', 'month' ]}
-                                    label="Billing Month"
-                                    value={billingMonth}
-                                    onChange={(newValue) => setBillingMonth(newValue)}
-                                    renderInput={(params) => <TextField {...params} />}
-                                />
-                            ) }
-                        </LocalizationProvider>
-                        <ToggleButtonGroup
-                            color="info"
-                            value={side}
-                            exclusive
-                            fullWidth
-                            onChange={(event, s) => setSide(s)}
-                            aria-label="account-type"
-                        >
-                            <ToggleButton value={1} aria-label="Credit">
-                                Credit
-                            </ToggleButton>
-                            <ToggleButton value={-1} aria-label="Debit">
-                                Debit
-                            </ToggleButton>
-                        </ToggleButtonGroup>
-                        <TextField required name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
-                        <TextField required name="category" label="Category" inputProps={{ minLength: 2 }} />
-                        <TextField required name="remarks" label="Remarks" inputProps={{ minLength: 2 }} />
-                    </Stack>
+                    <AddTransactionForm />
                 </DialogContent>
                 <DialogActions>
                     <LoadingButton
@@ -129,4 +150,4 @@ const AddTransactionForm = ({ open, setOpen }) => {
         </Dialog>
     );
 };
-export default AddTransactionForm;
+export default AddTransactionDialog;
