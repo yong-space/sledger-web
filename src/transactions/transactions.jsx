@@ -19,7 +19,8 @@ import TransactionsGrid from './transactions-grid';
 const Transactions = () => {
     dayjs.extend(minMax);
     const accounts = useRecoilState(atoms.accounts)[0];
-    const [ showAddForm, setShowAddForm ] = useState(false);
+    const [ showAddDialog, setShowAddDialog ] = useState(false);
+    const [ editTransaction, setEditTransaction ] = useState(false);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const [ selectedAccount, setSelectedAccount ] = useRecoilState(atoms.selectedAccount);
     const selectedRows = useRecoilState(atoms.selectedRows)[0];
@@ -67,7 +68,7 @@ const Transactions = () => {
                     <Button
                         variant="contained"
                         startIcon={<AddCircleOutlineIcon />}
-                        onClick={() => setShowAddForm(true)}
+                        onClick={() => setShowAddDialog(true)}
                     >
                         Add
                     </Button>
@@ -82,11 +83,8 @@ const Transactions = () => {
                 </Stack>
                 <TextField placeholder="Search.." size="small" sx={{ justifySelf: 'flex-end' }} />
             </Stack>
-            <TransactionsGrid />
-            <AddTransactionDialog
-                open={showAddForm}
-                setOpen={setShowAddForm}
-            />
+            <TransactionsGrid {...{ setShowAddForm: setShowAddDialog, editTransaction }} />
+            <AddTransactionDialog {...{ showAddDialog, setShowAddDialog, editTransaction }} />
             <ConfirmDialog
                 title="Confirm delete transaction?"
                 message="This is a permanent change"

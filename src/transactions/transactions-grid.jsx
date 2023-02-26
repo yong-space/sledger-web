@@ -41,12 +41,17 @@ const TransactionsGrid = () => {
         return columns;
     };
 
+    const handleDoubleClick = (params, event, details) => {
+        // todo: handle
+    };
+
     return !transactions ? <HorizontalLoader /> : (
         <DataGrid
             density="compact"
             rows={transactions}
             columns={getColumns()}
             onSelectionModelChange={(m) => setSelectedRows(m)}
+            onRowDoubleClick={handleDoubleClick}
             autoHeight
             disableColumnMenu
             showColumnRightBorder

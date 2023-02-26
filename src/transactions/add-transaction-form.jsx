@@ -20,7 +20,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import utc from 'dayjs/plugin/utc';
 
-const AddTransactionDialog = ({ open, setOpen }) => {
+const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
     const [ side, setSide ] = useState(-1);
@@ -65,12 +65,12 @@ const AddTransactionDialog = ({ open, setOpen }) => {
             setLoading(false);
             if (dayjs(response.date).isAfter(maxDate)) {
                 setTransactions((t) => [ ...t, response ]);
-                setOpen(false);
+                setShowAddDialog(false);
                 showStatus('success', 'Transaction added');
             } else {
                 listTransactions(selectedAccount.id, (response) => {
                     setTransactions(response);
-                    setOpen(false);
+                    setShowAddDialog(false);
                     showStatus('success', 'Transaction added');
                 });
             }
@@ -121,7 +121,7 @@ const AddTransactionDialog = ({ open, setOpen }) => {
 
     return (
         <Dialog
-            open={open}
+            open={showAddDialog}
             aria-labelledby="add-transaction-dialog-title"
             aria-describedby="add-transaction-dialog-description"
         >
@@ -142,7 +142,7 @@ const AddTransactionDialog = ({ open, setOpen }) => {
                     >
                         Add Transaction
                     </LoadingButton>
-                    <Button variant="contained" onClick={() => setOpen(false)} autoFocus>
+                    <Button variant="contained" onClick={() => setShowAddDialog(false)} autoFocus>
                         Cancel
                     </Button>
                 </DialogActions>
