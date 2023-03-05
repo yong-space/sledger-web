@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
-import { atoms } from './atoms';
+import state from './state';
 
 const parseJwt = (token) => {
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -12,9 +11,10 @@ const parseJwt = (token) => {
 const api = () => {
     let navigate = useNavigate();
     const apiRoot = window.location.hostname === 'localhost' ? '//localhost:8080' : '';
-    const setStatus = useRecoilState(atoms.status)[1];
-    const setLoading = useRecoilState(atoms.loading)[1];
-    const [ session, setSession ] = useRecoilState(atoms.session);
+
+    const setStatus = state.useState('status')[1];
+    const setLoading = state.useState('loading')[1];
+    const [ session, setSession ] = state.useState('session');
     const showStatus = (severity, msg) => setStatus({ open: true, severity, msg });
 
     const process = async (response) => {

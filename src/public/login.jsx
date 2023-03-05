@@ -1,12 +1,11 @@
-import { atoms } from '../core/atoms';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import Stack from '@mui/material/Stack';
+import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import Title from '../core/title';
 
@@ -14,8 +13,8 @@ const Login = () => {
     let navigate = useNavigate();
     const location = useLocation();
     const { authenticate, showStatus, parseJwt } = api();
-    const setSession = useRecoilState(atoms.session)[1];
-    const [ loading, setLoading ] = useRecoilState(atoms.loading);
+    const setSession = state.useState('session')[1];
+    const [ loading, setLoading ] = state.useState('loading');
 
     useEffect(() => {
         if (location.hash === '#activated') {

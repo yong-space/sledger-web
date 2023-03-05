@@ -1,7 +1,5 @@
-import { atoms } from '../core/atoms';
 import { DataGrid } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
-import { useRecoilState } from 'recoil';
 import { useState, useEffect } from 'react';
 import Alert from '@mui/material/Alert';
 import api from '../core/api';
@@ -15,6 +13,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
+import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import Title from '../core/title';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -94,10 +93,10 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
 };
 
 const AccountsForm = ({ setAccounts }) => {
-    const [ issuers, setIssuers ] = useRecoilState(atoms.issuers);
+    const [ issuers, setIssuers ] = state.useState('issuers');
     const [ issuerId, setIssuerId ] = useState();
     const [ type, setType ] = useState('Cash');
-    const [ loading, setLoading ] = useRecoilState(atoms.loading);
+    const [ loading, setLoading ] = state.useState('loading');
     const { addAccount, listIssuers, showStatus } = api();
 
     useEffect(() => {
@@ -183,7 +182,7 @@ const AccountsForm = ({ setAccounts }) => {
 };
 
 const Accounts = () => {
-    const [ accounts, setAccounts ] = useRecoilState(atoms.accounts);
+    const [ accounts, setAccounts ] = state.useState('accounts');
     const { listAccounts } = api();
 
     useEffect(() => {

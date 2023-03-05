@@ -1,23 +1,22 @@
-import { atoms } from '../core/atoms';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import api from '../core/api';
 import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import FaceIcon from '@mui/icons-material/Face';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Divider from '@mui/material/Divider';
+import state from '../core/state';
 
 const ProfileMenu = ({ currentPath }) => {
     let navigate = useNavigate();
     const { showStatus } = api();
-    const [ session, setSession ] = useRecoilState(atoms.session);
+    const [ session, setSession ] = state.useState('session');
     const [ open, setOpen ] = useState(false);
 
     const logout = () => {

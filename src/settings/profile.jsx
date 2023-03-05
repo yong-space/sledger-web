@@ -1,18 +1,17 @@
-import { atoms } from '../core/atoms';
-import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import Box from '@mui/material/Box';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
+import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import Title from '../core/title';
 import Tooltip from '@mui/material/Tooltip';
 
 const Profile = () => {
     const { parseJwt, showStatus, updateProfile } = api();
-    const [ loading, setLoading ] = useRecoilState(atoms.loading);
-    const [ session, setSession ] = useRecoilState(atoms.session);
+    const [ loading, setLoading ] = state.useState('loading');
+    const [ session, setSession ] = state.useState('session');
 
     const submit = (event) => {
         event.preventDefault();

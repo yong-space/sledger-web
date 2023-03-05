@@ -1,6 +1,6 @@
-import { atom } from 'recoil';
+import { atom, useRecoilState } from 'recoil';
 
-export const atoms = {
+const atoms = {
     loading: atom({ key: 'loading', default: false }),
     status: atom({ key: 'status', default: { open: false }}),
     session: atom({ key: 'session', default: undefined }),
@@ -11,3 +11,11 @@ export const atoms = {
     transactionsAccountId: atom({ key: 'transactionsAccountId', default: undefined }),
     selectedRows: atom({ key: 'selectedRows', default: undefined }),
 };
+
+const state = () => {
+    return {
+        useState: (key) => useRecoilState(atoms[key])
+    };
+};
+
+export default state();

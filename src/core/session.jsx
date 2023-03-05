@@ -1,8 +1,7 @@
-import { atoms } from './atoms';
 import { lazy, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
 import api from './api';
+import state from './state';
 
 const App = lazy(() => import('./app'));
 const Public = lazy(() => import('../public/public'));
@@ -11,8 +10,8 @@ const Session = () => {
     let navigate = useNavigate();
     const location = useLocation();
     const [ loading, setLoading ] = useState(true);
-    const [ session, setSession ] = useRecoilState(atoms.session);
-    const { parseJwt, getProfile, showStatus } = api();
+    const [ session, setSession ] = state.useState('session');
+    const { parseJwt, getProfile } = api();
 
     const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;
 

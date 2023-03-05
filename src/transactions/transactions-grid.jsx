@@ -1,17 +1,16 @@
-import { atoms } from '../core/atoms';
 import { DataGrid } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
 import { useEffect } from 'react';
-import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import dayjs from 'dayjs';
+import state from '../core/state';
 
 const TransactionsGrid = () => {
-    const selectedAccount = useRecoilState(atoms.selectedAccount)[0];
     const { listTransactions } = api();
-    const [ transactions, setTransactions ] = useRecoilState(atoms.transactions);
-    const [ transactionsAccountId, setTansactionsAccountId ] = useRecoilState(atoms.transactionsAccountId);
-    const setSelectedRows = useRecoilState(atoms.selectedRows)[1];
+    const selectedAccount = state.useState('selectedAccount')[0];
+    const [ transactions, setTransactions ] = state.useState('transactions');
+    const [ transactionsAccountId, setTansactionsAccountId ] = state.useState('transactionsAccountId');
+    const setSelectedRows = state.useState('selectedRows')[1];
 
     useEffect(() => {
         if (!selectedAccount) {

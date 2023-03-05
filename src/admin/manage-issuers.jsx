@@ -1,7 +1,5 @@
-import { atoms } from '../core/atoms';
 import { DataGrid } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
-import { useRecoilState } from 'recoil';
 import { useState, useEffect } from 'react';
 import Alert from '@mui/material/Alert';
 import api from '../core/api';
@@ -11,6 +9,7 @@ import ConfirmDialog from '../core/confirm-dialog';
 import Grid from '@mui/material/Grid';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
+import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
@@ -68,7 +67,7 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
 };
 
 const IssuersForm = ({ setIssuers }) => {
-    const [ loading, setLoading ] = useRecoilState(atoms.loading);
+    const [ loading, setLoading ] = state.useState('loading');
     const { addIssuer, showStatus } = api();
 
     const submitAddIssuer = (event) => {

@@ -1,10 +1,9 @@
-import { atoms } from './atoms';
-import { useRecoilState } from 'recoil';
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
+import state from './state';
 
 const StatusBar = () => {
-    const [ status, setStatus ] = useRecoilState(atoms.status);
+    const [ status, setStatus ] = state.useState('status');
     const close = (event, reason) => reason !== 'clickaway'
         && setStatus((prev) => ({ ...prev, open: false }));
 

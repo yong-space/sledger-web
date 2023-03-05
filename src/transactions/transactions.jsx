@@ -1,8 +1,6 @@
-import { atoms } from '../core/atoms';
 import { TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
 import AccountSelector from './account-selector';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddTransactionDialog from './add-transaction-form';
@@ -13,18 +11,19 @@ import dayjs from 'dayjs';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
+import state from '../core/state';
 import Title from '../core/title';
 import TransactionsGrid from './transactions-grid';
 
 const Transactions = () => {
     dayjs.extend(minMax);
-    const accounts = useRecoilState(atoms.accounts)[0];
+    const accounts = state.useState('accounts')[0];
     const [ showAddDialog, setShowAddDialog ] = useState(false);
     const [ editTransaction, setEditTransaction ] = useState(false);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
-    const [ selectedAccount, setSelectedAccount ] = useRecoilState(atoms.selectedAccount);
-    const selectedRows = useRecoilState(atoms.selectedRows)[0];
-    const [ transactions, setTransactions ] = useRecoilState(atoms.transactions);
+    const [ selectedAccount, setSelectedAccount ] = state.useState('selectedAccount');
+    const selectedRows = state.useState('selectedRows')[0];
+    const [ transactions, setTransactions ] = state.useState('transactions');
     const location = useLocation();
     const navigate = useNavigate();
     const { deleteTransaction, listTransactions, showStatus } = api();

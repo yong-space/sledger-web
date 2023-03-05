@@ -1,9 +1,7 @@
 import 'dayjs/locale/en-sg';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { atoms } from '../core/atoms';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { useRecoilState } from 'recoil';
 import { useState, useEffect } from 'react';
 import api from '../core/api';
 import Button from '@mui/material/Button';
@@ -15,6 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
 import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
+import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -26,9 +25,9 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = useState();
     const [ billingMonth, setBillingMonth ] = useState();
-    const [ loading, setLoading ] = useRecoilState(atoms.loading);
-    const selectedAccount = useRecoilState(atoms.selectedAccount)[0];
-    const [ transactions, setTransactions ] = useRecoilState(atoms.transactions);
+    const [ loading, setLoading ] = state.useState('loading');
+    const selectedAccount = state.useState('selectedAccount')[0];
+    const [ transactions, setTransactions ] = state.useState('transactions');
     const { addTransaction, listTransactions, showStatus } = api();
 
     useEffect(() => {

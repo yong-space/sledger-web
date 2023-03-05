@@ -1,15 +1,14 @@
-import { atoms } from '../core/atoms';
 import { useEffect } from 'react';
-import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import state from '../core/state';
 
 const AccountSelector = ({ handleChange }) => {
-    const [ accounts, setAccounts ] = useRecoilState(atoms.accounts);
-    const selectedAccount = useRecoilState(atoms.selectedAccount)[0];
+    const [ accounts, setAccounts ] = state.useState('accounts');
+    const selectedAccount = state.useState('selectedAccount')[0];
     const { listAccounts } = api();
 
     useEffect(() => {

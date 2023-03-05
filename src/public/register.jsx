@@ -1,17 +1,16 @@
-import { atoms } from '../core/atoms';
 import { useNavigate, Link } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
 import api from '../core/api';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
+import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import Title from '../core/title';
 
 const Register = () => {
     let navigate = useNavigate();
     const { register, showStatus } = api();
-    const [ loading, setLoading ] = useRecoilState(atoms.loading);
+    const [ loading, setLoading ] = state.useState('loading');
 
     const submit = (event) => {
         event.preventDefault();
