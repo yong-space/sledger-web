@@ -32,8 +32,8 @@ const Session = () => {
         if (new Date().getTime() >= (jwt.exp * 1000)) {
             window.localStorage.clear();
             setSession(undefined);
-            if (location.pathname !== '/') {
-                showStatus("warning", "Your session has expired. Please login again.");
+            if (!isPublicEndpoint()) {
+                navigate('/login', { replace: true });
             }
         } else {
             setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
