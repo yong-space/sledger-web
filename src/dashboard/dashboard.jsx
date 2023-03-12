@@ -1,13 +1,14 @@
+import { HorizontalLoader } from '../core/loader';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
+import styled from 'styled-components';
 import SubTitle from '../core/sub-title';
 import Title from '../core/title';
-import styled from 'styled-components';
-import { useTheme } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
 
 const Wrapper = styled.div`
     display: flex;
@@ -19,7 +20,7 @@ const Table = styled.div`
     background: #222;
     border-radius: .5rem;
     padding: .3rem;
-    overflow: scroll;
+    overflow: hidden;
 `;
 
 const Cell = styled.div`
@@ -49,7 +50,7 @@ const SummaryCell = styled(Cell)`
 `;
 
 const Dashboard = () => {
-    const [ accounts, setAccounts ] = state.useState('accounts');
+    const [ accounts, setAccounts ] = state.useState(state.accounts);
     const [ cashAccounts, setCashAccounts ] = useState();
     const [ creditAccounts, setCreditAccounts ] = useState();
     const [ netWorth, setNetWorth ] = useState();
@@ -133,15 +134,15 @@ const Dashboard = () => {
         );
     };
 
-    return (
+    return !accounts ? <HorizontalLoader /> : (
         <>
             <Title>Dashboard</Title>
             <Stack spacing={3}>
                 { cashAccounts && <SummaryGrid label="Cash Accounts" data={cashAccounts} /> }
                 { creditAccounts && <SummaryGrid label="Credit Accounts" data={creditAccounts} /> }
-                <TotalNetWorth />
+                { netWorth && <TotalNetWorth /> }
             </Stack>
         </>
-    )
+    );
 };
 export default Dashboard;

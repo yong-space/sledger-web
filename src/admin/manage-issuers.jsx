@@ -67,7 +67,8 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
 };
 
 const IssuersForm = ({ setIssuers }) => {
-    const [ loading, setLoading ] = state.useState('loading');
+
+    const [ loading, setLoading ] = state.useState(state.loading);
     const { addIssuer, showStatus } = api();
 
     const submitAddIssuer = (event) => {
@@ -104,10 +105,14 @@ const IssuersForm = ({ setIssuers }) => {
 };
 
 const ManageIssuers = () => {
-    const [ issuers, setIssuers ] = useState();
+    const [ issuers, setIssuers ] = state.useState(state.issuers);
     const { listIssuers } = api();
 
-    useEffect(() => listIssuers((data) => setIssuers(data)), []);
+    useEffect(() => {
+        if (!issuers) {
+            listIssuers((data) => setIssuers(data));
+        }
+    }, []);
 
     return !issuers ? <HorizontalLoader /> : (
         <Stack spacing={4}>

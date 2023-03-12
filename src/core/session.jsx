@@ -10,7 +10,7 @@ const Session = () => {
     let navigate = useNavigate();
     const location = useLocation();
     const [ loading, setLoading ] = useState(true);
-    const [ session, setSession ] = state.useState('session');
+    const [ session, setSession ] = state.useState(state.session);
     const { parseJwt, getProfile } = api();
 
     const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;

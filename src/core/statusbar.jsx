@@ -3,7 +3,7 @@ import Snackbar from '@mui/material/Snackbar';
 import state from './state';
 
 const StatusBar = () => {
-    const [ status, setStatus ] = state.useState('status');
+    const [ status, setStatus ] = state.useState(state.status);
     const close = (event, reason) => reason !== 'clickaway'
         && setStatus((prev) => ({ ...prev, open: false }));
 

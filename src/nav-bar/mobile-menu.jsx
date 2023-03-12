@@ -2,28 +2,29 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import Drawer from "@mui/material/Drawer";
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Typography from '@mui/material/Typography';
 
 const isSelected = (path, link) => path.indexOf(link) === 0;
 
 const MobileMenu = ({ pages, currentPath }) => {
   const [ isOpen, setOpen ] = useState(false);
-  const delayedClose = () => setTimeout(() => setOpen(false), 100);
 
   return (
     <Box sx={{ display: { xs: "flex", md: "none" } }}>
       <IconButton size="large" onClick={() => setOpen(true)} aria-label="Menu">
         <MenuIcon />
       </IconButton>
-      <Drawer
+      <SwipeableDrawer
         open={isOpen}
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
         PaperProps={{ sx: { width: "20rem" } }}
       >
         <Box>
@@ -41,7 +42,7 @@ const MobileMenu = ({ pages, currentPath }) => {
           <Divider />
           <List>
             {pages.map(({ label, link }) => (
-              <ListItem key={link} component={Link} to={link} onClick={delayedClose}>
+              <ListItem key={link} component={Link} to={link} onClick={() => setOpen(false)}>
                 <ListItemButton selected={isSelected(currentPath, link)}>
                   <ListItemText primary={label} />
                 </ListItemButton>
@@ -49,7 +50,7 @@ const MobileMenu = ({ pages, currentPath }) => {
             ))}
           </List>
         </Box>
-      </Drawer>
+      </SwipeableDrawer>
     </Box>
   );
 };

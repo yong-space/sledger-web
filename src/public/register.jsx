@@ -10,7 +10,7 @@ import Title from '../core/title';
 const Register = () => {
     let navigate = useNavigate();
     const { register, showStatus } = api();
-    const [ loading, setLoading ] = state.useState('loading');
+    const [ loading, setLoading ] = state.useState(state.loading);
 
     const submit = (event) => {
         event.preventDefault();

@@ -17,13 +17,13 @@ import TransactionsGrid from './transactions-grid';
 
 const Transactions = () => {
     dayjs.extend(minMax);
-    const accounts = state.useState('accounts')[0];
+    const accounts = state.useState(state.accounts)[0];
     const [ showAddDialog, setShowAddDialog ] = useState(false);
     const [ editTransaction, setEditTransaction ] = useState(false);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
-    const [ selectedAccount, setSelectedAccount ] = state.useState('selectedAccount');
-    const selectedRows = state.useState('selectedRows')[0];
-    const [ transactions, setTransactions ] = state.useState('transactions');
+    const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
+    const selectedRows = state.useState(state.selectedRows)[0];
+    const [ transactions, setTransactions ] = state.useState(state.transactions);
     const location = useLocation();
     const navigate = useNavigate();
     const { deleteTransaction, listTransactions, showStatus } = api();
@@ -56,7 +56,7 @@ const Transactions = () => {
                 });
             }
         });
-    }
+    };
 
     return (
         <Stack spacing={2} height="98%">
@@ -76,6 +76,7 @@ const Transactions = () => {
                         color="error"
                         startIcon={<DeleteForeverIcon />}
                         onClick={() => setShowConfirmDelete(true)}
+                        disabled={selectedRows.length === 0}
                     >
                         Delete
                     </Button>

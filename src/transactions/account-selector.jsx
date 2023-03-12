@@ -7,8 +7,8 @@ import Select from '@mui/material/Select';
 import state from '../core/state';
 
 const AccountSelector = ({ handleChange }) => {
-    const [ accounts, setAccounts ] = state.useState('accounts');
-    const selectedAccount = state.useState('selectedAccount')[0];
+    const [ accounts, setAccounts ] = state.useState(state.accounts);
+    const selectedAccount = state.useState(state.selectedAccount)[0];
     const { listAccounts } = api();
 
     useEffect(() => {

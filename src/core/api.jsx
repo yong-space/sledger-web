@@ -12,9 +12,9 @@ const api = () => {
     let navigate = useNavigate();
     const apiRoot = window.location.hostname === 'localhost' ? '//localhost:8080' : '';
 
-    const setStatus = state.useState('status')[1];
-    const setLoading = state.useState('loading')[1];
-    const [ session, setSession ] = state.useState('session');
+    const setStatus = state.useState(state.status)[1];
+    const setLoading = state.useState(state.loading)[1];
+    const [ session, setSession ] = state.useState(state.session);
     const showStatus = (severity, msg) => setStatus({ open: true, severity, msg });
 
     const process = async (response) => {

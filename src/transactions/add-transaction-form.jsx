@@ -25,9 +25,9 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = useState();
     const [ billingMonth, setBillingMonth ] = useState();
-    const [ loading, setLoading ] = state.useState('loading');
-    const selectedAccount = state.useState('selectedAccount')[0];
-    const [ transactions, setTransactions ] = state.useState('transactions');
+    const [ loading, setLoading ] = state.useState(state.loading);
+    const selectedAccount = state.useState(state.selectedAccount)[0];
+    const [ transactions, setTransactions ] = state.useState(state.transactions);
     const { addTransaction, listTransactions, showStatus } = api();
 
     useEffect(() => {

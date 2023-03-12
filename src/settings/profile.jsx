@@ -10,8 +10,8 @@ import Tooltip from '@mui/material/Tooltip';
 
 const Profile = () => {
     const { parseJwt, showStatus, updateProfile } = api();
-    const [ loading, setLoading ] = state.useState('loading');
-    const [ session, setSession ] = state.useState('session');
+    const [ loading, setLoading ] = state.useState(state.loading);
+    const [ session, setSession ] = state.useState(state.session);
 
     const submit = (event) => {
         event.preventDefault();

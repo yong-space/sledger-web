@@ -16,7 +16,7 @@ import state from '../core/state';
 const ProfileMenu = ({ currentPath }) => {
     let navigate = useNavigate();
     const { showStatus } = api();
-    const [ session, setSession ] = state.useState('session');
+    const [ session, setSession ] = state.useState(state.session);
     const [ open, setOpen ] = useState(false);
 
     const logout = () => {

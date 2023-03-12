@@ -48,7 +48,7 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
             headerName: 'Transactions',
         },
         {
-            flex: 1,
+            flex: 1.5,
             field: 'delete', headerName: 'Delete',
             sortable: false,
             renderCell: ({ id }) => {
@@ -93,10 +93,10 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
 };
 
 const AccountsForm = ({ setAccounts }) => {
-    const [ issuers, setIssuers ] = state.useState('issuers');
+    const [ issuers, setIssuers ] = state.useState(state.issuers);
     const [ issuerId, setIssuerId ] = useState();
     const [ type, setType ] = useState('Cash');
-    const [ loading, setLoading ] = state.useState('loading');
+    const [ loading, setLoading ] = state.useState(state.loading);
     const { addAccount, listIssuers, showStatus } = api();
 
     useEffect(() => {
@@ -182,7 +182,7 @@ const AccountsForm = ({ setAccounts }) => {
 };
 
 const Accounts = () => {
-    const [ accounts, setAccounts ] = state.useState('accounts');
+    const [ accounts, setAccounts ] = state.useState(state.accounts);
     const { listAccounts } = api();
 
     useEffect(() => {

@@ -13,8 +13,8 @@ const Login = () => {
     let navigate = useNavigate();
     const location = useLocation();
     const { authenticate, showStatus, parseJwt } = api();
-    const setSession = state.useState('session')[1];
-    const [ loading, setLoading ] = state.useState('loading');
+    const setSession = state.useState(state.session)[1];
+    const [ loading, setLoading ] = state.useState(state.loading);
 
     useEffect(() => {
         if (location.hash === '#activated') {
