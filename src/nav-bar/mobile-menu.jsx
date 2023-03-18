@@ -10,6 +10,12 @@ import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Typography from '@mui/material/Typography';
+import styled from 'styled-components';
+
+const NavListItem = styled(ListItemButton)`
+    background-color: ${props => props.selected ? '#375a7f' : 'transparent'};
+    border-radius: .3rem;
+`;
 
 const isSelected = (path, link) => path.indexOf(link) === 0;
 
@@ -43,9 +49,9 @@ const MobileMenu = ({ pages, currentPath }) => {
           <List>
             {pages.map(({ label, link }) => (
               <ListItem key={link} component={Link} to={link} onClick={() => setOpen(false)}>
-                <ListItemButton selected={isSelected(currentPath, link)}>
+                <NavListItem selected={isSelected(currentPath, link)}>
                   <ListItemText primary={label} />
-                </ListItemButton>
+                </NavListItem>
               </ListItem>
             ))}
           </List>

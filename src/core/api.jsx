@@ -28,7 +28,7 @@ const api = () => {
             if (response.status === 401) {
                 setSession(undefined);
                 window.localStorage.clear();
-                if (!response.url.endsWith('api/public/authenticate')) {
+                if (!response.url.endsWith('api/authenticate')) {
                     navigate('/login', { replace: true });
                     throw new Error('Your session has expired. Please login again.');
                 }
@@ -46,7 +46,7 @@ const api = () => {
 
     const apiCall = (method, uri, callback, body) => {
         const headers = { 'Content-Type': 'application/json' };
-        if (session?.token && uri.indexOf('api/public') === -1) {
+        if (session?.token && [ 'register', 'authenticate' ].indexOf(uri) === -1) {
             headers.Authorization = 'Bearer ' + session.token;
         }
         const config = { method, headers };
@@ -62,13 +62,13 @@ const api = () => {
     return {
         showStatus,
         parseJwt,
-        register: (payload, callback) => apiCall(POST, 'public/register', callback, payload),
-        authenticate: (payload, callback) => apiCall(POST, 'public/authenticate', callback, payload),
+        register: (payload, callback) => apiCall(POST, 'register', callback, payload),
+        authenticate: (payload, callback) => apiCall(POST, 'authenticate', callback, payload),
+        refreshToken: (callback) => apiCall(GET, 'refresh-token', callback),
         listIssuers: (callback) => apiCall(GET, 'account-issuer', callback),
         addIssuer: (payload, callback) => apiCall(POST, 'admin/account-issuer', callback, payload),
         editIssuer: (payload, callback) => apiCall(PUT, 'admin/account-issuer', callback, payload),
         deleteIssuer: (id, callback) => apiCall(DELETE, `admin/account-issuer/${id}`, callback),
-        getProfile: (callback) => apiCall(GET, 'profile', callback),
         updateProfile: (payload, callback) => apiCall(PUT, 'profile', callback, payload),
         listAccounts: (callback) => apiCall(GET, 'account', callback),
         addAccount: (payload, callback) => apiCall(POST, 'account', callback, payload),

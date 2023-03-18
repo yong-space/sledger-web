@@ -1,8 +1,7 @@
 import api from '../core/api';
-import Box from '@mui/material/Box';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
 import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import Title from '../core/title';
@@ -49,26 +48,24 @@ const Profile = () => {
         <>
             <Title>Profile</Title>
             <form onSubmit={submit} autoComplete="off">
-                <Box sx={{ display: 'flex' }}>
-                    <Stack spacing={2}>
-                        <TextField required name="displayName" label="Name" inputProps={{ minLength: 3 }} defaultValue={session.name} />
-                        <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} defaultValue={session.email} />
-                        <Tooltip title="Enter only if you wish to change your password">
-                            <TextField name="password" type="password" label="Current Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                        </Tooltip>
-                        <TextField name="newPassword" type="password" label="New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                        <TextField name="newPassword2" type="password" label="Repeat New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                        <LoadingButton
-                            type="submit"
-                            endIcon={<HowToRegIcon />}
-                            loading={loading}
-                            loadingPosition="center"
-                            variant="contained"
-                        >
-                            Update
-                        </LoadingButton>
-                    </Stack>
-                </Box>
+                <Grid container item xs={12} md={5} direction="column" gap={2}>
+                    <TextField required name="displayName" label="Name" inputProps={{ minLength: 3 }} defaultValue={session.name} />
+                    <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} defaultValue={session.email} />
+                    <Tooltip title="Enter only if you wish to change your password">
+                        <TextField name="password" type="password" label="Current Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
+                    </Tooltip>
+                    <TextField name="newPassword" type="password" label="New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
+                    <TextField name="newPassword2" type="password" label="Repeat New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
+                    <LoadingButton
+                        type="submit"
+                        endIcon={<HowToRegIcon />}
+                        loading={loading}
+                        loadingPosition="center"
+                        variant="contained"
+                    >
+                        Update
+                    </LoadingButton>
+                </Grid>
             </form>
         </>
     );

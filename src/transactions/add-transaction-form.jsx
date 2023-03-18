@@ -3,6 +3,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useState, useEffect } from 'react';
+import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
 import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
@@ -17,11 +18,14 @@ import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
 
 const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = useState();
     const [ billingMonth, setBillingMonth ] = useState();
@@ -120,6 +124,8 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
 
     return (
         <Dialog
+            fullWidth
+            fullScreen={isMobile}
             open={showAddDialog}
             aria-labelledby="add-transaction-dialog-title"
             aria-describedby="add-transaction-dialog-description"

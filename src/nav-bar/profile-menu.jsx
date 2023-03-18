@@ -12,6 +12,12 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import state from '../core/state';
+import styled from 'styled-components';
+
+const NavButton = styled(Button)`
+    color: #fff;
+    background-color: ${props => props.variant === 'contained' ? '#28415b' : 'transparent'};
+`;
 
 const ProfileMenu = ({ currentPath }) => {
     let navigate = useNavigate();
@@ -49,7 +55,7 @@ const ProfileMenu = ({ currentPath }) => {
 
     return (
         <>
-            <Button
+            <NavButton
                 id="avatar"
                 startIcon={<AccountCircle />}
                 size="large"
@@ -61,7 +67,7 @@ const ProfileMenu = ({ currentPath }) => {
                 variant={currentPath.indexOf('profile') > -1 ? 'contained' : 'text'}
             >
                 { session.name }
-            </Button>
+            </NavButton>
             <Menu
                 id="profile-menu"
                 anchorEl={() => document.querySelector('#avatar')}

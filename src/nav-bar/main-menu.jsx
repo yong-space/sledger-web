@@ -6,6 +6,12 @@ import MobileMenu from './mobile-menu';
 import ProfileMenu from './profile-menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import styled from 'styled-components';
+
+const BlueBar = styled(AppBar)`
+    background-color: #375a7f;
+    background-image: none;
+`;
 
 const Brand = ({ mobile }) => (
     <Typography
@@ -34,7 +40,7 @@ const NavBar = () => {
     const props = { pages, currentPath: location.pathname };
 
     return (
-        <AppBar position="fixed">
+        <BlueBar position="fixed">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <Brand mobile={false} />
@@ -44,7 +50,7 @@ const NavBar = () => {
                     <ProfileMenu currentPath={location.pathname} />
                 </Toolbar>
             </Container>
-        </AppBar>
+        </BlueBar>
     );
 }
 export default NavBar;

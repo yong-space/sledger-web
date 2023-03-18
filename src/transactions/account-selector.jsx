@@ -18,7 +18,7 @@ const AccountSelector = ({ handleChange }) => {
     }, []);
 
     return !(accounts && selectedAccount) ? <></> : (
-        <FormControl size="small" sx={{ width: { sm: 200, md: 300 } }}>
+        <FormControl size="small" sx={{ flex: 4 }}>
             <InputLabel id="account-label">Account</InputLabel>
             <Select
                 labelId="account-label"

@@ -11,7 +11,7 @@ const Session = () => {
     const location = useLocation();
     const [ loading, setLoading ] = useState(true);
     const [ session, setSession ] = state.useState(state.session);
-    const { parseJwt, getProfile } = api();
+    const { parseJwt, refreshToken } = api();
 
     const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;
 
@@ -27,7 +27,7 @@ const Session = () => {
             setLoading(false);
             return;
         }
-        const jwt = parseJwt(token);
+        let jwt = parseJwt(token);
         if (new Date().getTime() >= (jwt.exp * 1000)) {
             window.localStorage.clear();
             setSession(undefined);
@@ -36,6 +36,7 @@ const Session = () => {
             }
         } else {
             setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
+
         }
         setLoading(false);
     }, []);
@@ -44,11 +45,11 @@ const Session = () => {
         if (!session) {
             return;
         }
-        const expiryDelta = (parseJwt(session.token).exp * 1000) - (new Date()).getTime();
-        if (expiryDelta > 86340000) {
+        const milisecondsToExpiry = (parseJwt(session.token).exp * 1000) - (new Date()).getTime();
+        if (milisecondsToExpiry > 3600000) {
             return;
         }
-        getProfile(({ token }) => {
+        refreshToken(({ token }) => {
             window.localStorage.setItem('token', token);
             const jwt = parseJwt(token);
             setSession({ token: token, name: jwt.name, email: jwt.sub, admin: jwt.admin });

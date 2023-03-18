@@ -58,28 +58,42 @@ const Transactions = () => {
         });
     };
 
+    const AddDeleteButtons = ({ sx }) => (
+        <>
+            <Button
+                color="success"
+                variant="contained"
+                startIcon={<AddCircleOutlineIcon />}
+                onClick={() => setShowAddDialog(true)}
+                sx={sx}
+            >
+                Add
+            </Button>
+            <Button
+                color="error"
+                variant="contained"
+                startIcon={<DeleteForeverIcon />}
+                onClick={() => setShowConfirmDelete(true)}
+                disabled={selectedRows.length === 0}
+                sx={sx}
+            >
+                Delete
+            </Button>
+        </>
+    );
+
     return (
-        <Stack spacing={2} height="98%">
-            <Title>Transactions</Title>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between">
-                <Stack direction="row" spacing={2}>
+        <Stack spacing={1} height="98%">
+            <Stack direction="row" justifyContent="space-between">
+                <Title>Transactions</Title>
+                <Stack direction="row" spacing={1} sx={{ display: 'inline' }}>
+                    <AddDeleteButtons sx={{ display: { sm: 'none' } }} />
+                </Stack>
+            </Stack>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between">
+                <Stack direction="row" spacing={2} sx={{ width: { sm: '60%' } }}>
                     <AccountSelector handleChange={({ target }) => navigate(`/tx/${target.value}`)} />
-                    <Button
-                        variant="contained"
-                        startIcon={<AddCircleOutlineIcon />}
-                        onClick={() => setShowAddDialog(true)}
-                    >
-                        Add
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        startIcon={<DeleteForeverIcon />}
-                        onClick={() => setShowConfirmDelete(true)}
-                        disabled={selectedRows.length === 0}
-                    >
-                        Delete
-                    </Button>
+                    <AddDeleteButtons sx={{ display: { xs: 'none', sm: 'flex' } }} />
                 </Stack>
                 <TextField placeholder="Search.." size="small" sx={{ justifySelf: 'flex-end' }} />
             </Stack>
