@@ -35,14 +35,21 @@ const TransactionsGrid = () => {
         setVisibleColumns(vColumns);
     }, [ isMobile ]);
 
+    const getAmount = ({ field, row }) => (field === 'credit') ?
+        (row.amount > 0 ? row.amount : 0) :
+        (row.amount < 0 ? -row.amount : 0);
+    const formatNumber = ({ value }) => value === 0 ? '' : parseFloat(value).toFixed(2).toLocaleString();
+    const getDate = ({ row }) => new Date(row.date);
+    const formatDate = ({ value }) => dayjs(value).format('YYYY-MM-DD');
+
     const getColumns = () => {
         const columns = [
             { flex: 1, field: 'id', headerName: 'ID' },
-            { flex: 2, field: 'date', headerName: 'Date', valueGetter: (params) => dayjs(params.row.date).format('YYYY-MM-DD') },
-            { flex: 2, field: 'credit', headerName: 'Credit', valueGetter: (params) => params.row.amount > 0 ? params.row.amount : '' },
-            { flex: 2, field: 'debit', headerName: 'Debit', valueGetter: (params) => params.row.amount < 0 ? -params.row.amount : ''  },
-            { flex: 2, field: 'amount', headerName: 'Amount' },
-            { flex: 2, field: 'balance', headerName: 'Balance' },
+            { flex: 2, field: 'date', headerName: 'Date', type: 'date', valueGetter: getDate, valueFormatter: formatDate },
+            { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
+            { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
+            { flex: 2, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
+            { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatNumber },
             { flex: 2, field: 'category', headerName: 'Category' },
             { flex: 4, field: 'remarks', headerName: 'Remarks' },
         ];

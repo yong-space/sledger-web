@@ -15,13 +15,21 @@ import '@fontsource/roboto/700.css';
 import './index.css';
 
 const darkTheme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#375a7f",
-      dark: "#375a7f"
+    palette: {
+        mode: "dark",
+        primary: {
+            main: "#375a7f",
+            dark: "#375a7f",
+        },
+        success: {
+            main: "#388e3c",
+            dark: "#388e3c",
+        },
+        error: {
+            main: "#d32f2f",
+            dark: "#d32f2f",
+        },
     },
-  },
 });
 
 const Index = () => (

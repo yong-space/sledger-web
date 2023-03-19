@@ -118,6 +118,21 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
                 <TextField required name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
                 <TextField required name="category" label="Category" inputProps={{ minLength: 2 }} />
                 <TextField required name="remarks" label="Remarks" inputProps={{ minLength: 2 }} />
+
+                <Stack direction="row" spacing={2}>
+                    <LoadingButton
+                        type="submit"
+                        loading={loading}
+                        loadingPosition="center"
+                        variant="contained"
+                        color="success"
+                    >
+                        Add Transaction
+                    </LoadingButton>
+                    <Button variant="contained" onClick={() => setShowAddDialog(false)} autoFocus>
+                        Cancel
+                    </Button>
+                </Stack>
             </Stack>
         );
     };
@@ -136,21 +151,8 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
                 </DialogTitle>
                 <DialogContent>
                     <AddTransactionForm />
+
                 </DialogContent>
-                <DialogActions>
-                    <LoadingButton
-                        type="submit"
-                        loading={loading}
-                        loadingPosition="center"
-                        variant="contained"
-                        color="success"
-                    >
-                        Add Transaction
-                    </LoadingButton>
-                    <Button variant="contained" onClick={() => setShowAddDialog(false)} autoFocus>
-                        Cancel
-                    </Button>
-                </DialogActions>
             </form>
         </Dialog>
     );

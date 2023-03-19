@@ -10,19 +10,20 @@
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
     "@mui/icons-material": "^5.11.11",
-    "@mui/lab": "5.0.0-alpha.121",
-    "@mui/material": "^5.11.11",
+    "@mui/lab": "5.0.0-alpha.123",
+    "@mui/material": "^5.11.13",
     "@mui/styled-engine": "npm:@mui/styled-engine-sc@5.11.11",
-    "@mui/system": "^5.11.11",
-    "@mui/x-data-grid": "^6.0.0",
-    "@mui/x-date-pickers": "^6.0.0",
+    "@mui/styled-engine-sc": "^5.11.11",
+    "@mui/system": "^5.11.13",
+    "@mui/x-data-grid": "^6.0.2",
+    "@mui/x-date-pickers": "^6.0.2",
     "dayjs": "^1.11.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
-    "react-router-dom": "^6.8.2",
+    "react-router-dom": "^6.9.0",
     "recoil": "^0.7.7",
-    "styled-components": "^5.3.8",
+    "styled-components": "^5.3.9",
     "workbox-build": "^6.5.4",
     "workbox-window": "^6.5.4"
   },
@@ -33,7 +34,7 @@
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react": "^3.1.0",
-    "vite": "^4.1.4",
+    "vite": "^4.2.0",
     "vite-plugin-pwa": "^0.14.4"
   }
 }

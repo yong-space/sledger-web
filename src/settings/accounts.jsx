@@ -46,6 +46,7 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
             flex: 1,
             field: 'transactions',
             headerName: 'Transactions',
+            type: 'number',
         },
         {
             flex: 1.5,
