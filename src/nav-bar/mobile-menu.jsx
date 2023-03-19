@@ -13,8 +13,8 @@ import Typography from '@mui/material/Typography';
 import styled from 'styled-components';
 
 const NavListItem = styled(ListItemButton)`
-    background-color: ${props => props.selected ? '#375a7f' : 'transparent'};
     border-radius: .3rem;
+    &.Mui-selected { background-color: #375a7f; }
 `;
 
 const isSelected = (path, link) => path.indexOf(link) === 0;
