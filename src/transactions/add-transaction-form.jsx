@@ -8,7 +8,6 @@ import api from '../core/api';
 import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -20,6 +19,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
+import AutoFill from './auto-fill';
 
 const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }) => {
     dayjs.extend(utc);
@@ -31,11 +31,11 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
     const [ billingMonth, setBillingMonth ] = useState();
     const [ editAmount, setEditAmount ] = useState();
     const [ editCategory, setEditCategory ] = useState();
-    const [ editRemarks, setEditRemarks ] = useState();
+    const [ editRemarks, setEditRemarks ] = useState('');
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
-    const { addTransaction, editTransaction, listTransactions, showStatus } = api();
+    const { addTransaction, editTransaction, listTransactions, showStatus, suggestRemarks } = api();
 
     useEffect(() => {
         if (!transactionToEdit) {
@@ -138,8 +138,16 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                 </ToggleButtonGroup>
                 <TextField required defaultValue={editAmount} name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
                 <TextField required defaultValue={editCategory} name="category" label="Category" inputProps={{ minLength: 2 }} />
-                <TextField required defaultValue={editRemarks} name="remarks" label="Remarks" inputProps={{ minLength: 2 }} />
-
+                <AutoFill
+                    promise={suggestRemarks}
+                    initValue={editRemarks}
+                    fieldProps={{
+                        required: true,
+                        inputProps: { minLength: 2 },
+                        name: 'remarks',
+                        label: 'Remarks'
+                    }}
+                />
                 <Stack direction="row" spacing={2}>
                     <LoadingButton
                         type="submit"

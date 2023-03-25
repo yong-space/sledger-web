@@ -78,6 +78,7 @@ const api = () => {
         addTransaction: (payload, callback) => apiCall(POST, 'transaction', callback, payload),
         editTransaction: (payload, callback) => apiCall(PUT, 'transaction', callback, payload),
         deleteTransaction: (id, callback) => apiCall(DELETE, `transaction/${id}`, callback),
+        suggestRemarks: (input, callback) => apiCall(GET, `data/suggest-remarks?q=${input}`, callback),
     };
 };
 export default api;
