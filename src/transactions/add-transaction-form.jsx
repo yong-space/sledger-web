@@ -21,7 +21,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
 
-const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction }) => {
+const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
     const theme = useTheme();
@@ -29,25 +29,34 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = useState();
     const [ billingMonth, setBillingMonth ] = useState();
+    const [ editAmount, setEditAmount ] = useState();
+    const [ editCategory, setEditCategory ] = useState();
+    const [ editRemarks, setEditRemarks ] = useState();
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
-    const { addTransaction, listTransactions, showStatus } = api();
+    const { addTransaction, editTransaction, listTransactions, showStatus } = api();
 
     useEffect(() => {
-        setDate(dayjs().utc().startOf('day'));
-    }, []);
-
-    useEffect(() => {
-        if (selectedAccount?.type !== 'Credit' || !date) {
+        if (!transactionToEdit) {
+            const defaultDate = dayjs().utc().startOf('day');
+            setDate(defaultDate);
+            if (selectedAccount?.type === 'Credit') {
+                if (defaultDate.get('date') < selectedAccount.billingCycle) {
+                    setBillingMonth(defaultDate.subtract(1, 'month').startOf('month'));
+                } else {
+                    setBillingMonth(defaultDate.startOf('month'));
+                }
+            }
             return;
         }
-        if (date.get('date') < selectedAccount.billingCycle) {
-            setBillingMonth(date.subtract(1, 'month').startOf('month'));
-        } else {
-            setBillingMonth(date.startOf('month'));
-        }
-    }, [ selectedAccount, date ]);
+        setSide(transactionToEdit.amount > 0 ? 1 : -1);
+        setDate(dayjs(transactionToEdit.date));
+        setBillingMonth(dayjs(transactionToEdit.billingMonth));
+        setEditAmount(Math.abs(transactionToEdit.amount));
+        setEditCategory(transactionToEdit.category);
+        setEditRemarks(transactionToEdit.remarks);
+    }, [ selectedAccount, transactionToEdit ]);
 
     const submit = (event) => {
         event.preventDefault();
@@ -59,36 +68,48 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
         tx.amount *= side;
         tx['@type'] = selectedAccount.type.toLowerCase();
         if (selectedAccount.type === 'Credit') {
-            tx.billingMonth = billingMonth.toISOString()
+            tx.billingMonth = billingMonth.toISOString();
+        }
+        if (transactionToEdit) {
+            tx.id = transactionToEdit.id;
         }
         const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
 
         setLoading(true);
-        addTransaction(tx, (response) => {
-            setLoading(false);
+        const endpoint = transactionToEdit ? editTransaction : addTransaction;
+        const verb = transactionToEdit ? 'edited' : 'added';
+        endpoint(tx, (response) => {
             if (dayjs(response.date).isAfter(maxDate)) {
+                setLoading(false);
                 setTransactions((t) => [ ...t, response ]);
                 setShowAddDialog(false);
-                showStatus('success', 'Transaction added');
+                showStatus('success', 'Transaction ' + verb);
             } else {
                 listTransactions(selectedAccount.id, (response) => {
+                    setLoading(false);
                     setTransactions(response);
                     setShowAddDialog(false);
-                    showStatus('success', 'Transaction added');
+                    showStatus('success', 'Transaction ' + verb);
+                    setTransactionToEdit(undefined);
                 });
             }
         });
     };
 
-    const AddTransactionForm = () => {
-        return !selectedAccount ? <></> : (
+    const dismiss = () => {
+        setShowAddDialog(false);
+        setTransactionToEdit(undefined);
+    };
+
+    const AddTransactionForm = () => !selectedAccount ? <></> : (
+        <form onSubmit={submit} autoComplete="off">
             <Stack spacing={2} mt={1}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
                     <DatePicker
                         label="Date"
                         value={date}
                         onChange={(newValue) => setDate(newValue)}
-                        renderInput={(params) => <TextField {...params} />}
+                        slotProps={{ textField: { variant: 'outlined' } }}
                     />
                     { selectedAccount.type === 'Credit' && (
                         <DatePicker
@@ -96,9 +117,9 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
                             label="Billing Month"
                             value={billingMonth}
                             onChange={(newValue) => setBillingMonth(newValue)}
-                            renderInput={(params) => <TextField {...params} />}
+                            slotProps={{ textField: { variant: 'outlined' } }}
                         />
-                    ) }
+                    )}
                 </LocalizationProvider>
                 <ToggleButtonGroup
                     color="info"
@@ -115,9 +136,9 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
                         Debit
                     </ToggleButton>
                 </ToggleButtonGroup>
-                <TextField required name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
-                <TextField required name="category" label="Category" inputProps={{ minLength: 2 }} />
-                <TextField required name="remarks" label="Remarks" inputProps={{ minLength: 2 }} />
+                <TextField required defaultValue={editAmount} name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
+                <TextField required defaultValue={editCategory} name="category" label="Category" inputProps={{ minLength: 2 }} />
+                <TextField required defaultValue={editRemarks} name="remarks" label="Remarks" inputProps={{ minLength: 2 }} />
 
                 <Stack direction="row" spacing={2}>
                     <LoadingButton
@@ -125,17 +146,17 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
                         loading={loading}
                         loadingPosition="center"
                         variant="contained"
-                        color="success"
+                        color={transactionToEdit ? "warning" : "success"}
                     >
-                        Add Transaction
+                        { transactionToEdit ? 'Edit' : 'Add' } Transaction
                     </LoadingButton>
-                    <Button variant="contained" onClick={() => setShowAddDialog(false)} autoFocus>
+                    <Button variant="contained" onClick={dismiss} autoFocus>
                         Cancel
                     </Button>
                 </Stack>
             </Stack>
-        );
-    };
+        </form>
+    );
 
     return (
         <Dialog
@@ -145,15 +166,12 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, editTransaction
             aria-labelledby="add-transaction-dialog-title"
             aria-describedby="add-transaction-dialog-description"
         >
-            <form onSubmit={submit} autoComplete="off">
-                <DialogTitle id="add-transaction-dialog-title">
-                    Add Transaction
-                </DialogTitle>
-                <DialogContent>
-                    <AddTransactionForm />
-
-                </DialogContent>
-            </form>
+            <DialogTitle id="add-transaction-dialog-title">
+                Add Transaction
+            </DialogTitle>
+            <DialogContent>
+                <AddTransactionForm />
+            </DialogContent>
         </Dialog>
     );
 };

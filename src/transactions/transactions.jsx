@@ -19,7 +19,7 @@ const Transactions = () => {
     dayjs.extend(minMax);
     const accounts = state.useState(state.accounts)[0];
     const [ showAddDialog, setShowAddDialog ] = useState(false);
-    const [ editTransaction, setEditTransaction ] = useState(false);
+    const [ transactionToEdit, setTransactionToEdit ] = useState();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
     const selectedRows = state.useState(state.selectedRows)[0];
@@ -97,8 +97,8 @@ const Transactions = () => {
                 </Stack>
                 <TextField placeholder="Search.." size="small" sx={{ justifySelf: 'flex-end' }} />
             </Stack>
-            <TransactionsGrid {...{ setShowAddForm: setShowAddDialog, editTransaction }} />
-            <AddTransactionDialog {...{ showAddDialog, setShowAddDialog, editTransaction }} />
+            <TransactionsGrid {...{ setShowAddDialog, setTransactionToEdit }} />
+            <AddTransactionDialog {...{ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }} />
             <ConfirmDialog
                 title="Confirm delete transaction?"
                 message="This is a permanent change"

@@ -7,7 +7,7 @@ import state from '../core/state';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-const TransactionsGrid = () => {
+const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { listTransactions } = api();
@@ -59,8 +59,9 @@ const TransactionsGrid = () => {
         return columns;
     };
 
-    const handleDoubleClick = (params, event, details) => {
-        // todo: handle
+    const handleDoubleClick = (params) => {
+        setTransactionToEdit(params.row);
+        setShowAddDialog(true);
     };
 
     return !transactions ? <HorizontalLoader /> : (
