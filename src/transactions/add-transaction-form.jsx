@@ -35,7 +35,10 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
-    const { addTransaction, editTransaction, listTransactions, showStatus, suggestRemarks } = api();
+    const {
+        addTransaction, editTransaction, listTransactions,
+        showStatus, suggestRemarks, suggestCategory,
+    } = api();
 
     useEffect(() => {
         if (!transactionToEdit) {
@@ -48,7 +51,6 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                     setBillingMonth(defaultDate.startOf('month'));
                 }
             }
-
             setSide(-1);
             setEditAmount(undefined);
             setEditCategory(undefined);
@@ -85,17 +87,17 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
         const verb = transactionToEdit ? 'edited' : 'added';
         endpoint(tx, (response) => {
             if (dayjs(response.date).isAfter(maxDate)) {
-                setLoading(false);
                 setTransactions((t) => [ ...t, response ]);
                 setShowAddDialog(false);
                 showStatus('success', 'Transaction ' + verb);
+                setTimeout(() => setLoading(false), 500);
             } else {
                 listTransactions(selectedAccount.id, (response) => {
-                    setLoading(false);
                     setTransactions(response);
                     setShowAddDialog(false);
                     showStatus('success', 'Transaction ' + verb);
                     setTransactionToEdit(undefined);
+                    setTimeout(() => setLoading(false), 500);
                 });
             }
         });
@@ -142,7 +144,16 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                     </ToggleButton>
                 </ToggleButtonGroup>
                 <TextField required defaultValue={editAmount} name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
-                <TextField required defaultValue={editCategory} name="category" label="Category" inputProps={{ minLength: 2 }} />
+                <AutoFill
+                    promise={suggestCategory}
+                    initValue={editCategory}
+                    fieldProps={{
+                        required: true,
+                        inputProps: { minLength: 2 },
+                        name: 'category',
+                        label: 'Category'
+                    }}
+                />
                 <AutoFill
                     promise={suggestRemarks}
                     initValue={editRemarks}

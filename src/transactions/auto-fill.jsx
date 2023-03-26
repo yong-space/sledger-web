@@ -18,7 +18,7 @@ const AutoFill = ({ initValue, fieldProps, promise }) => {
         }
         setOptions([]);
         setLoading(true);
-        if (inputValue === initValue) {
+        if (inputValue === initValue || inputValue === value) {
             return;
         }
         fetcher(inputValue, (response) => {
