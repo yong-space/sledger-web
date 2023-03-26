@@ -1,5 +1,5 @@
 import { HorizontalLoader } from '../core/loader';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
@@ -33,6 +33,9 @@ const Cell = styled.div`
         font-weight: 800;
         border-top: none;
     }
+    :not(:nth-child(-n+3)) {
+        cursor: pointer;
+    }
     ${props => props.theme.breakpoints.down("md")} {
         :nth-child(3n+1) { width: 20vw }
         :nth-child(3n+2) { width: 50vw }
@@ -50,6 +53,7 @@ const SummaryCell = styled(Cell)`
 `;
 
 const Dashboard = () => {
+    let navigate = useNavigate();
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const [ cashAccounts, setCashAccounts ] = useState();
     const [ creditAccounts, setCreditAccounts ] = useState();
@@ -93,7 +97,6 @@ const Dashboard = () => {
         const value = column.subField ? row[column.field][column.subField] : row[column.field];
         switch (column.field) {
             case 'balance': return formatNumber(value);
-            case 'name': return <Link to={`/tx/${row.id}`}>{value}</Link>;
             default: return value;
         }
     };
@@ -107,7 +110,7 @@ const Dashboard = () => {
                     <Table>
                         { columns.map((column) => <Cell key={column.field}>{column.headerName}</Cell>)}
                         { data.map((row) => columns.map((column) => (
-                            <Cell key={column.field} theme={theme}>
+                            <Cell key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
                                 { getValue(column, row) }
                             </Cell>
                         )))}
