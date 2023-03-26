@@ -26,7 +26,7 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
     dayjs.extend(minMax);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [ side, setSide ] = useState(-1);
+    const [ side, setSide ] = useState();
     const [ date, setDate ] = useState();
     const [ billingMonth, setBillingMonth ] = useState();
     const [ editAmount, setEditAmount ] = useState();
@@ -48,6 +48,11 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                     setBillingMonth(defaultDate.startOf('month'));
                 }
             }
+
+            setSide(-1);
+            setEditAmount(undefined);
+            setEditCategory(undefined);
+            setEditRemarks('');
             return;
         }
         setSide(transactionToEdit.amount > 0 ? 1 : -1);
