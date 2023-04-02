@@ -55,8 +55,6 @@ const SummaryCell = styled(Cell)`
 const Dashboard = () => {
     let navigate = useNavigate();
     const [ accounts, setAccounts ] = state.useState(state.accounts);
-    const [ cashAccounts, setCashAccounts ] = useState();
-    const [ creditAccounts, setCreditAccounts ] = useState();
     const [ netWorth, setNetWorth ] = useState();
     const { listAccounts } = api();
 
@@ -70,10 +68,10 @@ const Dashboard = () => {
         if (!accounts) {
             return;
         }
-        setCashAccounts(accounts.filter((a) => a.type === 'Cash'));
-        setCreditAccounts(accounts.filter((a) => a.type === 'Credit'));
         setNetWorth(accounts.reduce((i, account) => i + account.balance, 0));
     }, [ accounts ]);
+
+    const getAccounts = (type) => accounts.filter((a) => a.type === type);
 
     const columns = [
         {
@@ -91,7 +89,7 @@ const Dashboard = () => {
         },
     ];
 
-    const formatNumber = (num) => parseFloat(num).toFixed(2).toLocaleString();
+    const formatNumber = (num) => !num ? '0.00' : parseFloat(num).toFixed(2).toLocaleString();
 
     const getValue = (column, row) => {
         const value = column.subField ? row[column.field][column.subField] : row[column.field];
@@ -141,9 +139,14 @@ const Dashboard = () => {
         <>
             <Title>Dashboard</Title>
             <Stack spacing={3}>
-                { cashAccounts && <SummaryGrid label="Cash Accounts" data={cashAccounts} /> }
-                { creditAccounts && <SummaryGrid label="Credit Accounts" data={creditAccounts} /> }
-                { netWorth && <TotalNetWorth /> }
+                {[ 'Cash', 'Credit', 'Wallet' ].map((type) => {
+                    const thisAccounts = getAccounts(type);
+                    if (!thisAccounts) {
+                        return;
+                    }
+                    return <SummaryGrid key={type} label={`${type} Accounts`} data={thisAccounts} />;
+                })}
+                <TotalNetWorth />
             </Stack>
         </>
     );

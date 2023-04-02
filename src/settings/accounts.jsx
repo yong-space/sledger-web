@@ -5,8 +5,10 @@ import Alert from '@mui/material/Alert';
 import api from '../core/api';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import ConfirmDialog from '../core/confirm-dialog';
 import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid';
 import InputLabel from '@mui/material/InputLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -108,9 +110,12 @@ const AccountsForm = ({ setAccounts }) => {
 
     useEffect(() => {
         if (issuers) {
-            setIssuerId(issuers[0].id);
+            const defaultId = getIssuers()[0]?.id;
+            if (defaultId) {
+                setIssuerId(defaultId);
+            }
         }
-    }, [ issuers ]);
+    }, [ issuers, type ]);
 
     const submit = (event) => {
         event.preventDefault();
@@ -118,6 +123,9 @@ const AccountsForm = ({ setAccounts }) => {
             ...Object.fromEntries(new FormData(event.target).entries()),
             type, issuerId,
         };
+        if (newAccount.multiCurrency) {
+            newAccount.multiCurrency = true;
+        }
         if (newAccount.type === 'Credit' && (newAccount.billingCycle < 1 || newAccount.billingCycle > 30)) {
             showStatus('error', 'Billing cycle should be between 1 and 30');
             return;
@@ -132,7 +140,9 @@ const AccountsForm = ({ setAccounts }) => {
         });
     };
 
-    return !(issuers && issuerId) ? <HorizontalLoader /> : (
+    const getIssuers = () => issuers.filter(i => i.types.indexOf(type) > -1);
+
+    return (!issuers || !issuerId) ? <HorizontalLoader /> : (
         <form id="manage-accounts" onSubmit={submit} autoComplete="off">
             <Grid container item xs={12} md={5} direction="column" gap={2}>
                 <Typography variant="h6">
@@ -147,28 +157,28 @@ const AccountsForm = ({ setAccounts }) => {
                     onChange={(event, type) => setType(type)}
                     aria-label="account-type"
                 >
-                    <ToggleButton value="Cash" aria-label="Cash">
-                        Cash
-                    </ToggleButton>
-                    <ToggleButton value="Credit" aria-label="Credit">
-                        Credit
-                    </ToggleButton>
+                    {[ 'Cash', 'Credit', 'Wallet' ].map((accountType) => (
+                        <ToggleButton key={accountType} value={accountType} aria-label={accountType}>
+                            {accountType}
+                        </ToggleButton>
+                    ))}
                 </ToggleButtonGroup>
-
-                <FormControl fullWidth>
-                    <InputLabel id="issuer-label">Issuer</InputLabel>
-                    <Select
-                        labelId="issuer-label"
-                        label="Issuer"
-                        defaultValue={issuers[0].id}
-                        value={issuerId}
-                        onChange={({ target }) => setIssuerId(target.value)}
-                    >
-                        { issuers.map(({ id, name }) => <MenuItem key={id} value={id}>{name}</MenuItem>) }
-                    </Select>
-                </FormControl>
-                <TextField required name="name" label="Account name" inputProps={{ minLength: 3 }} />
+                { (getIssuers().map(i => i.id).indexOf(issuerId) > -1) && (
+                    <FormControl fullWidth>
+                        <InputLabel id="issuer-label">Issuer</InputLabel>
+                        <Select
+                            labelId="issuer-label"
+                            label="Issuer"
+                            value={issuerId}
+                            onChange={({ target }) => setIssuerId(target.value)}
+                        >
+                            { getIssuers().map(({ id, name }) => <MenuItem key={id} value={id}>{name}</MenuItem>) }
+                        </Select>
+                    </FormControl>
+                ) }
+                { type !== 'Wallet' && <TextField required name="name" label="Account name" inputProps={{ minLength: 3 }} /> }
                 { type === 'Credit' && <TextField required name="billingCycle" label="Billing Cycle Start Date" defaultValue={1} inputProps={{ inputMode: 'numeric', pattern: '[0-9]+' }} /> }
+                { type === 'Wallet' && <FormControlLabel control={<Checkbox name="multiCurrency" />} label="Multi Currency" /> }
                 <LoadingButton
                     type="submit"
                     loading={loading}

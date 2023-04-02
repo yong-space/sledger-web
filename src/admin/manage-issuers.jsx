@@ -5,7 +5,12 @@ import Alert from '@mui/material/Alert';
 import api from '../core/api';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import ConfirmDialog from '../core/confirm-dialog';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
@@ -21,6 +26,7 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
     const columns = [
         { field: 'id', headerName: 'ID' },
         { field: 'name', headerName: 'Name' },
+        { field: 'types', headerName: 'Types', valueGetter: (params) => params.row.types?.join(', ') },
         {
             field: 'delete', headerName: 'Delete',
             sortable: false,
@@ -67,22 +73,36 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
 };
 
 const IssuersForm = ({ setIssuers }) => {
-
     const [ loading, setLoading ] = state.useState(state.loading);
     const { addIssuer, showStatus } = api();
+    const [ types, setTypes ] = useState({ Cash: true, Credit: false, Wallet: false });
 
     const submitAddIssuer = (event) => {
         event.preventDefault();
+
+        if (noAccountTypes) {
+            showStatus('error', 'At least one account type needs to be selected');
+            return;
+        }
+
         setLoading(true);
         const newIssuer = Object.fromEntries(new FormData(event.target).entries());
+        newIssuer.types = Object.keys(types).filter(k => types[k]);
 
         addIssuer(newIssuer, (response) => {
             setLoading(false);
             setIssuers((existing) => [ ...existing, response ]);
             showStatus('success', 'New issuer added');
             document.querySelector('#manage-issuers').reset();
+            setTypes({ Cash: true, Credit: false, Wallet: false });
         });
     };
+
+    const handleCheck = (event) => {
+        setTypes((old) => ({ ...old, [event.target.name]: event.target.checked }));
+    };
+
+    const noAccountTypes = Object.values(types).filter(v => v).length === 0;
 
     return (
         <form id="manage-issuers" onSubmit={submitAddIssuer} autoComplete="off">
@@ -91,6 +111,22 @@ const IssuersForm = ({ setIssuers }) => {
                     Add New Issuer
                 </Typography>
                 <TextField required name="name" label="Issuer name" inputProps={{ minLength: 3 }} />
+                <FormControl
+                    required
+                    error={noAccountTypes}
+                    component="fieldset"
+                    variant="standard"
+                >
+                    <FormLabel component="legend">Account Types</FormLabel>
+                    <FormGroup>
+                        {[ 'Cash', 'Credit', 'Wallet' ].map((type) => (
+                            <FormControlLabel
+                                key={type} label={type}
+                                control={<Checkbox checked={types[type]} onChange={handleCheck} name={type} />}
+                            />
+                        ))}
+                    </FormGroup>
+                </FormControl>
                 <LoadingButton
                     type="submit"
                     loading={loading}
