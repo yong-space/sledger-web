@@ -21,23 +21,30 @@ import Title from '../core/title';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
 
 const AccountsGrid = ({ accounts, setAccounts }) => {
     const { deleteAccount, showStatus } = api();
     const [ showConfirm, setShowConfirm ] = useState(false);
     const [ accountId, setAccountId ] = useState();
+    const colors = {
+        'Cash': 'success',
+        'Credit': 'info',
+        'Wallet': 'warning',
+    };
 
     const columns = [
+        {
+            flex: 1,
+            field: 'type',
+            headerName: 'Type',
+            renderCell: ({ value }) => <Chip sx={{ borderRadius: '.5rem' }} label={value} color={colors[value]} />
+        },
         {
             flex: 1,
             field: 'issuer',
             headerName: 'Issuer',
             valueGetter: (params) => params.row.issuer.name,
-        },
-        {
-            flex: 1,
-            field: 'type',
-            headerName: 'Type',
         },
         {
             flex: 2,
