@@ -9,7 +9,7 @@ import { useTheme } from '@mui/material/styles';
 const AppBar = styled.header`
     background-color: #375a7f;
     margin: 0;
-    padding: .6rem 2.2rem;
+    padding: .7rem 1.5rem;
     width: 100%;
     position: fixed;
     top: 0;
@@ -20,7 +20,7 @@ const AppBar = styled.header`
     z-index: 100;
 
     ${props => props.theme.breakpoints.down("md")} {
-        padding: .5rem;
+        padding: .3rem;
     }
 `;
 

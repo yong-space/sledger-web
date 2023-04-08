@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 const NavButton = styled(Button)`
     color: #fff;
+    padding: .4rem .8rem;
     background-color: ${props => props.variant === 'contained' ? '#28415b' : 'transparent'};
 `;
 
