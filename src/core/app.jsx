@@ -1,9 +1,11 @@
-import { lazy } from 'react';
+import { lazy, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import api from './api';
 import Container from '@mui/material/Container';
-import styled from 'styled-components';
-import Settings from '../settings/settings';
 import NavBar from '../nav-bar/main-menu';
+import Settings from '../settings/settings';
+import state from './state';
+import styled from 'styled-components';
 
 const Dashboard = lazy(() => import('../dashboard/dashboard'));
 const Transactions = lazy(() => import('../transactions/transactions'));
@@ -15,20 +17,31 @@ const Root = styled(Container)`
     padding-top: 5rem;
 `;
 
-const App = () => (
-    <Root>
-        <NavBar />
-        <Routes>
-            <Route path="dash/*" element={<Dashboard />} />
-            <Route path="tx/*" element={<Transactions /> } />
-            <Route path="admin/*" element={<Admin /> } />
-            <Route path="settings/*" element={<Settings /> } />
-            <Route path="/" element={<Navigate to="/dash" />} />
-            <Route path="register" element={<Navigate to="/dash" /> } />
-            <Route path="login" element={<Navigate to="/dash" /> } />
-            <Route path="*" element={<NotFound />} />
-        </Routes>
-    </Root>
-);
+const App = () => {
+    const [ accounts, setAccounts ] = state.useState(state.accounts);
+    const { listAccounts } = api();
+
+    useEffect(() => {
+        if (!accounts) {
+            listAccounts((data) => setAccounts(data));
+        }
+    }, []);
+
+    return accounts && (
+        <Root>
+            <NavBar />
+            <Routes>
+                <Route path="dash/*" element={<Dashboard />} />
+                <Route path="tx/*" element={<Transactions /> } />
+                <Route path="admin/*" element={<Admin /> } />
+                <Route path="settings/*" element={<Settings /> } />
+                <Route path="/" element={<Navigate to="/dash" />} />
+                <Route path="register" element={<Navigate to="/dash" /> } />
+                <Route path="login" element={<Navigate to="/dash" /> } />
+                <Route path="*" element={<NotFound />} />
+            </Routes>
+        </Root>
+    );
+};
 
 export default App;

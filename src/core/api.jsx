@@ -73,6 +73,7 @@ const api = () => {
         listAccounts: (callback) => apiCall(GET, 'account', callback),
         addAccount: (payload, callback) => apiCall(POST, 'account', callback, payload),
         editAccount: (payload, callback) => apiCall(PUT, 'account', callback, payload),
+        editAccountVisibility: (accountId, visible, callback) => apiCall(PUT, `account/${accountId}/${visible}`, callback),
         deleteAccount: (id, callback) => apiCall(DELETE, `account/${id}`, callback),
         listTransactions: (id, callback) => apiCall(GET, `transaction/${id}`, callback),
         addTransaction: (payload, callback) => apiCall(POST, 'transaction', callback, payload),

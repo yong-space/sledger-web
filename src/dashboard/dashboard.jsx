@@ -2,8 +2,8 @@ import { HorizontalLoader } from '../core/loader';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import api from '../core/api';
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
@@ -53,25 +53,23 @@ const SummaryCell = styled(Cell)`
 `;
 
 const Dashboard = () => {
+    const theme = useTheme();
     let navigate = useNavigate();
-    const [ accounts, setAccounts ] = state.useState(state.accounts);
+    const accounts = state.useState(state.accounts)[0];
     const [ netWorth, setNetWorth ] = useState();
-    const { listAccounts } = api();
-
-    useEffect(() => {
-        if (!accounts) {
-            listAccounts((data) => setAccounts(data));
-        }
-    }, []);
+    const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
     useEffect(() => {
         if (!accounts) {
             return;
         }
-        setNetWorth(accounts.reduce((i, account) => i + account.balance, 0));
+        if (getVisibleAccounts().length === 0) {
+            navigate('/settings/accounts');
+        }
+        setNetWorth(getVisibleAccounts().reduce((i, account) => i + account.balance, 0));
     }, [ accounts ]);
 
-    const getAccounts = (type) => accounts.filter((a) => a.type === type);
+    const getAccounts = (type) => accounts.filter((a) => a.visible && a.type === type);
 
     const columns = [
         {
@@ -99,24 +97,33 @@ const Dashboard = () => {
         }
     };
 
-    const SummaryGrid = ({ label, data }) => {
-        const theme = useTheme();
-        return (
-            <Box>
-                <SubTitle>{label}</SubTitle>
-                <Wrapper>
-                    <Table>
-                        { columns.map((column) => <Cell key={column.field}>{column.headerName}</Cell>)}
-                        { data.map((row) => columns.map((column) => (
-                            <Cell key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
-                                { getValue(column, row) }
-                            </Cell>
-                        )))}
-                    </Table>
-                </Wrapper>
-            </Box>
-        );
+    const getHeaderLabel = (type, header) => {
+        if (type === 'Cash' && header === 'Issuer') {
+            return 'Bank';
+        }
+        if (type === 'Credit' && header === 'Account') {
+            return 'Card';
+        }
+        return header;
     };
+
+    const SummaryGrid = ({ label, data }) => (
+        <Box>
+            <SubTitle>{label}</SubTitle>
+            <Wrapper>
+                <Table>
+                    { columns.map(({ field, headerName }) => (
+                        <Cell key={field}>{getHeaderLabel(data[0].type, headerName)}</Cell>
+                    ))}
+                    { data.map((row) => columns.map((column) => (
+                        <Cell key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
+                            { getValue(column, row) }
+                        </Cell>
+                    )))}
+                </Table>
+            </Wrapper>
+        </Box>
+    );
 
     const TotalNetWorth = () => {
         return (
@@ -135,13 +142,23 @@ const Dashboard = () => {
         );
     };
 
-    return !accounts ? <HorizontalLoader /> : (
+    const Empty = () => (
+        <Alert
+            severity="info"
+            variant="outlined"
+            onClick={() => navigate('/settings/accounts')}
+        >
+            No accounts added yet. Click here to add your first account.
+        </Alert>
+    );
+
+    return !accounts ? <HorizontalLoader /> : !accounts.find((a) => a.visible) ? <Empty /> : (
         <>
             <Title>Dashboard</Title>
             <Stack spacing={3} mb={2}>
                 {[ 'Cash', 'Credit', 'Wallet' ].map((type) => {
                     const thisAccounts = getAccounts(type);
-                    if (!thisAccounts) {
+                    if (thisAccounts?.length === 0) {
                         return;
                     }
                     return <SummaryGrid key={type} label={`${type} Accounts`} data={thisAccounts} />;

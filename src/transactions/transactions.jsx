@@ -1,3 +1,4 @@
+import { HorizontalLoader } from '../core/loader';
 import { TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +19,7 @@ import TransactionsGrid from './transactions-grid';
 const Transactions = () => {
     dayjs.extend(minMax);
     const accounts = state.useState(state.accounts)[0];
+    const [ loading, setLoading ] = useState(true);
     const [ showAddDialog, setShowAddDialog ] = useState(false);
     const [ transactionToEdit, setTransactionToEdit ] = useState();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
@@ -27,18 +29,38 @@ const Transactions = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { deleteTransaction, listTransactions, showStatus } = api();
+    const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
     useEffect(() => {
         if (!accounts) {
             return;
         }
+        if (getVisibleAccounts().length === 0) {
+            navigate('/settings/accounts');
+            return;
+        }
         const match = location.pathname.match(/\d+/);
         if (match) {
-            setSelectedAccount(accounts.filter(a => a.id === parseInt(match[0]))[0]);
-        } else if (!selectedAccount) {
-            navigate(`/tx/${accounts[0].id}`);
+            const account = getVisibleAccounts().find(a => a.id === parseInt(match[0]));
+            if (account) {
+                setSelectedAccount(account);
+                return;
+            }
+        } else if (selectedAccount && getVisibleAccounts().find(a => a.id === selectedAccount.id)) {
+            navigate(`/tx/${selectedAccount.id}`);
+            return;
         }
+        navigate(`/tx/${getVisibleAccounts()[0].id}`);
     }, [ accounts, location.pathname ]);
+
+    useEffect(() => {
+        if (!accounts) {
+            return;
+        }
+        if (selectedAccount && getVisibleAccounts().find(a => a.id === selectedAccount.id)) {
+            setLoading(false);
+        }
+    }, [ accounts, selectedAccount ]);
 
     const submitDelete = () => {
         const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
@@ -82,7 +104,7 @@ const Transactions = () => {
         </>
     );
 
-    return (
+    return loading ? <HorizontalLoader /> : (
         <Stack spacing={1} height="98%">
             <Stack direction="row" justifyContent="space-between">
                 <Title>Transactions</Title>

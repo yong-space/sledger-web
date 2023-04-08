@@ -22,9 +22,11 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import Switch from '@mui/material/Switch';
 
 const AccountsGrid = ({ accounts, setAccounts }) => {
-    const { deleteAccount, showStatus } = api();
+    const { deleteAccount, editAccountVisibility, showStatus } = api();
     const [ showConfirm, setShowConfirm ] = useState(false);
     const [ accountId, setAccountId ] = useState();
     const colors = {
@@ -33,7 +35,18 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
         'Wallet': 'warning',
     };
 
+    const updateVisibility = (event, id) => editAccountVisibility(id, event.target.checked, () => {
+        showStatus('success', 'Updated visibility');
+        setAccounts((accounts) => accounts.map(account =>
+            (account.id !== id) ? account : { ...account, visible: event.target.checked }));
+    });
+
     const columns = [
+        {
+            field: 'visible',
+            renderHeader: () => <VisibilityIcon sx={{ ml: '1rem' }} />,
+            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} onChange={(e) => updateVisibility(e, id)} />,
+        },
         {
             field: 'type',
             headerName: 'Type',
@@ -52,6 +65,7 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
             field: 'transactions',
             headerName: 'Transactions',
             type: 'number',
+            width: '103'
         },
         {
             field: 'delete', headerName: 'Delete',
@@ -73,10 +87,22 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
         setShowConfirm(false);
     });
 
-    const AccountsDataGrid = () => accounts.length === 0 ?
-        <Alert severity="info" variant="outlined">No accounts added yet</Alert> :
-        (
+    const Empty = () => (
+        <Alert severity="info" variant="outlined">
+            No accounts added yet. Add your first account below.
+        </Alert>
+    );
+
+    const NoVisible = () => (
+        <Alert severity="warning" variant="outlined" sx={{ marginBottom: '2rem' }}>
+            No accounts are visible. Please enable visibility on at least one account.
+        </Alert>
+    );
+
+    const AccountsDataGrid = () =>
+        accounts.length === 0 ? <Empty /> : (
             <>
+                { accounts.filter(a => a.visible).length === 0 && <NoVisible /> }
                 <DataGrid
                     rows={accounts}
                     columns={columns}
@@ -136,7 +162,7 @@ const AccountsForm = ({ setAccounts }) => {
         setLoading(true);
         addAccount(newAccount, (response) => {
             setLoading(false);
-            setAccounts((existing) => [ ...existing, response ]);
+            setAccounts((existing) => [ ...existing, { ...response, transactions: 0 } ]);
             showStatus('success', 'New account added');
             document.querySelector('#manage-accounts').reset();
         });
@@ -167,10 +193,12 @@ const AccountsForm = ({ setAccounts }) => {
                 </ToggleButtonGroup>
                 { (getIssuers().map(i => i.id).indexOf(issuerId) > -1) && (
                     <FormControl fullWidth>
-                        <InputLabel id="issuer-label">Issuer</InputLabel>
+                        <InputLabel id="issuer-label">
+                            { type === 'Cash' ? 'Bank' : 'Issuer' }
+                        </InputLabel>
                         <Select
+                            label={ type === 'Cash' ? 'Bank' : 'Issuer' }
                             labelId="issuer-label"
-                            label="Issuer"
                             value={issuerId}
                             onChange={({ target }) => setIssuerId(target.value)}
                         >
@@ -178,7 +206,7 @@ const AccountsForm = ({ setAccounts }) => {
                         </Select>
                     </FormControl>
                 ) }
-                { type !== 'Wallet' && <TextField required name="name" label="Account name" inputProps={{ minLength: 3 }} /> }
+                { type !== 'Wallet' && <TextField required name="name" label={`${type === 'Credit' ? 'Card' : 'Account'} name`} inputProps={{ minLength: 3 }} /> }
                 { type === 'Credit' && <TextField required name="billingCycle" label="Billing Cycle Start Date" defaultValue={1} inputProps={{ inputMode: 'numeric', pattern: '[0-9]+' }} /> }
                 { type === 'Wallet' && <FormControlLabel control={<Checkbox name="multiCurrency" />} label="Multi Currency" /> }
                 <LoadingButton
@@ -196,13 +224,6 @@ const AccountsForm = ({ setAccounts }) => {
 
 const Accounts = () => {
     const [ accounts, setAccounts ] = state.useState(state.accounts);
-    const { listAccounts } = api();
-
-    useEffect(() => {
-        if (!accounts) {
-            listAccounts((data) => setAccounts(data));
-        }
-    }, []);
 
     return (
         <>

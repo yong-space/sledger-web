@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import api from '../core/api';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -8,15 +6,9 @@ import Select from '@mui/material/Select';
 import state from '../core/state';
 
 const AccountSelector = ({ handleChange }) => {
-    const [ accounts, setAccounts ] = state.useState(state.accounts);
+    const accounts = state.useState(state.accounts)[0];
     const selectedAccount = state.useState(state.selectedAccount)[0];
-    const { listAccounts } = api();
-
-    useEffect(() => {
-        if (!accounts) {
-            listAccounts((data) => setAccounts(data));
-        }
-    }, []);
+    const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
     const colors = {
         'Cash': 'success',
@@ -41,7 +33,7 @@ const AccountSelector = ({ handleChange }) => {
                 value={selectedAccount.id}
                 onChange={handleChange}
                 renderValue={(selectedId) => {
-                    const { id, name, issuer, type } = accounts.find((a) => a.id === selectedId);
+                    const { id, name, issuer, type } = getVisibleAccounts().find((a) => a.id === selectedId);
                     return (
                         <div style={{ display: 'flex', gap: '.4rem' }}>
                             <AccountEntry type={type} issuerName={issuer.name} name={name} />
@@ -49,7 +41,7 @@ const AccountSelector = ({ handleChange }) => {
                     )
                 }}
             >
-                { accounts.map(({ id, name, issuer, type }) => (
+                { getVisibleAccounts().map(({ id, name, issuer, type }) => (
                     <MenuItem key={id} value={id} sx={{ gap: '.4rem' }}>
                         <AccountEntry type={type} issuerName={issuer.name} name={name} />
                     </MenuItem>
