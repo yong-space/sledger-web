@@ -55,7 +55,7 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
         {
             field: 'issuer',
             headerName: 'Issuer',
-            valueGetter: (params) => params.row.issuer.name,
+            renderCell: ({ row }) => <Chip sx={{ color: `#${row.issuer.colour}`, borderColor: `#${row.issuer.colour}`, borderRadius: '.5rem' }} label={row.issuer.name} variant="outlined" />
         },
         {
             field: 'name',
@@ -168,7 +168,8 @@ const AccountsForm = ({ setAccounts }) => {
         });
     };
 
-    const getIssuers = () => issuers.filter(i => i.types.indexOf(type) > -1);
+    const getIssuers = () => issuers.filter(i => i.types.indexOf(type) > -1)
+        .sort((a, b) => a.name > b.name);
 
     return (!issuers || !issuerId) ? <HorizontalLoader /> : (
         <form id="manage-accounts" onSubmit={submit} autoComplete="off">
@@ -182,7 +183,7 @@ const AccountsForm = ({ setAccounts }) => {
                     value={type}
                     exclusive
                     fullWidth
-                    onChange={(event, type) => setType(type)}
+                    onChange={(e, type) => setType(type)}
                     aria-label="account-type"
                 >
                     {[ 'Cash', 'Credit', 'Wallet' ].map((accountType) => (

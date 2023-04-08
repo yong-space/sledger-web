@@ -12,11 +12,19 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
 import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
+import InputAdornment from '@mui/material/InputAdornment';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
+import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+
+const ColourTextField = styled(TextField)`
+    & * { color: #${props => props.colour} !important }
+    & fieldset { border-color: #${props => props.colour} !important }
+`;
 
 const IssuersGrid = ({ issuers, setIssuers }) => {
     const { deleteIssuer, showStatus } = api();
@@ -25,7 +33,11 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
 
     const columns = [
         { field: 'id', headerName: 'ID' },
-        { field: 'name', headerName: 'Name' },
+        {
+            field: 'name',
+            headerName: 'Name',
+            renderCell: ({ row }) => <Chip sx={{ color: `#${row.colour}`, borderColor: `#${row.colour}`, borderRadius: '.5rem' }} label={row.name} variant="outlined" />
+        },
         { field: 'types', headerName: 'Types', valueGetter: (params) => params.row.types?.join(', ') },
         {
             field: 'delete', headerName: 'Delete',
@@ -75,7 +87,9 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
 const IssuersForm = ({ setIssuers }) => {
     const [ loading, setLoading ] = state.useState(state.loading);
     const { addIssuer, showStatus } = api();
+    const [ name, setName ] = useState('');
     const [ types, setTypes ] = useState({ Cash: true, Credit: false, Wallet: false });
+    const [ colour, setColour ] = useState('889900');
 
     const submitAddIssuer = (event) => {
         event.preventDefault();
@@ -86,14 +100,15 @@ const IssuersForm = ({ setIssuers }) => {
         }
 
         setLoading(true);
-        const newIssuer = Object.fromEntries(new FormData(event.target).entries());
-        newIssuer.types = Object.keys(types).filter(k => types[k]);
-
+        const newIssuer = {
+            name, colour, types: Object.keys(types).filter(k => types[k]),
+        };
         addIssuer(newIssuer, (response) => {
             setLoading(false);
             setIssuers((existing) => [ ...existing, response ]);
             showStatus('success', 'New issuer added');
-            document.querySelector('#manage-issuers').reset();
+            setName('');
+            setColour('889900');
             setTypes({ Cash: true, Credit: false, Wallet: false });
         });
     };
@@ -105,12 +120,29 @@ const IssuersForm = ({ setIssuers }) => {
     const noAccountTypes = Object.values(types).filter(v => v).length === 0;
 
     return (
-        <form id="manage-issuers" onSubmit={submitAddIssuer} autoComplete="off">
+        <form onSubmit={submitAddIssuer} autoComplete="off">
             <Grid container item xs={12} md={5} direction="column" gap={2}>
                 <Typography variant="h6">
                     Add New Issuer
                 </Typography>
-                <TextField required name="name" label="Issuer name" inputProps={{ minLength: 3 }} />
+                <TextField
+                    required
+                    label="Issuer name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    inputProps={{ minLength: 3 }}
+                />
+                <ColourTextField
+                    required
+                    label="Colour"
+                    value={colour}
+                    onChange={(e) => setColour(e.target.value)}
+                    inputProps={{ minLength: 6, maxLength: 6 }}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">#</InputAdornment>,
+                    }}
+                    colour={colour}
+                />
                 <FormControl
                     required
                     error={noAccountTypes}

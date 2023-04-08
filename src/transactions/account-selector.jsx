@@ -16,10 +16,10 @@ const AccountSelector = ({ handleChange }) => {
         'Wallet': 'warning',
     };
 
-    const AccountEntry = ({ type, issuerName, name }) => (
+    const AccountEntry = ({ type, issuer, name }) => (
         <>
             <Chip sx={{ borderRadius: '.5rem' }} label={type} color={colors[type]} size="small" />
-            <Chip sx={{ borderRadius: '.5rem' }} label={issuerName} variant="outlined" size="small" />
+            <Chip sx={{ borderRadius: '.5rem', color: `#${issuer.colour}`, borderColor: `#${issuer.colour}` }} label={issuer.name} variant="outlined" size="small" />
             {name}
         </>
     );
@@ -36,14 +36,14 @@ const AccountSelector = ({ handleChange }) => {
                     const { id, name, issuer, type } = getVisibleAccounts().find((a) => a.id === selectedId);
                     return (
                         <div style={{ display: 'flex', gap: '.4rem' }}>
-                            <AccountEntry type={type} issuerName={issuer.name} name={name} />
+                            <AccountEntry {...{ type, issuer, name }} />
                         </div>
                     )
                 }}
             >
                 { getVisibleAccounts().map(({ id, name, issuer, type }) => (
                     <MenuItem key={id} value={id} sx={{ gap: '.4rem' }}>
-                        <AccountEntry type={type} issuerName={issuer.name} name={name} />
+                        <AccountEntry {...{ type, issuer, name }} />
                     </MenuItem>
                 )) }
             </Select>
