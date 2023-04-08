@@ -155,7 +155,7 @@ const Dashboard = () => {
     return !accounts ? <HorizontalLoader /> : !accounts.find((a) => a.visible) ? <Empty /> : (
         <>
             <Title>Dashboard</Title>
-            <Stack spacing={3} mb={2}>
+            <Stack spacing={3} pb={3}>
                 {[ 'Cash', 'Credit', 'Wallet' ].map((type) => {
                     const thisAccounts = getAccounts(type);
                     if (thisAccounts?.length === 0) {

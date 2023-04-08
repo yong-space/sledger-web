@@ -230,7 +230,7 @@ const Accounts = () => {
         <>
             <Title>Accounts</Title>
             { !accounts ? <HorizontalLoader /> : (
-                <Stack spacing={4} mb={2}>
+                <Stack spacing={4} pb={3}>
                     <AccountsGrid {...{ accounts, setAccounts }} />
                     <AccountsForm {...{ setAccounts }} />
                 </Stack>

@@ -48,7 +48,7 @@ const Profile = () => {
         <>
             <Title>Profile</Title>
             <form onSubmit={submit} autoComplete="off">
-                <Grid container item xs={12} md={5} direction="column" gap={2}>
+                <Grid container item xs={12} md={5} pb={3} direction="column" gap={2}>
                     <TextField required name="displayName" label="Name" inputProps={{ minLength: 3 }} defaultValue={session.name} />
                     <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} defaultValue={session.email} />
                     <Tooltip title="Enter only if you wish to change your password">

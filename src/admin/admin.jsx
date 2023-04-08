@@ -26,7 +26,7 @@ const Admin = () => {
                 <Tab label="Issuers" component={Link} to="issuers" />
                 <Tab label="Users" component={Link} to="users" />
             </Tabs>
-            <Box p="1rem">
+            <Box pt={1} pb={3}>
                 <Routes>
                     <Route path="issuers" element={<ManageIssuers /> } />
                     <Route path="users" element={<ManageUsers /> } />
