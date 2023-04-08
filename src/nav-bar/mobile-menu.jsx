@@ -12,6 +12,13 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Typography from '@mui/material/Typography';
 import styled from 'styled-components';
 
+const Brand = styled(Typography)`
+    margin: 1rem 2rem;
+    font-weight: 200;
+    letter-spacing: .15rem;
+    user-select: none;
+`;
+
 const NavListItem = styled(ListItemButton)`
     border-radius: .3rem;
     &.Mui-selected { background-color: #375a7f; }
@@ -34,17 +41,7 @@ const MobileMenu = ({ pages, currentPath }) => {
         PaperProps={{ sx: { width: "20rem" } }}
       >
         <Box>
-          <Typography
-            variant="h6"
-            sx={{
-              my: 2, mx: 4,
-              fontWeight: 200,
-              letterSpacing: '.15rem',
-              userSelect: 'none'
-            }}
-          >
-            Sledger
-          </Typography>
+          <Brand variant="h6">Sledger</Brand>
           <Divider />
           <List>
             {pages.map(({ label, link }) => (

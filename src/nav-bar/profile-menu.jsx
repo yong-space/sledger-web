@@ -17,6 +17,9 @@ import styled from 'styled-components';
 const NavButton = styled(Button)`
     color: #fff;
     background-color: ${props => props.variant === 'contained' ? '#28415b' : 'transparent'};
+    white-space: nowrap;
+    text-overflow: hidden;
+    justify-self: flex-end;
 `;
 
 const ProfileMenu = ({ currentPath }) => {
@@ -63,7 +66,6 @@ const ProfileMenu = ({ currentPath }) => {
                 aria-controls="profile-menu"
                 aria-haspopup="true"
                 onClick={() => setOpen(true)}
-                sx={{ color: "white" }}
                 variant={currentPath.indexOf('profile') > -1 ? 'contained' : 'text'}
             >
                 { session.name }

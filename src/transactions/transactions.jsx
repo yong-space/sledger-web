@@ -65,7 +65,7 @@ const Transactions = () => {
                 variant="contained"
                 startIcon={<AddCircleOutlineIcon />}
                 onClick={() => setShowAddDialog(true)}
-                sx={sx}
+                sx={{ ...sx, height: '2.5rem' }}
             >
                 Add
             </Button>
@@ -75,7 +75,7 @@ const Transactions = () => {
                 startIcon={<DeleteForeverIcon />}
                 onClick={() => setShowConfirmDelete(true)}
                 disabled={selectedRows.length === 0}
-                sx={sx}
+                sx={{ ...sx, height: '2.5rem' }}
             >
                 Delete
             </Button>
@@ -86,7 +86,7 @@ const Transactions = () => {
         <Stack spacing={1} height="98%">
             <Stack direction="row" justifyContent="space-between">
                 <Title>Transactions</Title>
-                <Stack direction="row" spacing={1} sx={{ display: 'inline' }}>
+                <Stack direction="row" spacing={1} sx={{ display: 'flex' }}>
                     <AddDeleteButtons sx={{ display: { sm: 'none' } }} />
                 </Stack>
             </Stack>

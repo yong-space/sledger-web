@@ -35,30 +35,25 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
 
     const columns = [
         {
-            flex: 1,
             field: 'type',
             headerName: 'Type',
             renderCell: ({ value }) => <Chip sx={{ borderRadius: '.5rem' }} label={value} color={colors[value]} />
         },
         {
-            flex: 1,
             field: 'issuer',
             headerName: 'Issuer',
             valueGetter: (params) => params.row.issuer.name,
         },
         {
-            flex: 2,
             field: 'name',
             headerName: 'Name',
         },
         {
-            flex: 1,
             field: 'transactions',
             headerName: 'Transactions',
             type: 'number',
         },
         {
-            flex: 1.5,
             field: 'delete', headerName: 'Delete',
             sortable: false,
             renderCell: ({ id }) => {
@@ -213,7 +208,7 @@ const Accounts = () => {
         <>
             <Title>Accounts</Title>
             { !accounts ? <HorizontalLoader /> : (
-                <Stack spacing={4}>
+                <Stack spacing={4} mb={2}>
                     <AccountsGrid {...{ accounts, setAccounts }} />
                     <AccountsForm {...{ setAccounts }} />
                 </Stack>

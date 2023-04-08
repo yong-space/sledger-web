@@ -26,8 +26,8 @@ const Table = styled.div`
 const Cell = styled.div`
     padding: .8rem;
     border-top: 1px solid #666;
-    :nth-child(3n+1) { width: 10vw }
-    :nth-child(3n+2) { width: 25vw }
+    :nth-child(3n+1) { width: 15vw; text-overflow: ellipsis; overflow: hidden }
+    :nth-child(3n+2) { width: 20vw }
     :nth-child(3n+3) { width: 10vw; text-align: right }
     :nth-child(-n+3) {
         font-weight: 800;
@@ -37,9 +37,9 @@ const Cell = styled.div`
         cursor: pointer;
     }
     ${props => props.theme.breakpoints.down("md")} {
-        :nth-child(3n+1) { width: 20vw }
-        :nth-child(3n+2) { width: 50vw }
-        :nth-child(3n+3) { width: 20vw }
+        :nth-child(3n+1) { width: 25vw }
+        :nth-child(3n+2) { width: 40vw }
+        :nth-child(3n+3) { width: 25vw; min-width: 5rem }
     }
 `;
 
@@ -138,7 +138,7 @@ const Dashboard = () => {
     return !accounts ? <HorizontalLoader /> : (
         <>
             <Title>Dashboard</Title>
-            <Stack spacing={3}>
+            <Stack spacing={3} mb={2}>
                 {[ 'Cash', 'Credit', 'Wallet' ].map((type) => {
                     const thisAccounts = getAccounts(type);
                     if (!thisAccounts) {

@@ -1,36 +1,48 @@
 import { useLocation } from 'react-router-dom';
-import AppBar from '@mui/material/AppBar';
-import Container from '@mui/material/Container';
 import DesktopMenu from './desktop-menu';
 import MobileMenu from './mobile-menu';
 import ProfileMenu from './profile-menu';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import styled from 'styled-components';
+import { useTheme } from '@mui/material/styles';
 
-const BlueBar = styled(AppBar)`
+const AppBar = styled.header`
     background-color: #375a7f;
-    background-image: none;
+    margin: 0;
+    padding: .6rem 2.2rem;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+
+    ${props => props.theme.breakpoints.down("md")} {
+        padding: .5rem;
+    }
 `;
 
-const Brand = ({ mobile }) => (
-    <Typography
-        variant="h6"
-        noWrap
-        sx={{
-            mr: 2,
-            display: mobile ? { xs: 'flex', md: 'none' } : { xs: 'none', md: 'flex' },
-            fontWeight: 200,
-            letterSpacing: '.15rem',
-            flexGrow: mobile ? 1 : 0,
-            userSelect: 'none'
-        }}
-    >
-        Sledger
-    </Typography>
-);
+const Group = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const Brand = styled(Typography)`
+    min-width: 5rem;
+    margin-right: 1rem;
+    display: flex;
+    font-weight: 200;
+    letter-spacing: .15rem;
+    flex-grow: ${props => props.mobile ? 1 : 0};
+    user-select: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+`;
 
 const NavBar = () => {
+    const theme = useTheme();
     const location = useLocation();
     const pages = [
         { label: 'Dashboard', link: '/dash' },
@@ -40,17 +52,14 @@ const NavBar = () => {
     const props = { pages, currentPath: location.pathname };
 
     return (
-        <BlueBar position="fixed">
-            <Container maxWidth="xl">
-                <Toolbar disableGutters>
-                    <Brand mobile={false} />
-                    <MobileMenu {...props} />
-                    <Brand mobile={true} />
-                    <DesktopMenu {...props} />
-                    <ProfileMenu currentPath={location.pathname} />
-                </Toolbar>
-            </Container>
-        </BlueBar>
+        <AppBar theme={theme}>
+            <Group>
+                <MobileMenu {...props} />
+                <Brand variant="h6">Sledger</Brand>
+            </Group>
+            <DesktopMenu {...props} />
+            <ProfileMenu currentPath={location.pathname} />
+        </AppBar>
     );
 }
 export default NavBar;
