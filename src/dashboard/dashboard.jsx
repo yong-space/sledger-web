@@ -156,7 +156,7 @@ const Dashboard = () => {
         <>
             <Title>Dashboard</Title>
             <Stack spacing={3} pb={3}>
-                {[ 'Cash', 'Credit', 'Wallet' ].map((type) => {
+                {[ 'Cash', 'Credit', 'Retirement' ].map((type) => {
                     const thisAccounts = getAccounts(type);
                     if (thisAccounts?.length === 0) {
                         return;

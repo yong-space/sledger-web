@@ -12,8 +12,8 @@ const AccountSelector = ({ handleChange }) => {
 
     const colors = {
         'Cash': 'success',
-        'Credit': 'info',
-        'Wallet': 'warning',
+        'Credit': 'warning',
+        'Retirement': 'info',
     };
 
     const AccountEntry = ({ type, issuer, name }) => (

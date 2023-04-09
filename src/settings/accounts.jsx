@@ -31,8 +31,8 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
     const [ accountId, setAccountId ] = useState();
     const colors = {
         'Cash': 'success',
-        'Credit': 'info',
-        'Wallet': 'warning',
+        'Credit': 'warning',
+        'Retirement': 'info',
     };
 
     const updateVisibility = (event, id) => editAccountVisibility(id, event.target.checked, () => {
@@ -123,7 +123,7 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
     return <Box><AccountsDataGrid /></Box>;
 };
 
-const AccountsForm = ({ setAccounts }) => {
+const AccountsForm = ({ accounts, setAccounts }) => {
     const [ issuers, setIssuers ] = state.useState(state.issuers);
     const [ issuerId, setIssuerId ] = useState();
     const [ type, setType ] = useState('Cash');
@@ -186,13 +186,13 @@ const AccountsForm = ({ setAccounts }) => {
                     onChange={(e, type) => setType(type)}
                     aria-label="account-type"
                 >
-                    {[ 'Cash', 'Credit', 'Wallet' ].map((accountType) => (
+                    {[ 'Cash', 'Credit', 'Retirement' ].map((accountType) => (
                         <ToggleButton key={accountType} value={accountType} aria-label={accountType}>
                             {accountType}
                         </ToggleButton>
                     ))}
                 </ToggleButtonGroup>
-                { (getIssuers().map(i => i.id).indexOf(issuerId) > -1) && (
+                { getIssuers().length > 1 && getIssuers().map(i => i.id).indexOf(issuerId) > -1 && (
                     <FormControl fullWidth>
                         <InputLabel id="issuer-label">
                             { type === 'Cash' ? 'Bank' : 'Issuer' }
@@ -207,14 +207,20 @@ const AccountsForm = ({ setAccounts }) => {
                         </Select>
                     </FormControl>
                 ) }
-                { type !== 'Wallet' && <TextField required name="name" label={`${type === 'Credit' ? 'Card' : 'Account'} name`} inputProps={{ minLength: 3 }} /> }
+                { type !== 'Retirement' && <TextField required name="name" label={`${type === 'Credit' ? 'Card' : 'Account'} name`} inputProps={{ minLength: 3 }} /> }
                 { type === 'Credit' && <TextField required name="billingCycle" label="Billing Cycle Start Date" defaultValue={1} inputProps={{ inputMode: 'numeric', pattern: '[0-9]+' }} /> }
-                { type === 'Wallet' && <FormControlLabel control={<Checkbox name="multiCurrency" />} label="Multi Currency" /> }
+                { type === 'Cash' && <FormControlLabel control={<Checkbox name="multiCurrency" />} label="Multi Currency" /> }
+                { type === 'Retirement' && accounts.find(a => a.type === 'Retirement') && (
+                    <Alert severity="info" variant="outlined">
+                        You can only have 1 retirement account
+                    </Alert>
+                ) }
                 <LoadingButton
                     type="submit"
                     loading={loading}
                     loadingPosition="center"
                     variant="contained"
+                    disabled={type === 'Retirement' && !!accounts.find(a => a.type === 'Retirement')}
                 >
                     Add Account
                 </LoadingButton>
@@ -225,14 +231,13 @@ const AccountsForm = ({ setAccounts }) => {
 
 const Accounts = () => {
     const [ accounts, setAccounts ] = state.useState(state.accounts);
-
     return (
         <>
             <Title>Accounts</Title>
             { !accounts ? <HorizontalLoader /> : (
                 <Stack spacing={4} pb={3}>
                     <AccountsGrid {...{ accounts, setAccounts }} />
-                    <AccountsForm {...{ setAccounts }} />
+                    <AccountsForm {...{ accounts, setAccounts }} />
                 </Stack>
             )}
         </>

@@ -88,7 +88,7 @@ const IssuersForm = ({ setIssuers }) => {
     const [ loading, setLoading ] = state.useState(state.loading);
     const { addIssuer, showStatus } = api();
     const [ name, setName ] = useState('');
-    const [ types, setTypes ] = useState({ Cash: true, Credit: false, Wallet: false });
+    const [ types, setTypes ] = useState({ Cash: true, Credit: false, Retirement: false });
     const [ colour, setColour ] = useState('889900');
 
     const submitAddIssuer = (event) => {
@@ -109,7 +109,7 @@ const IssuersForm = ({ setIssuers }) => {
             showStatus('success', 'New issuer added');
             setName('');
             setColour('889900');
-            setTypes({ Cash: true, Credit: false, Wallet: false });
+            setTypes({ Cash: true, Credit: false, Retirement: false });
         });
     };
 
@@ -151,7 +151,7 @@ const IssuersForm = ({ setIssuers }) => {
                 >
                     <FormLabel component="legend">Account Types</FormLabel>
                     <FormGroup>
-                        {[ 'Cash', 'Credit', 'Wallet' ].map((type) => (
+                        {[ 'Cash', 'Credit', 'Retirement' ].map((type) => (
                             <FormControlLabel
                                 key={type} label={type}
                                 control={<Checkbox checked={types[type]} onChange={handleCheck} name={type} />}
