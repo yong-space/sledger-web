@@ -35,9 +35,10 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
+    const setAccounts = state.useState(state.accounts)[1];
     const {
         addTransaction, editTransaction, listTransactions,
-        showStatus, suggestRemarks, suggestCategory,
+        showStatus, suggestRemarks, suggestCategory, listAccounts,
     } = api();
 
     useEffect(() => {
@@ -100,6 +101,7 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                     setTimeout(() => setLoading(false), 500);
                 });
             }
+            listAccounts((data) => setAccounts(data));
         });
     };
 

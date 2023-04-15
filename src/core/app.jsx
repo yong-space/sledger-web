@@ -18,16 +18,20 @@ const Root = styled(Container)`
 `;
 
 const App = () => {
+    const [ issuers, setIssuers ] = state.useState(state.issuers);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
-    const { listAccounts } = api();
+    const { listIssuers, listAccounts } = api();
 
     useEffect(() => {
+        if (!issuers) {
+            listIssuers((data) => setIssuers(data));
+        }
         if (!accounts) {
             listAccounts((data) => setAccounts(data));
         }
     }, []);
 
-    return accounts && (
+    return issuers && accounts && (
         <Root>
             <NavBar />
             <Routes>

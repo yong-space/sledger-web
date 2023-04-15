@@ -24,8 +24,23 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Switch from '@mui/material/Switch';
+import styled from 'styled-components';
 
-const AccountsGrid = ({ accounts, setAccounts }) => {
+const IssuerChip = styled(Chip)`
+    border-radius: .5rem;
+    color: #${props => props.colour};
+    border-color: #${props => props.colour};
+`;
+
+const FxRoot = styled.sup`
+    font-size: .8rem;
+    position: relative;
+    top: -.3rem;
+    left: .1rem;
+`;
+const Fx = () => <FxRoot>Fx</FxRoot>;
+
+const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
     const { deleteAccount, editAccountVisibility, showStatus } = api();
     const [ showConfirm, setShowConfirm ] = useState(false);
     const [ accountId, setAccountId ] = useState();
@@ -34,6 +49,8 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
         'Credit': 'warning',
         'Retirement': 'info',
     };
+
+    const getIssuer = (id) => issuers.find(i => i.id === id);
 
     const updateVisibility = (event, id) => editAccountVisibility(id, event.target.checked, () => {
         showStatus('success', 'Updated visibility');
@@ -50,22 +67,31 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
         {
             field: 'type',
             headerName: 'Type',
+            width: '109',
             renderCell: ({ value }) => <Chip sx={{ borderRadius: '.5rem' }} label={value} color={colors[value]} />
         },
         {
             field: 'issuer',
             headerName: 'Issuer',
-            renderCell: ({ row }) => <Chip sx={{ color: `#${row.issuer.colour}`, borderColor: `#${row.issuer.colour}`, borderRadius: '.5rem' }} label={row.issuer.name} variant="outlined" />
+            valueGetter: ({ row }) => getIssuer(row.issuerId).name,
+            renderCell: ({ row }) => <IssuerChip colour={getIssuer(row.issuerId).colour} label={getIssuer(row.issuerId).name} variant="outlined" />
         },
         {
             field: 'name',
             headerName: 'Name',
+            renderCell: ({ row }) => (
+                <>
+                    {row.name}
+                    {row.multiCurrency && <Fx />}
+                </>
+            )
         },
         {
             field: 'transactions',
             headerName: 'Transactions',
             type: 'number',
-            width: '103'
+            width: '103',
+            valueGetter: ({ row }) => row.transactions || 0,
         },
         {
             field: 'delete', headerName: 'Delete',
@@ -123,27 +149,18 @@ const AccountsGrid = ({ accounts, setAccounts }) => {
     return <Box><AccountsDataGrid /></Box>;
 };
 
-const AccountsForm = ({ accounts, setAccounts }) => {
-    const [ issuers, setIssuers ] = state.useState(state.issuers);
+const AccountsForm = ({ issuers, accounts, setAccounts }) => {
     const [ issuerId, setIssuerId ] = useState();
     const [ type, setType ] = useState('Cash');
     const [ loading, setLoading ] = state.useState(state.loading);
-    const { addAccount, listIssuers, showStatus } = api();
+    const { addAccount, showStatus } = api();
 
     useEffect(() => {
-        if (!issuers) {
-            listIssuers((data) => setIssuers(data));
+        const defaultId = getIssuers()[0]?.id;
+        if (defaultId) {
+            setIssuerId(defaultId);
         }
-    }, []);
-
-    useEffect(() => {
-        if (issuers) {
-            const defaultId = getIssuers()[0]?.id;
-            if (defaultId) {
-                setIssuerId(defaultId);
-            }
-        }
-    }, [ issuers, type ]);
+    }, [ type ]);
 
     const submit = (event) => {
         event.preventDefault();
@@ -230,14 +247,15 @@ const AccountsForm = ({ accounts, setAccounts }) => {
 };
 
 const Accounts = () => {
+    const issuers = state.useState(state.issuers)[0];
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     return (
         <>
             <Title>Accounts</Title>
             { !accounts ? <HorizontalLoader /> : (
                 <Stack spacing={4} pb={3}>
-                    <AccountsGrid {...{ accounts, setAccounts }} />
-                    <AccountsForm {...{ accounts, setAccounts }} />
+                    <AccountsGrid {...{ issuers, accounts, setAccounts }} />
+                    <AccountsForm {...{ issuers, accounts, setAccounts }} />
                 </Stack>
             )}
         </>

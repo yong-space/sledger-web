@@ -1,6 +1,5 @@
 import { DataGrid } from '@mui/x-data-grid';
-import { HorizontalLoader } from '../core/loader';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Alert from '@mui/material/Alert';
 import api from '../core/api';
 import Box from '@mui/material/Box';
@@ -174,15 +173,7 @@ const IssuersForm = ({ setIssuers }) => {
 
 const ManageIssuers = () => {
     const [ issuers, setIssuers ] = state.useState(state.issuers);
-    const { listIssuers } = api();
-
-    useEffect(() => {
-        if (!issuers) {
-            listIssuers((data) => setIssuers(data));
-        }
-    }, []);
-
-    return !issuers ? <HorizontalLoader /> : (
+    return (
         <Stack spacing={4}>
             <IssuersGrid {...{ issuers, setIssuers }} />
             <IssuersForm {...{ setIssuers }} />

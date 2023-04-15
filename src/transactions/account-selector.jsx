@@ -6,9 +6,11 @@ import Select from '@mui/material/Select';
 import state from '../core/state';
 
 const AccountSelector = ({ handleChange }) => {
+    const issuers = state.useState(state.issuers)[0];
     const accounts = state.useState(state.accounts)[0];
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
+    const getIssuer = (id) => issuers.find(i => i.id === id);
 
     const colors = {
         'Cash': 'success',
@@ -33,17 +35,17 @@ const AccountSelector = ({ handleChange }) => {
                 value={selectedAccount.id}
                 onChange={handleChange}
                 renderValue={(selectedId) => {
-                    const { id, name, issuer, type } = getVisibleAccounts().find((a) => a.id === selectedId);
+                    const { id, name, type, issuerId } = getVisibleAccounts().find((a) => a.id === selectedId);
                     return (
                         <div style={{ display: 'flex', gap: '.4rem' }}>
-                            <AccountEntry {...{ type, issuer, name }} />
+                            <AccountEntry {...{ type, issuer: getIssuer(issuerId), name }} />
                         </div>
                     )
                 }}
             >
-                { getVisibleAccounts().map(({ id, name, issuer, type }) => (
+                { getVisibleAccounts().map(({ id, name, type, issuerId }) => (
                     <MenuItem key={id} value={id} sx={{ gap: '.4rem' }}>
-                        <AccountEntry {...{ type, issuer, name }} />
+                        <AccountEntry {...{ type, issuer: getIssuer(issuerId), name }} />
                     </MenuItem>
                 )) }
             </Select>

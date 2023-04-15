@@ -18,7 +18,7 @@ import TransactionsGrid from './transactions-grid';
 
 const Transactions = () => {
     dayjs.extend(minMax);
-    const accounts = state.useState(state.accounts)[0];
+    const [ accounts, setAccounts ] = state.useState(state.accounts);
     const [ loading, setLoading ] = useState(true);
     const [ showAddDialog, setShowAddDialog ] = useState(false);
     const [ transactionToEdit, setTransactionToEdit ] = useState();
@@ -28,7 +28,7 @@ const Transactions = () => {
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const location = useLocation();
     const navigate = useNavigate();
-    const { deleteTransaction, listTransactions, showStatus } = api();
+    const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
     useEffect(() => {
@@ -77,6 +77,7 @@ const Transactions = () => {
                     showStatus('success', 'Transaction deleted');
                 });
             }
+            listAccounts((data) => setAccounts(data));
         });
     };
 

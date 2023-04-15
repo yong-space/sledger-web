@@ -52,10 +52,13 @@ const SummaryCell = styled(Cell)`
     }
 `;
 
+const Fx = () => <sup>FX</sup>;
+
 const Dashboard = () => {
     const theme = useTheme();
     let navigate = useNavigate();
     const accounts = state.useState(state.accounts)[0];
+    const issuers = state.useState(state.issuers)[0];
     const [ netWorth, setNetWorth ] = useState();
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
@@ -72,40 +75,24 @@ const Dashboard = () => {
     const getAccounts = (type) => accounts.filter((a) => a.visible && a.type === type);
 
     const columns = [
-        {
-            field: 'issuer',
-            subField: 'name',
-            headerName: 'Issuer',
-        },
-        {
-            field: 'name',
-            headerName: 'Account',
-        },
-        {
-            field: 'balance',
-            headerName: 'Balance',
-        },
+        { field: 'issuer', headerName: 'Issuer' },
+        { field: 'name', headerName: 'Account' },
+        { field: 'balance', headerName: 'Balance' },
     ];
 
     const formatNumber = (num) => !num ? '0.00' : parseFloat(num).toFixed(2).toLocaleString();
 
     const getValue = (column, row) => {
-        const value = column.subField ? row[column.field][column.subField] : row[column.field];
         switch (column.field) {
-            case 'balance': return formatNumber(value);
-            default: return value;
+            case 'issuer': return issuers.find(i => i.id === row.issuerId).name;
+            case 'balance': return formatNumber(row[column.field]);
+            default: return row[column.field];
         }
     };
 
-    const getHeaderLabel = (type, header) => {
-        if (type === 'Cash' && header === 'Issuer') {
-            return 'Bank';
-        }
-        if (type === 'Credit' && header === 'Account') {
-            return 'Card';
-        }
-        return header;
-    };
+    const getHeaderLabel = (type, header) =>
+        (type === 'Cash' && header === 'Issuer') ? 'Bank' :
+        (type === 'Credit' && header === 'Account') ? 'Card' : header;
 
     const SummaryGrid = ({ label, data }) => (
         <Box>
@@ -118,6 +105,7 @@ const Dashboard = () => {
                     { data.map((row) => columns.map((column) => (
                         <Cell key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
                             { getValue(column, row) }
+                            { column.field === 'name' && row.multiCurrency && <sup>FX</sup> }
                         </Cell>
                     )))}
                 </Table>
