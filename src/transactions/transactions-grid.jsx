@@ -31,7 +31,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
     useEffect(() => {
         const vColumns = !isMobile ? { amount: false } :
-            { id: false, credit: false, debit: false, remarks: false };
+            { id: false, credit: false, debit: false, remarks: false, fx: false };
         setVisibleColumns(vColumns);
     }, [ isMobile ]);
 
@@ -54,7 +54,11 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             { flex: 4, field: 'remarks', headerName: 'Remarks' },
         ];
         if (selectedAccount.type === 'Credit') {
-            columns.splice(1, 0, { flex: 2, field: 'billingMonth', headerName: 'Bill', valueGetter: (params) => dayjs(params.row.billingMonth).format('YYYY-MM') });
+            columns.splice(1, 0, { flex: 2, field: 'billingMonth', headerName: 'Bill', valueGetter: ({ row }) => dayjs(row.billingMonth).format('YYYY-MM') });
+        }
+        if (selectedAccount.multiCurrency) {
+            columns.splice(4, 0, { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber });
+            columns.splice(5, 0, { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5) });
         }
         return columns;
     };

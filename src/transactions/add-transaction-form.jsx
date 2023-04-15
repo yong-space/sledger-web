@@ -5,6 +5,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
+import Autocomplete from '@mui/material/Autocomplete';
+import AutoFill from './auto-fill';
 import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
 import Dialog from '@mui/material/Dialog';
@@ -14,12 +16,18 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
+import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
-import AutoFill from './auto-fill';
+
+const ForeignCurrencyBar = styled.div`
+    display: flex;
+    gap: 1rem;
+    & :first-child { width: 8rem }
+`;
 
 const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }) => {
     dayjs.extend(utc);
@@ -30,8 +38,12 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
     const [ date, setDate ] = useState();
     const [ billingMonth, setBillingMonth ] = useState();
     const [ editAmount, setEditAmount ] = useState();
+    const [ editOriginalAmount, setEditOriginalAmount ] = useState();
+    const [ editCurrency, setEditCurrency ] = useState();
     const [ editCategory, setEditCategory ] = useState();
     const [ editRemarks, setEditRemarks ] = useState('');
+    const [ inputCurrency, setInputCurrency ] = useState(editCurrency || '');
+    const [ currency, setCurrency ] = useState();
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
@@ -54,6 +66,8 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
             }
             setSide(-1);
             setEditAmount(undefined);
+            setEditOriginalAmount(undefined);
+            setEditCurrency(undefined);
             setEditCategory(undefined);
             setEditRemarks('');
             return;
@@ -74,7 +88,7 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
         tx.amount *= side;
-        tx['@type'] = selectedAccount.type.toLowerCase();
+        tx['@type'] = selectedAccount.multiCurrency ? 'fx' : selectedAccount.type.toLowerCase();
         if (selectedAccount.type === 'Credit') {
             tx.billingMonth = billingMonth.toISOString();
         }
@@ -136,7 +150,6 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                     exclusive
                     fullWidth
                     onChange={(event, s) => setSide(s)}
-                    aria-label="account-type"
                 >
                     <ToggleButton value={1} aria-label="Credit">
                         Credit
@@ -145,17 +158,24 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                         Debit
                     </ToggleButton>
                 </ToggleButtonGroup>
+
                 <TextField required defaultValue={editAmount} name="amount" label="Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
-                <AutoFill
-                    promise={suggestCategory}
-                    initValue={editCategory}
-                    fieldProps={{
-                        required: true,
-                        inputProps: { minLength: 2 },
-                        name: 'category',
-                        label: 'Category'
-                    }}
-                />
+
+                { selectedAccount.multiCurrency && (
+                    <ForeignCurrencyBar>
+                        <Autocomplete
+                            disableClearable
+                            freeSolo
+                            inputValue={inputCurrency}
+                            onInputChange={(e, v) => setInputCurrency(v)}
+                            value={currency}
+                            onChange={(e, v) => setCurrency(v)}
+                            options={[ 'USD', 'SGD', 'EUR', 'GBP', 'JPY', 'KRW' ]}
+                            renderInput={(params) => <TextField required name="currency" label="Currency" inputProps={{ minLength: 3, maxLength: 3 }} {...params} />}
+                        />
+                        <TextField fullWidth required defaultValue={editOriginalAmount} name="originalAmount" label="Foreign Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
+                    </ForeignCurrencyBar>
+                )}
                 <AutoFill
                     promise={suggestRemarks}
                     initValue={editRemarks}
@@ -164,6 +184,16 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                         inputProps: { minLength: 2 },
                         name: 'remarks',
                         label: 'Remarks'
+                    }}
+                />
+                <AutoFill
+                    promise={suggestCategory}
+                    initValue={editCategory}
+                    fieldProps={{
+                        required: true,
+                        inputProps: { minLength: 2 },
+                        name: 'category',
+                        label: 'Category'
                     }}
                 />
                 <Stack direction="row" spacing={2}>
