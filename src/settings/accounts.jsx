@@ -38,7 +38,7 @@ const FxRoot = styled.sup`
     top: -.3rem;
     left: .1rem;
 `;
-const Fx = () => <FxRoot>Fx</FxRoot>;
+const Fx = () => <FxRoot>FX</FxRoot>;
 
 const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
     const { deleteAccount, editAccountVisibility, showStatus } = api();

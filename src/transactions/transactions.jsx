@@ -121,7 +121,7 @@ const Transactions = () => {
                 <TextField placeholder="Search.." size="small" sx={{ justifySelf: 'flex-end' }} />
             </Stack>
             <TransactionsGrid {...{ setShowAddDialog, setTransactionToEdit }} />
-            <AddTransactionDialog {...{ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }} />
+            { showAddDialog && <AddTransactionDialog {...{ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }} /> }
             <ConfirmDialog
                 title="Confirm delete transaction?"
                 message="This is a permanent change"
