@@ -38,7 +38,8 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const getAmount = ({ field, row }) => (field === 'credit') ?
         (row.amount > 0 ? row.amount : 0) :
         (row.amount < 0 ? -row.amount : 0);
-    const formatNumber = ({ value }) => value === 0 ? '' : parseFloat(value).toFixed(2).toLocaleString();
+    const decimalFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formatNumber = ({ value }) => value === 0 ? '' : decimalFomat.format(value);
     const getDate = ({ row }) => new Date(row.date);
     const formatDate = ({ value }) => dayjs(value).format('YYYY-MM-DD');
 

@@ -10,6 +10,13 @@ import styled from 'styled-components';
 import SubTitle from '../core/sub-title';
 import Title from '../core/title';
 
+const DashRoot = styled(Stack)`
+    width: 45vw;
+    ${props => props.theme.breakpoints.down("md")} {
+        width: 100%;
+    }
+`;
+
 const Wrapper = styled.div`
     display: flex;
 `;
@@ -28,7 +35,7 @@ const Cell = styled.div`
     border-top: 1px solid #666;
     :nth-child(3n+1) { width: 15vw; text-overflow: ellipsis; overflow: hidden }
     :nth-child(3n+2) { width: 20vw }
-    :nth-child(3n+3) { width: 10vw; text-align: right }
+    :nth-child(3n+3) { width: 10vw; text-align: right; padding-right: 1.5rem; }
     :nth-child(-n+3) {
         font-weight: 800;
         border-top: none;
@@ -39,20 +46,18 @@ const Cell = styled.div`
     ${props => props.theme.breakpoints.down("md")} {
         :nth-child(3n+1) { width: 25vw }
         :nth-child(3n+2) { width: 40vw }
-        :nth-child(3n+3) { width: 25vw; min-width: 5rem }
+        :nth-child(3n+3) { width: 26vw; padding-right: 1rem; }
     }
 `;
 
 const SummaryCell = styled(Cell)`
     :nth-child(1) { width: 35vw }
-    :nth-child(2) { width: 10vw; text-align: right }
+    :nth-child(2) { width: 10vw; text-align: right; padding-right: 1.5rem; }
     ${props => props.theme.breakpoints.down("md")} {
         :nth-child(1) { width: 70vw }
-        :nth-child(2) { width: 20vw }
+        :nth-child(2) { width: 21vw; padding-right: 1rem; }
     }
 `;
-
-const Fx = () => <sup>FX</sup>;
 
 const Dashboard = () => {
     const theme = useTheme();
@@ -69,7 +74,7 @@ const Dashboard = () => {
         if (getVisibleAccounts().length === 0) {
             navigate('/settings/accounts');
         }
-        setNetWorth(getVisibleAccounts().reduce((i, account) => i + account.balance, 0));
+        setNetWorth(getVisibleAccounts().reduce((i, account) => i + parseFloat(account.balance || 0), 0));
     }, [ accounts ]);
 
     const getAccounts = (type) => accounts.filter((a) => a.visible && a.type === type);
@@ -80,7 +85,8 @@ const Dashboard = () => {
         { field: 'balance', headerName: 'Balance' },
     ];
 
-    const formatNumber = (num) => !num ? '0.00' : parseFloat(num).toFixed(2).toLocaleString();
+    const decimalFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formatNumber = (num) => !num ? '0.00' : decimalFomat.format(parseFloat(num));
 
     const getValue = (column, row) => {
         switch (column.field) {
@@ -94,7 +100,7 @@ const Dashboard = () => {
         (type === 'Cash' && header === 'Issuer') ? 'Bank' :
         (type === 'Credit' && header === 'Account') ? 'Card' : header;
 
-    const SummaryGrid = ({ label, data }) => (
+    const SummaryGrid = ({ label, data }) => data.length > 0 && (
         <Box>
             <SubTitle>{label}</SubTitle>
             <Wrapper>
@@ -112,6 +118,31 @@ const Dashboard = () => {
             </Wrapper>
         </Box>
     );
+
+    const CpfSummaryGrid = () => {
+        const cpfAccount = getAccounts('Retirement');
+        const [ cpfAccounts, setCpfAccounts ] = useState();
+
+        useEffect(() => {
+            if (cpfAccount.length === 0) {
+                return;
+            }
+            const { id, issuerId } = cpfAccount[0];
+            /*
+            setCpfAccounts([
+                { id, issuerId, name: 'Ordinary', balance: 2000 },
+                { id, issuerId, name: 'Special', balance: 2000 },
+                { id, issuerId, name: 'Medisave', balance: 2000 },
+            ]);
+            */
+            setCpfAccounts(cpfAccount);
+        }, []);
+
+        return cpfAccount.length > 0 && (
+            !cpfAccounts ? <HorizontalLoader /> :
+            <SummaryGrid label="Retirement Accounts" data={cpfAccounts} />
+        );
+    };
 
     const TotalNetWorth = () => {
         return (
@@ -140,20 +171,14 @@ const Dashboard = () => {
         </Alert>
     );
 
-    return !accounts ? <HorizontalLoader /> : !accounts.find((a) => a.visible) ? <Empty /> : (
-        <>
-            <Title>Dashboard</Title>
-            <Stack spacing={3} pb={3}>
-                {[ 'Cash', 'Credit', 'Retirement' ].map((type) => {
-                    const thisAccounts = getAccounts(type);
-                    if (thisAccounts?.length === 0) {
-                        return;
-                    }
-                    return <SummaryGrid key={type} label={`${type} Accounts`} data={thisAccounts} />;
-                })}
-                <TotalNetWorth />
-            </Stack>
-        </>
+    return !accounts.find((a) => a.visible) ? <Empty /> : (
+        <DashRoot spacing={3} pb={3}>
+            <Title mb={-1}>Dashboard</Title>
+            <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
+            <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
+            <CpfSummaryGrid />
+            <TotalNetWorth />
+        </DashRoot>
     );
 };
 export default Dashboard;
