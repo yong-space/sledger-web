@@ -88,9 +88,11 @@ const Dashboard = () => {
     const decimalFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const formatNumber = (num) => !num ? '0.00' : decimalFomat.format(parseFloat(num));
 
-    const getValue = (column, row) => {
+    const getValue = (column, row, rowIndex) => {
         switch (column.field) {
-            case 'issuer': return issuers.find(i => i.id === row.issuerId).name;
+            case 'issuer':
+                const issuer = issuers.find(i => i.id === row.issuerId).name;
+                return (issuer !== 'CPF' || rowIndex === 0) ? issuer : '';
             case 'balance': return formatNumber(row[column.field]);
             default: return row[column.field];
         }
@@ -108,9 +110,9 @@ const Dashboard = () => {
                     { columns.map(({ field, headerName }) => (
                         <Cell key={field}>{getHeaderLabel(data[0].type, headerName)}</Cell>
                     ))}
-                    { data.map((row) => columns.map((column) => (
+                    { data.map((row, rowIndex) => columns.map((column) => (
                         <Cell key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
-                            { getValue(column, row) }
+                            { getValue(column, row, rowIndex) }
                             { column.field === 'name' && row.multiCurrency && <sup>FX</sup> }
                         </Cell>
                     )))}
@@ -127,15 +129,15 @@ const Dashboard = () => {
             if (cpfAccount.length === 0) {
                 return;
             }
-            const { id, issuerId } = cpfAccount[0];
-            /*
+            const {
+                id, issuerId, ordinaryBalance, specialBalance, medisaveBalance,
+            } = cpfAccount[0];
+
             setCpfAccounts([
-                { id, issuerId, name: 'Ordinary', balance: 2000 },
-                { id, issuerId, name: 'Special', balance: 2000 },
-                { id, issuerId, name: 'Medisave', balance: 2000 },
+                { id, issuerId, name: 'Ordinary', balance: ordinaryBalance },
+                { id, issuerId, name: 'Special', balance: specialBalance },
+                { id, issuerId, name: 'Medisave', balance: medisaveBalance },
             ]);
-            */
-            setCpfAccounts(cpfAccount);
         }, []);
 
         return cpfAccount.length > 0 && (
