@@ -39,9 +39,12 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
     const [ month, setMonth ] = useState('');
     const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || '');
     const [ currency, setCurrency ] = useState('');
-    const [ ordinaryAmount, setOrdinaryAmount ] = useState(transactionToEdit?.ordinaryAmount || '');
-    const [ specialAmount, setSpecialAmount ] = useState(transactionToEdit?.specialAmount || '');
-    const [ medisaveAmount, setMedisaveAmount ] = useState(transactionToEdit?.medisaveAmount || '');
+    const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || '');
+    const [ cpfAmounts, setCpfAmounts ] = useState({
+        ordinaryAmount: transactionToEdit?.ordinaryAmount || '',
+        specialAmount: transactionToEdit?.specialAmount || '',
+        medisaveAmount: transactionToEdit?.medisaveAmount || '',
+    });
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
@@ -127,13 +130,36 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
         setTransactionToEdit(undefined);
     };
 
-    const updateAmount = ({ target }) => {
+    const updateCpfAmounts = ({ target }) => {
+        setAmountValue(target.value);
+
         if (selectedAccount?.type === 'Retirement') {
-            const amount = target.value;
-            setOrdinaryAmount((amount * parseFloat(selectedAccount.ordinaryRatio)).toFixed(2));
-            setSpecialAmount((amount * parseFloat(selectedAccount.specialRatio)).toFixed(2));
-            setMedisaveAmount((amount * parseFloat(selectedAccount.medisaveRatio)).toFixed(2));
+            const code = target.closest('form').code.value;
+            if (code === 'CON') {
+                setCpfAmounts({
+                    ordinaryAmount: (target.value * parseFloat(selectedAccount.ordinaryRatio)).toFixed(2),
+                    specialAmount: (target.value * parseFloat(selectedAccount.specialRatio)).toFixed(2),
+                    medisaveAmount: (target.value * parseFloat(selectedAccount.medisaveRatio)).toFixed(2)
+                });
+            } else {
+                setCpfAmounts({
+                    ordinaryAmount: target.value,
+                    specialAmount: 0,
+                    medisaveAmount: 0
+                });
+            }
         }
+    };
+
+    const updateAmount = ({ target }) => {
+        const newCpfAmounts = { ...cpfAmounts, [target.name]: target.value };
+        setCpfAmounts(newCpfAmounts);
+        setAmountValue(Object.values(newCpfAmounts).reduce((a, i) => a + (parseFloat(i) || 0), 0).toFixed(2));
+    };
+
+    const numericProps = {
+        inputMode: 'numeric',
+        pattern: '\-?[0-9]+\.?[0-9]{0,2}',
     };
 
     const fields = {
@@ -178,11 +204,11 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                 key="amount"
                 id="amount"
                 required
-                defaultValue={transactionToEdit && Math.abs(transactionToEdit.amount)}
                 name="amount"
                 label="Amount"
-                onChange={updateAmount}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }}
+                value={amountValue}
+                onChange={updateCpfAmounts}
+                inputProps={numericProps}
             />
         ),
         fx: (
@@ -195,9 +221,24 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                     value={currency}
                     onChange={(e, v) => setCurrency(v)}
                     options={[ 'USD', 'SGD', 'EUR', 'GBP', 'JPY', 'KRW' ]}
-                    renderInput={(params) => <TextField required name="currency" label="Currency" inputProps={{ minLength: 3, maxLength: 3 }} {...params} />}
+                    renderInput={(params) => (
+                        <TextField
+                            required
+                            name="currency"
+                            label="Currency"
+                            inputProps={{ minLength: 3, maxLength: 3 }}
+                            {...params}
+                        />
+                    )}
                 />
-                <TextField fullWidth required defaultValue={transactionToEdit && Math.abs(transactionToEdit.originalAmount)} name="originalAmount" label="Original Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />
+                <TextField
+                    fullWidth
+                    required
+                    defaultValue={transactionToEdit && Math.abs(transactionToEdit.originalAmount)}
+                    name="originalAmount"
+                    label="Original Amount"
+                    inputProps={numericProps}
+                />
             </ForeignCurrencyBar>
         ),
         remarks: (
@@ -245,16 +286,44 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
                 promise={suggestCompany}
                 initValue={transactionToEdit?.company}
                 fieldProps={{
-                    required: true,
-                    inputProps: { minLength: 2 },
                     name: 'company',
                     label: 'Company'
                 }}
             />
         ),
-        ordinaryAmount: <TextField key="ordinaryAmount" required value={ordinaryAmount} onChange={({ target }) => setOrdinaryAmount(target.value)} name="ordinaryAmount" label="Ordinary Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />,
-        specialAmount: <TextField key="specialAmount" required value={specialAmount} onChange={({ target }) => setSpecialAmount(target.value)} name="specialAmount" label="Special Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />,
-        medisaveAmount: <TextField key="medisaveAmount" required value={medisaveAmount} onChange={({ target }) => setMedisaveAmount(target.value)} name="medisaveAmount" label="Medisave Amount" inputProps={{ inputMode: 'numeric', pattern: '[0-9]+\.?[0-9]*' }} />,
+        ordinaryAmount: (
+            <TextField
+                required
+                key="ordinaryAmount"
+                name="ordinaryAmount"
+                label="Ordinary Amount"
+                value={cpfAmounts.ordinaryAmount}
+                onChange={updateAmount}
+                inputProps={numericProps}
+            />
+        ),
+        specialAmount: (
+            <TextField
+                required
+                key="specialAmount"
+                name="specialAmount"
+                label="Special Amount"
+                value={cpfAmounts.specialAmount}
+                onChange={updateAmount}
+                inputProps={numericProps}
+            />
+        ),
+        medisaveAmount: (
+            <TextField
+                required
+                key="medisaveAmount"
+                name="medisaveAmount"
+                label="Medisave Amount"
+                value={cpfAmounts.medisaveAmount}
+                onChange={updateAmount}
+                inputProps={numericProps}
+            />
+        ),
     };
 
     const fieldMap = {
