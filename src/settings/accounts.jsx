@@ -23,6 +23,7 @@ import TextField from '@mui/material/TextField';
 import Title from '../core/title';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
@@ -151,6 +152,7 @@ const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
 
 const AccountsForm = ({ issuers, accounts, setAccounts }) => {
     const [ issuerId, setIssuerId ] = useState();
+    const [ paymentAccount, setPaymentAccount ] = useState(0);
     const [ type, setType ] = useState('Cash');
     const [ loading, setLoading ] = state.useState(state.loading);
     const { addAccount, showStatus, listAccounts } = api();
@@ -232,10 +234,78 @@ const AccountsForm = ({ issuers, accounts, setAccounts }) => {
     const getIssuers = () => issuers.filter(i => i.types.indexOf(type) > -1)
         .sort((a, b) => a.name > b.name);
 
+    const hasCpfAccount = () => !!accounts.find(a => a.type === 'Retirement');
+
+    const numericProps = { inputMode: 'numeric', pattern: '0.[0-9]{1,4}' };
+
     const fields = {
-        name: <TextField key="name" required name="name" label={`${type === 'Credit' ? 'Card' : 'Account'} name`} inputProps={{ minLength: 3 }} />,
-        billingCycle: <TextField key="billingCycle" required name="billingCycle" label="Billing Cycle Start Date" defaultValue={1} inputProps={{ inputMode: 'numeric', pattern: '[0-9]+' }} />,
-        multiCurrency: <FormControlLabel key="multiCurrency" control={<Checkbox name="multiCurrency" />} label="Multi Currency" />,
+        name: (
+            <TextField
+                required
+                key="name"
+                name="name"
+                label={`${type === 'Credit' ? 'Card' : 'Account'} name`}
+                inputProps={{ minLength: 3 }}
+            />
+        ),
+        billingCycle: (
+            <TextField
+                required
+                key="billingCycle"
+                name="billingCycle"
+                label="Billing Cycle Start Date"
+                defaultValue={1}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]{1,2}' }}
+            />
+        ),
+        multiCurrency: (
+            <FormControlLabel
+                key="multiCurrency"
+                control={<Checkbox name="multiCurrency" />}
+                label="Multi Currency"
+            />
+        ),
+        paymentAccount: (
+            <Tooltip
+                key="paymentAccount"
+                arrow
+                placement="right"
+                title="Cash account used to pay the bills for this card"
+            >
+                <FormControl fullWidth>
+                    <InputLabel id="payment-account-label">
+                        Payment Account
+                    </InputLabel>
+                    <Select
+                        name="paymentAccount"
+                        label="Payment Account"
+                        labelId="payment-account-label"
+                        value={paymentAccount}
+                        onChange={({ target }) => setPaymentAccount(target.value)}
+                    >
+                        <MenuItem value={0}>None</MenuItem>
+                        { accounts.filter(a => a.type === 'Cash').map(({ id, name }) => (
+                            <MenuItem key={id} value={id}>{name}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Tooltip>
+        ),
+        paymentRemarks: paymentAccount > 0 && (
+            <Tooltip
+                key="paymentRemarks"
+                arrow
+                placement="right"
+                title="Match transactions from payment account above with these remarks"
+            >
+                <TextField
+                    required
+                    name="paymentRemarks"
+                    label="Payment Remarks"
+                    inputProps={{ minLength: 3 }}
+                />
+            </Tooltip>
+        ),
         issuer: getIssuers().map(i => i.id).indexOf(issuerId) > -1 && (
             <FormControl key="issuer" fullWidth>
                 <InputLabel id="issuer-label">
@@ -251,12 +321,12 @@ const AccountsForm = ({ issuers, accounts, setAccounts }) => {
                 </Select>
             </FormControl>
         ),
-        singleAccountInfo: accounts.find(a => a.type === 'Retirement') && (
+        singleAccountInfo: hasCpfAccount() && (
             <Alert key="singleAccountInfo" severity="info" variant="outlined">
                 You can only have 1 retirement account
             </Alert>
         ),
-        cpfSlider: (
+        cpfSlider: !hasCpfAccount() && (
             <Slider
                 key="allocationSlider"
                 value={getCpfSliderValue()}
@@ -269,9 +339,39 @@ const AccountsForm = ({ issuers, accounts, setAccounts }) => {
                 step={0.0001}
             />
         ),
-        ordinaryRatio: <TextField name="ordinaryRatio" key="ordinaryRatio" required label="Ordinary Ratio" inputProps={{ inputMode: 'numeric', pattern: '0.[0-9]{1,4}' }} value={cpfRatio.ordinaryRatio} onChange={updateCpfRatio} />,
-        specialRatio: <TextField name="specialRatio" key="specialRatio" required label="Special Ratio" inputProps={{ inputMode: 'numeric', pattern: '0.[0-9]{1,4}' }} value={cpfRatio.specialRatio} onChange={updateCpfRatio} />,
-        medisaveRatio: <TextField name="medisaveRatio" key="medisaveRatio" required label="Medisave Ratio" inputProps={{ inputMode: 'numeric', pattern: '0.[0-9]{1,4}' }} value={cpfRatio.medisaveRatio} onChange={updateCpfRatio} />,
+        ordinaryRatio: !hasCpfAccount() && (
+            <TextField
+                required
+                name="ordinaryRatio"
+                key="ordinaryRatio"
+                label="Ordinary Ratio"
+                value={cpfRatio.ordinaryRatio}
+                onChange={updateCpfRatio}
+                inputProps={numericProps}
+            />
+        ),
+        specialRatio: !hasCpfAccount() && (
+            <TextField
+                required
+                name="specialRatio"
+                key="specialRatio"
+                label="Special Ratio"
+                value={cpfRatio.specialRatio}
+                onChange={updateCpfRatio}
+                inputProps={numericProps}
+            />
+        ),
+        medisaveRatio: !hasCpfAccount() && (
+            <TextField
+                required
+                name="medisaveRatio"
+                key="medisaveRatio"
+                label="Medisave Ratio"
+                value={cpfRatio.medisaveRatio}
+                onChange={updateCpfRatio}
+                inputProps={numericProps}
+            />
+        ),
         cpfRatioError: cpfAllocationInvalid() && (
             <Alert key="cpfRatioError" severity="error" variant="outlined">
                 Account allocation ratio is invalid
@@ -281,15 +381,12 @@ const AccountsForm = ({ issuers, accounts, setAccounts }) => {
 
     const fieldMap = {
         Cash: [ fields.issuer, fields.name, fields.multiCurrency ],
-        Credit: [ fields.issuer, fields.name, fields.billingCycle ],
+        Credit: [ fields.issuer, fields.name, fields.billingCycle, fields.paymentAccount, fields.paymentRemarks ],
         Retirement: [ fields.singleAccountInfo, fields.cpfSlider, fields.ordinaryRatio, fields.specialRatio, fields.medisaveRatio, fields.cpfRatioError ],
     };
 
-    const submitDisabled = () =>
-        type === 'Retirement' && (
-            !!accounts.find(a => a.type === 'Retirement') ||
-            cpfAllocationInvalid()
-        );
+    const submitDisabled = () => type === 'Retirement' &&
+        (!!accounts.find(a => a.type === 'Retirement') || cpfAllocationInvalid());
 
     return (
         <form id="manage-accounts" onSubmit={submit} autoComplete="off">
