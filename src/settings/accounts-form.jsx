@@ -3,6 +3,7 @@ import Alert from '@mui/material/Alert';
 import api from '../core/api';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
+import CpfSlider from './cpf-slider';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid';
@@ -10,7 +11,6 @@ import InputLabel from '@mui/material/InputLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import TextField from '@mui/material/TextField';
@@ -19,55 +19,36 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm }) => {
-    const [ issuerId, setIssuerId ] = useState();
-    const [ paymentAccount, setPaymentAccount ] = useState(0);
-    const [ type, setType ] = useState('Cash');
+const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm, accountToEdit, setAccountToEdit }) => {
+    const [ issuerId, setIssuerId ] = useState(accountToEdit?.issuerId);
+    const [ paymentAccount, setPaymentAccount ] = useState(accountToEdit?.paymentAccountId || 0);
+    const [ type, setType ] = useState(accountToEdit?.type || 'Cash');
     const [ loading, setLoading ] = state.useState(state.loading);
-    const { addAccount, showStatus, listAccounts } = api();
-    const [ cpfRatio, setCpfRatio ] = useState({
+    const [ cpfRatio, setCpfRatio ] = useState(!!accountToEdit ? {
+        ordinaryRatio: accountToEdit.ordinaryRatio,
+        specialRatio: accountToEdit.specialRatio,
+        medisaveRatio: accountToEdit.medisaveRatio,
+    } : {
         ordinaryRatio: 0.5677,
         specialRatio: 0.1891,
         medisaveRatio: 0.2432,
     });
-    const getCpfSliderValue = () => [
-        cpfRatio.ordinaryRatio,
-        (cpfRatio.ordinaryRatio + cpfRatio.specialRatio)
-    ];
-    const updateCpfSlider = (event, newValue) => setCpfRatio({
-        ordinaryRatio: newValue[0],
-        specialRatio: parseFloat((newValue[1] - newValue[0]).toFixed(4)),
-        medisaveRatio: parseFloat((1 - newValue[1]).toFixed(4)),
-    });
-
-    const updateCpfRatio = ({ target }) => {
-        if (isNaN(parseFloat(target.value))) {
-            return;
-        }
-        const newRatio = {
-            ...cpfRatio,
-            [target.name]: parseFloat(target.value)
-        };
-        if (target.name === 'ordinaryRatio') {
-            newRatio.specialRatio = parseFloat((1 - newRatio.ordinaryRatio - newRatio.medisaveRatio).toFixed(4));
-        } else if (target.name === 'specialRatio') {
-            newRatio.medisaveRatio = parseFloat((1 - newRatio.ordinaryRatio - newRatio.specialRatio).toFixed(4));
-        } else {
-            newRatio.specialRatio = parseFloat((1 - newRatio.ordinaryRatio - newRatio.medisaveRatio).toFixed(4));
-        }
-        setCpfRatio(newRatio);
-    };
-
-    const cpfAllocationInvalid = () =>
-        cpfRatio.ordinaryRatio < 0.08 || cpfRatio.specialRatio < 0.08 || cpfRatio.medisaveRatio < 0.2162 ||
-        Math.abs(1 - (cpfRatio.ordinaryRatio + cpfRatio.specialRatio + cpfRatio.medisaveRatio)) > 0.01;
+    const { addAccount, editAccount, showStatus, listAccounts } = api();
 
     useEffect(() => {
         const defaultId = getIssuers()[0]?.id;
-        if (defaultId) {
+        if (!accountToEdit && defaultId) {
             setIssuerId(defaultId);
         }
     }, [ type ]);
+
+    const postProcess = () => listAccounts((data) => {
+        setShowForm(false);
+        setAccounts(data);
+        setLoading(false);
+        setAccountToEdit(undefined);
+        showStatus('success', editAccount ? 'Account edited' : 'New account added');
+    });
 
     const submit = (event) => {
         event.preventDefault();
@@ -90,22 +71,24 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm }) => {
         }
 
         setLoading(true);
-        addAccount(newAccount, () => {
-            listAccounts((data) => {
-                setAccounts(data);
-                setLoading(false);
-                showStatus('success', 'New account added');
-                document.querySelector('#manage-accounts').reset();
-            });
-        });
+        if (!accountToEdit) {
+            addAccount(newAccount, postProcess);
+        } else {
+            editAccount(accountToEdit.id, newAccount, postProcess);
+        }
     };
 
     const getIssuers = () => issuers.filter(i => i.types.indexOf(type) > -1)
         .sort((a, b) => a.name > b.name);
 
-    const hasCpfAccount = () => !!accounts.find(a => a.type === 'Retirement');
+    const hasCpfAccount = () => !accountToEdit && !!accounts.find(a => a.type === 'Retirement');
 
-    const numericProps = { inputMode: 'numeric', pattern: '0.[0-9]{1,4}' };
+    const cpfAllocationInvalid = () =>
+        cpfRatio.ordinaryRatio < 0.08 || cpfRatio.specialRatio < 0.08 || cpfRatio.medisaveRatio < 0.2162 ||
+        Math.abs(1 - (cpfRatio.ordinaryRatio + cpfRatio.specialRatio + cpfRatio.medisaveRatio)) > 0.01;
+
+    const submitDisabled = () => type === 'Retirement' &&
+        ((!accountToEdit && !!accounts.find(a => a.type === 'Retirement')) || cpfAllocationInvalid());
 
     const fields = {
         name: (
@@ -114,6 +97,7 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm }) => {
                 key="name"
                 name="name"
                 label={`${type === 'Credit' ? 'Card' : 'Account'} name`}
+                defaultValue={accountToEdit?.name}
                 inputProps={{ minLength: 3 }}
             />
         ),
@@ -123,14 +107,14 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm }) => {
                 key="billingCycle"
                 name="billingCycle"
                 label="Billing Cycle Start Date"
-                defaultValue={1}
+                defaultValue={accountToEdit?.billingCycle || 1}
                 inputProps={{ inputMode: 'numeric', pattern: '[0-9]{1,2}' }}
             />
         ),
         multiCurrency: (
             <FormControlLabel
                 key="multiCurrency"
-                control={<Checkbox name="multiCurrency" />}
+                control={<Checkbox name="multiCurrency" defaultChecked={accountToEdit?.multiCurrency} />}
                 label="Multi Currency"
             />
         ),
@@ -171,6 +155,7 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm }) => {
                     required
                     name="paymentRemarks"
                     label="Payment Remarks"
+                    defaultValue={accountToEdit?.paymentRemarks}
                     inputProps={{ minLength: 3 }}
                 />
             </Tooltip>
@@ -195,91 +180,43 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm }) => {
                 You can only have 1 retirement account
             </Alert>
         ),
-        cpfSlider: !hasCpfAccount() && (
-            <Slider
-                key="allocationSlider"
-                value={getCpfSliderValue()}
-                onChange={updateCpfSlider}
-                track={false}
-                color="secondary"
-                disableSwap
-                min={0}
-                max={1}
-                step={0.0001}
-            />
-        ),
-        ordinaryRatio: !hasCpfAccount() && (
-            <TextField
-                required
-                name="ordinaryRatio"
-                key="ordinaryRatio"
-                label="Ordinary Ratio"
-                value={cpfRatio.ordinaryRatio}
-                onChange={updateCpfRatio}
-                inputProps={numericProps}
-            />
-        ),
-        specialRatio: !hasCpfAccount() && (
-            <TextField
-                required
-                name="specialRatio"
-                key="specialRatio"
-                label="Special Ratio"
-                value={cpfRatio.specialRatio}
-                onChange={updateCpfRatio}
-                inputProps={numericProps}
-            />
-        ),
-        medisaveRatio: !hasCpfAccount() && (
-            <TextField
-                required
-                name="medisaveRatio"
-                key="medisaveRatio"
-                label="Medisave Ratio"
-                value={cpfRatio.medisaveRatio}
-                onChange={updateCpfRatio}
-                inputProps={numericProps}
-            />
-        ),
-        cpfRatioError: cpfAllocationInvalid() && (
-            <Alert key="cpfRatioError" severity="error" variant="outlined">
-                Account allocation ratio is invalid
-            </Alert>
-        ),
+        cpfSlider: !hasCpfAccount() && <CpfSlider key="cpfSlider" {...{ cpfRatio, setCpfRatio, cpfAllocationInvalid }} />,
     };
 
     const fieldMap = {
         Cash: [ fields.issuer, fields.name, fields.multiCurrency ],
         Credit: [ fields.issuer, fields.name, fields.billingCycle, fields.paymentAccount, fields.paymentRemarks ],
-        Retirement: [ fields.singleAccountInfo, fields.cpfSlider, fields.ordinaryRatio, fields.specialRatio, fields.medisaveRatio, fields.cpfRatioError ],
+        Retirement: [ fields.singleAccountInfo, fields.cpfSlider ],
     };
 
-    const submitDisabled = () => type === 'Retirement' &&
-        (!!accounts.find(a => a.type === 'Retirement') || cpfAllocationInvalid());
+    const AccountTypeToggle = () => (
+        <ToggleButtonGroup
+            color="info"
+            value={type}
+            exclusive
+            fullWidth
+            onChange={(e, type) => setType(type)}
+            aria-label="account-type"
+        >
+            {[ 'Cash', 'Credit', 'Retirement' ].map((accountType) => (
+                <ToggleButton key={accountType} value={accountType} aria-label={accountType}>
+                    {accountType}
+                </ToggleButton>
+            ))}
+        </ToggleButtonGroup>
+    );
 
     return (
-        <form id="manage-accounts" onSubmit={submit} autoComplete="off">
+        <form onSubmit={submit} autoComplete="off">
             <Grid container item xs={12} md={5} direction="column" gap={2}>
                 <Typography variant="h6">
-                    Add New Account
+                    { !!accountToEdit ? 'Edit' : 'Add New' } Account
                 </Typography>
 
-                <ToggleButtonGroup
-                    color="info"
-                    value={type}
-                    exclusive
-                    fullWidth
-                    onChange={(e, type) => setType(type)}
-                    aria-label="account-type"
-                >
-                    {[ 'Cash', 'Credit', 'Retirement' ].map((accountType) => (
-                        <ToggleButton key={accountType} value={accountType} aria-label={accountType}>
-                            {accountType}
-                        </ToggleButton>
-                    ))}
-                </ToggleButtonGroup>
+                { !accountToEdit && <AccountTypeToggle /> }
 
                 { fieldMap[type] }
+
                 <Stack direction="row" gap={2}>
                     <LoadingButton
                         type="submit"
@@ -288,11 +225,15 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm }) => {
                         variant="contained"
                         disabled={submitDisabled()}
                     >
-                        Add Account
+                        { !!accountToEdit ? 'Edit' : 'Add' } Account
                     </LoadingButton>
                     <Button
+                        color="info"
                         variant="outlined"
-                        onClick={() => setShowForm(false)}
+                        onClick={() => {
+                            setAccountToEdit(undefined);
+                            setShowForm(false);
+                        }}
                     >
                         Cancel
                     </Button>

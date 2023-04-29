@@ -24,9 +24,9 @@ const FxRoot = styled.sup`
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
-const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
+const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit }) => {
     const { deleteAccount, editAccountVisibility, showStatus } = api();
-    const [ showConfirm, setShowConfirm ] = useState(false);
+    const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const [ accountId, setAccountId ] = useState();
     const colors = {
         'Cash': 'success',
@@ -42,11 +42,13 @@ const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
             (account.id !== id) ? account : { ...account, visible: event.target.checked }));
     });
 
+    const setEditAccountId = (eid) => setAccountToEdit(accounts.find(({ id }) => id === eid));
+
     const columns = [
         {
             field: 'visible',
             renderHeader: () => <VisibilityIcon sx={{ ml: '1rem' }} />,
-            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} onChange={(e) => updateVisibility(e, id)} />,
+            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} disabled={!!accountToEdit} onChange={(e) => updateVisibility(e, id)} />,
         },
         {
             field: 'type',
@@ -78,15 +80,22 @@ const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
             valueGetter: ({ row }) => row.transactions || 0,
         },
         {
+            field: 'edit', headerName: 'Edit',
+            sortable: false,
+            renderCell: ({ id }) => (
+                <Button size="small" variant="outlined" color="warning" disabled={!!accountToEdit} onClick={() => setEditAccountId(id)}>Edit</Button>
+            )
+        },
+        {
             field: 'delete', headerName: 'Delete',
             sortable: false,
             renderCell: ({ id }) => {
                 const confirm = (e) => {
                     e.stopPropagation();
                     setAccountId(id);
-                    setShowConfirm(true);
+                    setShowConfirmDelete(true);
                 };
-                return <Button size="small" variant="outlined" color="error" onClick={confirm}>Delete</Button>;
+                return <Button size="small" variant="outlined" color="error" disabled={!!accountToEdit} onClick={confirm}>Delete</Button>;
             }
         },
     ];
@@ -94,7 +103,7 @@ const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
     const submitDelete = () => deleteAccount(accountId, () => {
         setAccounts(accounts.filter(i => i.id !== accountId));
         showStatus('success', 'Account deleted');
-        setShowConfirm(false);
+        setShowConfirmDelete(false);
     });
 
     const Empty = () => (
@@ -124,8 +133,8 @@ const AccountsGrid = ({ issuers, accounts, setAccounts }) => {
                 <ConfirmDialog
                     title="Confirm delete account?"
                     message="All transactions under this account will be permanently deleted"
-                    open={showConfirm}
-                    setOpen={setShowConfirm}
+                    open={showConfirmDelete}
+                    setOpen={setShowConfirmDelete}
                     confirm={submitDelete}
                 />
             </>
