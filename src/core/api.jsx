@@ -83,6 +83,10 @@ const api = () => {
         suggestCategory: (input, callback) => apiCall(GET, `data/suggest-category?q=${input}`, callback),
         suggestCode: (input, callback) => apiCall(GET, `data/suggest-code?q=${input}`, callback),
         suggestCompany: (input, callback) => apiCall(GET, `data/suggest-company?q=${input}`, callback),
+        listTemplates: (callback) => apiCall(GET, 'template', callback),
+        addTemplates: (payload, callback) => apiCall(POST, 'template', callback, payload),
+        editTemplates: (payload, callback) => apiCall(PUT, 'template', callback, payload),
+        deleteTemplate: (id, callback) => apiCall(DELETE, `template/${id}`, callback),
     };
 };
 export default api;
