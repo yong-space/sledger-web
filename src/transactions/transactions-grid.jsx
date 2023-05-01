@@ -22,6 +22,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             return;
         }
         if (selectedAccount.id !== transactionsAccountId) {
+            setTransactions(undefined);
             listTransactions(selectedAccount.id, (response) => {
                 setTransactions(response);
                 setTansactionsAccountId(selectedAccount.id);
