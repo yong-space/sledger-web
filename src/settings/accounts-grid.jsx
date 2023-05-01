@@ -24,7 +24,7 @@ const FxRoot = styled.sup`
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
-const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit }) => {
+const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit, showForm }) => {
     const { deleteAccount, editAccountVisibility, showStatus } = api();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const [ accountId, setAccountId ] = useState();
@@ -44,11 +44,13 @@ const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccoun
 
     const setEditAccountId = (eid) => setAccountToEdit(accounts.find(({ id }) => id === eid));
 
+    const disableControls = showForm || !!accountToEdit;
+
     const columns = [
         {
             field: 'visible',
             renderHeader: () => <VisibilityIcon sx={{ ml: '1rem' }} />,
-            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} disabled={!!accountToEdit} onChange={(e) => updateVisibility(e, id)} />,
+            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} disabled={disableControls} onChange={(e) => updateVisibility(e, id)} />,
         },
         {
             field: 'type',
@@ -83,7 +85,7 @@ const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccoun
             field: 'edit', headerName: 'Edit',
             sortable: false,
             renderCell: ({ id }) => (
-                <Button size="small" variant="outlined" color="warning" disabled={!!accountToEdit} onClick={() => setEditAccountId(id)}>Edit</Button>
+                <Button size="small" variant="outlined" color="warning" disabled={disableControls} onClick={() => setEditAccountId(id)}>Edit</Button>
             )
         },
         {
@@ -95,7 +97,7 @@ const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccoun
                     setAccountId(id);
                     setShowConfirmDelete(true);
                 };
-                return <Button size="small" variant="outlined" color="error" disabled={!!accountToEdit} onClick={confirm}>Delete</Button>;
+                return <Button size="small" variant="outlined" color="error" disabled={disableControls} onClick={confirm}>Delete</Button>;
             }
         },
     ];

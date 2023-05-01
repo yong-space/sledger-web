@@ -18,7 +18,10 @@ const Accounts = () => {
         <>
             <Title>Accounts</Title>
             <Stack spacing={4} pb={3}>
-                <AccountsGrid {...{ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit }} />
+                <AccountsGrid
+                    showForm={showForm}
+                    {...{ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit }}
+                />
                 { showForm && <AccountsForm {...{ issuers, accounts, setAccounts, setShowForm, accountToEdit, setAccountToEdit }} /> }
                 { !showForm && (
                     <Stack direction="row">
