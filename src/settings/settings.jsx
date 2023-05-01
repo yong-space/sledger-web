@@ -1,13 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Profile from './profile';
+
 import Accounts from './accounts';
+import Templates from './templates';
 
 const Settings = () => {
     return (
         <Routes>
-            <Route path="profile" element={<Profile /> } />
             <Route path="accounts" element={<Accounts /> } />
-            <Route path="" element={<Navigate to="profile" />} />
+            <Route path="templates" element={<Templates /> } />
+            <Route path="" element={<Navigate to="accounts" />} />
         </Routes>
     );
 };

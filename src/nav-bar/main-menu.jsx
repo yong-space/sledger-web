@@ -45,9 +45,22 @@ const NavBar = () => {
     const theme = useTheme();
     const location = useLocation();
     const pages = [
-        { label: 'Dashboard', link: '/dash' },
-        { label: 'Transactions', link: '/tx' },
-        { label: 'Accounts', link: '/settings/accounts' },
+        {
+            label: 'Dashboard',
+            link: '/dash',
+        },
+        {
+            label: 'Transactions',
+            link: '/tx',
+        },
+        {
+            label: 'Settings',
+            link: '/settings',
+            children: [
+                { label: 'Accounts', link: '/settings/accounts' },
+                { label: 'Templates', link: '/settings/templates' },
+            ],
+        },
     ];
     const props = { pages, currentPath: location.pathname };
 

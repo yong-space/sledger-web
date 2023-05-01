@@ -37,14 +37,15 @@ const ProfileMenu = ({ currentPath }) => {
 
     const goto = (uri) => {
         setOpen(false);
-        navigate(`/settings/${uri}`);
+        navigate(uri);
     };
 
     const menuItems = [
         { uri: 'profile', label: 'Profile', icon: <FaceIcon fontSize="small" /> },
     ];
+
     if (session.admin) {
-        menuItems.push({ uri: '../admin', label: 'Admin', icon: <AccountBalanceWalletIcon fontSize="small" /> });
+        menuItems.push({ uri: 'admin', label: 'Admin', icon: <AccountBalanceWalletIcon fontSize="small" /> });
     }
 
     const ProfileMenuItem = ({ uri, label, icon }) => (
@@ -65,6 +66,7 @@ const ProfileMenu = ({ currentPath }) => {
                 aria-label="Profile Menu"
                 aria-controls="profile-menu"
                 aria-haspopup="true"
+                onMouseOver={() => setOpen(true)}
                 onClick={() => setOpen(true)}
                 variant={currentPath.indexOf('profile') > -1 ? 'contained' : 'text'}
             >
