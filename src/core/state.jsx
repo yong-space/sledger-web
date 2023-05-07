@@ -9,6 +9,7 @@ const state = () => ({
     selectedAccount: atom({ key: 'selectedAccount', default: undefined }),
     issuers: atom({ key: 'issuers', default: undefined }),
     transactions: atom({ key: 'transactions', default: undefined }),
+    templates: atom({ key: 'templates', default: undefined }),
     transactionsAccountId: atom({ key: 'transactionsAccountId', default: undefined }),
     selectedRows: atom({ key: 'selectedRows', default: [] }),
 });

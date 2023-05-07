@@ -1,16 +1,17 @@
 import { DataGrid } from '@mui/x-data-grid';
+import { HorizontalLoader } from '../core/loader';
 import { useState, useEffect } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import api from '../core/api';
 import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-import Title from '../core/title';
-import { HorizontalLoader } from '../core/loader';
 import ConfirmDialog from '../core/confirm-dialog';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import Stack from '@mui/material/Stack';
+import state from '../core/state';
+import Title from '../core/title';
 
 const Templates = () => {
-    const [ originalData, setOriginalData ] = useState();
+    const [ originalData, setOriginalData ] = state.useState(state.templates);
     const [ data, setData ] = useState();
     const [ selectedRows, setSelectedRows ] = useState([]);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
@@ -23,8 +24,12 @@ const Templates = () => {
         { field: 'category', headerName: 'Category', editable: true },
     ];
 
-    useEffect(() => listTemplates((response) => setOriginalData(response)), []);
-    useEffect(() => listTemplates((response) => setData(response)), [ originalData ]);
+    useEffect(() => {
+        if (!originalData) {
+            listTemplates((response) => setOriginalData(response));
+        }
+    }, []);
+    useEffect(() => setData(originalData), [ originalData ]);
 
     const postProcess = (oldRow, newRows, verb) => {
         setOriginalData((old) => ([
@@ -94,7 +99,7 @@ const Templates = () => {
                     columns={columns}
                     editMode="row"
                     processRowUpdate={editRow}
-                    onRowSelectionModelChange={(m) => setSelectedRows(m)}
+                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
                     rowSelectionModel={selectedRows}
                 />
             )}
