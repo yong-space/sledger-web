@@ -29,7 +29,7 @@ const ForeignCurrencyBar = styled.div`
     & :first-child { width: 8rem }
 `;
 
-const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }) => {
+const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransactionToEdit }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
     const theme = useTheme();
@@ -360,9 +360,9 @@ const AddTransactionDialog = ({ showAddDialog, setShowAddDialog, transactionToEd
 
     return (
         <Dialog
+            open
             fullWidth
             fullScreen={isMobile}
-            open={showAddDialog}
             aria-labelledby="add-transaction-dialog-title"
             aria-describedby="add-transaction-dialog-description"
         >

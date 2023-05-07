@@ -86,7 +86,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             density="compact"
             rows={transactions}
             columns={getColumns()}
-            onRowSelectionModelChange={(m) => setSelectedRows(m)}
+            onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
             rowSelectionModel={selectedRows}
             onRowDoubleClick={handleDoubleClick}
             columnVisibilityModel={visibleColumns}

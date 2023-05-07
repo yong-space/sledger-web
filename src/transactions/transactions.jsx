@@ -1,20 +1,17 @@
 import { HorizontalLoader } from '../core/loader';
-import { TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 import AccountSelector from './account-selector';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import AddTransactionDialog from './add-transaction-form';
-import api from '../core/api';
-import Button from '@mui/material/Button';
-import ConfirmDialog from '../core/confirm-dialog';
+import ActionButtons from './action-buttons';
 import dayjs from 'dayjs';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import Title from '../core/title';
 import TransactionsGrid from './transactions-grid';
+import TransactionsImport from './transactions-import';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Transactions = () => {
     dayjs.extend(minMax);
@@ -22,13 +19,13 @@ const Transactions = () => {
     const [ loading, setLoading ] = useState(true);
     const [ showAddDialog, setShowAddDialog ] = useState(false);
     const [ transactionToEdit, setTransactionToEdit ] = useState();
-    const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
-    const selectedRows = state.useState(state.selectedRows)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
+    const [ importMode, setImportMode ] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const location = useLocation();
     const navigate = useNavigate();
-    const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
     useEffect(() => {
@@ -62,73 +59,26 @@ const Transactions = () => {
         }
     }, [ accounts, selectedAccount ]);
 
-    const submitDelete = () => {
-        const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
-        const txDate = dayjs(transactions.filter((t) => t.id === selectedRows[0])[0].date);
-
-        deleteTransaction(selectedRows[0], () => {
-            setShowConfirmDelete(false);
-            if (txDate.isSame(maxDate)) {
-                setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
-                showStatus('success', 'Transaction deleted');
-            } else {
-                listTransactions(selectedAccount.id, (response) => {
-                    setTransactions(response);
-                    showStatus('success', 'Transaction deleted');
-                });
-            }
-            listAccounts((data) => setAccounts(data));
-        });
+    const actionProps = {
+        isMobile, transactions, setTransactions, setAccounts, showAddDialog,
+        setShowAddDialog, transactionToEdit, setTransactionToEdit, importMode, setImportMode,
     };
-
-    const AddDeleteButtons = ({ sx }) => (
-        <>
-            <Button
-                color="success"
-                variant="contained"
-                startIcon={<AddCircleOutlineIcon />}
-                onClick={() => setShowAddDialog(true)}
-                sx={{ ...sx, height: '2.5rem' }}
-            >
-                Add
-            </Button>
-            <Button
-                color="error"
-                variant="contained"
-                startIcon={<DeleteForeverIcon />}
-                onClick={() => setShowConfirmDelete(true)}
-                disabled={selectedRows.length === 0}
-                sx={{ ...sx, height: '2.5rem' }}
-            >
-                Delete
-            </Button>
-        </>
-    );
 
     return loading ? <HorizontalLoader /> : (
         <Stack spacing={1} height="98%">
             <Stack direction="row" justifyContent="space-between">
-                <Title>Transactions</Title>
-                <Stack direction="row" spacing={1} sx={{ display: 'flex' }}>
-                    <AddDeleteButtons sx={{ display: { sm: 'none' } }} />
-                </Stack>
+                <Title>Transactions { importMode && 'Import'}</Title>
+                { isMobile && <ActionButtons {...actionProps} />}
             </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="space-between">
-                <Stack direction="row" spacing={2} sx={{ width: { sm: '60%' } }}>
-                    <AccountSelector handleChange={({ target }) => navigate(`/tx/${target.value}`)} />
-                    <AddDeleteButtons sx={{ display: { xs: 'none', sm: 'flex' } }} />
-                </Stack>
-                <TextField placeholder="Search.." size="small" sx={{ justifySelf: 'flex-end' }} />
+            <Stack direction="row" spacing={1} justifyContent="space-between">
+                <AccountSelector disabled={importMode} handleChange={({ target }) => navigate(`/tx/${target.value}`)} />
+                { !isMobile && !importMode && <ActionButtons {...actionProps} /> }
             </Stack>
-            <TransactionsGrid {...{ setShowAddDialog, setTransactionToEdit }} />
-            { showAddDialog && <AddTransactionDialog {...{ showAddDialog, setShowAddDialog, transactionToEdit, setTransactionToEdit }} /> }
-            <ConfirmDialog
-                title="Confirm delete transaction?"
-                message="This is a permanent change"
-                open={showConfirmDelete}
-                setOpen={setShowConfirmDelete}
-                confirm={submitDelete}
-            />
+            { importMode ?
+                <TransactionsImport {...{ setImportMode }} /> :
+                <TransactionsGrid {...{ setShowAddDialog, setTransactionToEdit }} />
+            }
+
         </Stack>
     )
 };

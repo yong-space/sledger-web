@@ -13,7 +13,7 @@ const FxRoot = styled.sup`
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
-const AccountSelector = ({ handleChange }) => {
+const AccountSelector = ({ handleChange, disabled }) => {
     const issuers = state.useState(state.issuers)[0];
     const accounts = state.useState(state.accounts)[0];
     const selectedAccount = state.useState(state.selectedAccount)[0];
@@ -43,6 +43,7 @@ const AccountSelector = ({ handleChange }) => {
                 label="Account"
                 value={selectedAccount.id}
                 onChange={handleChange}
+                disabled={disabled}
                 renderValue={(selectedId) => {
                     const { name, type, issuerId, multiCurrency } = getVisibleAccounts().find((a) => a.id === selectedId);
                     return (
