@@ -38,7 +38,7 @@ const MobileMenu = ({ pages, currentPath }) => {
     );
 
     return (
-        <Box sx={{ display: { xs: "flex", md: "none" } }}>
+        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton size="large" onClick={() => setOpen(true)} aria-label="Menu">
                 <MenuIcon />
             </IconButton>

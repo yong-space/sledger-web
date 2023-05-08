@@ -75,8 +75,8 @@ const ProfileMenu = ({ currentPath }) => {
             <Menu
                 id="profile-menu"
                 anchorEl={() => document.querySelector('#avatar')}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                 open={open}
                 onClose={() => setOpen(false)}
             >

@@ -7,6 +7,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Session from './core/session';
 import StatusBar from './core/statusbar';
 import { CircularLoader } from './core/loader';
+import { registerSW } from 'virtual:pwa-register';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -16,21 +17,23 @@ import './index.css';
 
 const darkTheme = createTheme({
     palette: {
-        mode: "dark",
+        mode: 'dark',
         primary: {
-            main: "#375a7f",
-            dark: "#375a7f",
+            main: '#375a7f',
+            dark: '#375a7f',
         },
         success: {
-            main: "#388e3c",
-            dark: "#388e3c",
+            main: '#388e3c',
+            dark: '#388e3c',
         },
         error: {
-            main: "#d32f2f",
-            dark: "#d32f2f",
+            main: '#d32f2f',
+            dark: '#d32f2f',
         },
     },
 });
+
+registerSW({ immediate: true });
 
 const Index = () => (
   <RecoilRoot>
@@ -46,4 +49,4 @@ const Index = () => (
   </RecoilRoot>
 );
 
-createRoot(document.querySelector("#root")).render(<Index />);
+createRoot(document.querySelector('#root')).render(<Index />);

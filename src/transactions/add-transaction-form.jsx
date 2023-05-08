@@ -346,7 +346,7 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
                         loading={loading}
                         loadingPosition="center"
                         variant="contained"
-                        color={transactionToEdit ? "warning" : "success"}
+                        color={transactionToEdit ? 'warning' : 'success'}
                     >
                         { transactionToEdit ? 'Edit' : 'Add' } Transaction
                     </LoadingButton>

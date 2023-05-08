@@ -26,7 +26,7 @@ const DesktopMenu = ({ pages, currentPath }) => {
     };
 
     return (
-        <Box sx={{ flexGrow: 1, gap: 1, display: { xs: "none", md: "flex" } }}>
+        <Box sx={{ flexGrow: 1, gap: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map(({ label, link, children }) => {
                 const buttonProps = !children ? {} : {
                     id: `${link.substring(1)}-button`,
@@ -49,8 +49,8 @@ const DesktopMenu = ({ pages, currentPath }) => {
                             <Menu
                                 id={`${link.substring(1)}-menu`}
                                 anchorEl={() => document.querySelector(`#${link.substring(1)}-button`)}
-                                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                 open={openMenu === link}
                                 onClose={() => setOpenMenu(undefined)}
                             >
