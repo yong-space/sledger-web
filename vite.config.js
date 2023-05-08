@@ -3,6 +3,20 @@ import { VitePWA } from 'vite-plugin-pwa';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+    base: './',
+    build: {
+        target: 'esnext',
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    lab: [ '@mui/lab' ],
+                    material: [ '@mui/material' ],
+                    grid: [ '@mui/x-data-grid' ],
+                    date: [ '@mui/x-date-pickers' ],
+                }
+            },
+        },
+    },
     plugins: [
         react(),
         VitePWA({
