@@ -14,8 +14,18 @@ const Admin = lazy(() => import('../admin/admin'));
 const NotFound = lazy(() => import('./not-found'));
 
 const Root = styled(Container)`
+    display: flex;
+    flex: 1 1 1px;
     height: 100%;
     padding-top: 5rem;
+`;
+
+const Content = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 1px;
+    gap: .5rem;
+    margin-bottom: .8rem;
 `;
 
 const App = () => {
@@ -35,17 +45,19 @@ const App = () => {
     return issuers && accounts && (
         <Root>
             <NavBar />
-            <Routes>
-                <Route path="dash/*" element={<Dashboard />} />
-                <Route path="tx/*" element={<Transactions /> } />
-                <Route path="admin/*" element={<Admin /> } />
-                <Route path="settings/*" element={<Settings /> } />
-                <Route path="profile" element={<Profile /> } />
-                <Route path="/" element={<Navigate to="/dash" />} />
-                <Route path="register" element={<Navigate to="/dash" /> } />
-                <Route path="login" element={<Navigate to="/dash" /> } />
-                <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Content>
+                <Routes>
+                    <Route path="dash/*" element={<Dashboard />} />
+                    <Route path="tx/*" element={<Transactions /> } />
+                    <Route path="admin/*" element={<Admin /> } />
+                    <Route path="settings/*" element={<Settings /> } />
+                    <Route path="profile" element={<Profile /> } />
+                    <Route path="/" element={<Navigate to="/dash" />} />
+                    <Route path="register" element={<Navigate to="/dash" /> } />
+                    <Route path="login" element={<Navigate to="/dash" /> } />
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </Content>
         </Root>
     );
 };

@@ -80,7 +80,6 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
     return !transactions ? <HorizontalLoader /> : (
         <DataGrid
-            autoHeight
             disableColumnMenu
             showColumnRightBorder
             density="compact"
@@ -90,6 +89,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             rowSelectionModel={selectedRows}
             onRowDoubleClick={handleDoubleClick}
             columnVisibilityModel={visibleColumns}
+            style={{ height: '45vh' }}
         />
     );
 };
