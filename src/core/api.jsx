@@ -33,7 +33,9 @@ const api = () => {
                     throw new Error('Your session has expired. Please login again.');
                 }
             }
-            throw new Error((await response.json()).detail);
+            const error = await response.json();
+            const message = error.detail || error.error || error.status;
+            throw new Error(`Error: ${message}`);
         }
     };
 
@@ -45,13 +47,16 @@ const api = () => {
     };
 
     const apiCall = (method, uri, callback, body) => {
-        const headers = { 'Content-Type': 'application/json' };
+        const headers = {};
+        if (!(body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+        }
         if (session?.token && [ 'register', 'authenticate' ].indexOf(uri) === -1) {
-            headers.Authorization = 'Bearer ' + session.token;
+            headers['Authorization'] = 'Bearer ' + session.token;
         }
         const config = { method, headers };
         if (body) {
-            config.body = JSON.stringify(body);
+            config.body = body instanceof FormData ? body : JSON.stringify(body);
         }
         fetch(`${apiRoot}/api/${uri}`, config)
             .then(process).then(callback).catch(handleError);
@@ -77,6 +82,7 @@ const api = () => {
         deleteAccount: (id, callback) => apiCall(DELETE, `account/${id}`, callback),
         listTransactions: (id, callback) => apiCall(GET, `transaction/${id}`, callback),
         addTransaction: (payload, callback) => apiCall(POST, 'transaction', callback, payload),
+        addTransactions: (accountId, payload, callback) => apiCall(POST, `transaction/${accountId}`, callback, payload),
         editTransaction: (payload, callback) => apiCall(PUT, 'transaction', callback, payload),
         deleteTransaction: (id, callback) => apiCall(DELETE, `transaction/${id}`, callback),
         suggestRemarks: (input, callback) => apiCall(GET, `data/suggest-remarks?q=${input}`, callback),
@@ -87,6 +93,7 @@ const api = () => {
         addTemplates: (payload, callback) => apiCall(POST, 'template', callback, payload),
         editTemplates: (payload, callback) => apiCall(PUT, 'template', callback, payload),
         deleteTemplate: (id, callback) => apiCall(DELETE, `template/${id}`, callback),
+        uploadImport: (payload, callback) => apiCall(POST, 'import', callback, payload),
     };
 };
 export default api;

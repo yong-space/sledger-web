@@ -16,8 +16,10 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 const Transactions = () => {
     dayjs.extend(minMax);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
+    const issuers = state.useState(state.issuers)[0];
     const [ loading, setLoading ] = useState(true);
     const [ showAddDialog, setShowAddDialog ] = useState(false);
+    const [ canImport, setCanImport ] = useState(false);
     const [ transactionToEdit, setTransactionToEdit ] = useState();
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
     const [ transactions, setTransactions ] = state.useState(state.transactions);
@@ -57,15 +59,16 @@ const Transactions = () => {
         if (selectedAccount && getVisibleAccounts().find(a => a.id === selectedAccount.id)) {
             setLoading(false);
         }
+        setCanImport(issuers.find(({ id }) => id === selectedAccount?.issuerId)?.canImport);
     }, [ accounts, selectedAccount ]);
 
     const actionProps = {
         isMobile, transactions, setTransactions, setAccounts, showAddDialog,
-        setShowAddDialog, transactionToEdit, setTransactionToEdit, importMode, setImportMode,
+        setShowAddDialog, transactionToEdit, setTransactionToEdit, setImportMode, canImport,
     };
 
     return loading ? <HorizontalLoader /> : (
-        <Stack spacing={1} height="98%">
+        <>
             <Stack direction="row" justifyContent="space-between">
                 <Title>Transactions { importMode && 'Import'}</Title>
                 { isMobile && <ActionButtons {...actionProps} />}
@@ -75,11 +78,10 @@ const Transactions = () => {
                 { !isMobile && !importMode && <ActionButtons {...actionProps} /> }
             </Stack>
             { importMode ?
-                <TransactionsImport {...{ setImportMode }} /> :
+                <TransactionsImport {...{ setImportMode, selectedAccount }} /> :
                 <TransactionsGrid {...{ setShowAddDialog, setTransactionToEdit }} />
             }
-
-        </Stack>
+        </>
     )
 };
 export default Transactions;

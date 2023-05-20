@@ -1,4 +1,9 @@
-html, body, #root { height: 100%; background-color: #121212; }
+html, body, #root {
+    height: 100%;
+    background-color: #121212;
+    display: flex;
+    flex: 1 1 1px;
+}
 #root > header + * { padding-top: 5rem; height: 100% }
 a, a:active, a:visited { color: white; text-decoration: none }
 button.MuiButton-containedSuccess { color: #fff; }

@@ -69,7 +69,6 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
                     disableColumnMenu
                     showColumnRightBorder
                     hideFooter
-
                 />
                 <ConfirmDialog
                     title="Confirm delete issuer?"

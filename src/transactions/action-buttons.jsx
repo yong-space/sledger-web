@@ -25,10 +25,11 @@ const ActionIconButton = styled(IconButton)`
 
 const ActionButtons = ({
     isMobile, transactions, setTransactions, setAccounts, showAddDialog,
-    setShowAddDialog, transactionToEdit, setTransactionToEdit, importMode, setImportMode,
+    setShowAddDialog, transactionToEdit, setTransactionToEdit, setImportMode, canImport,
 }) => {
     const theme = useTheme();
     const selectedRows = state.useState(state.selectedRows)[0];
+    const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const ButtonComponent = isMobile ? ActionIconButton : ActionButton;
@@ -75,7 +76,7 @@ const ActionButtons = ({
                 </ButtonComponent>
             )}
 
-            { useMediaQuery(theme.breakpoints.up('md')) && (
+            { useMediaQuery(theme.breakpoints.up('md')) && canImport && (
                 <ButtonComponent
                     color="info"
                     variant="contained"
