@@ -47,7 +47,7 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm, accountToEd
         setAccounts(data);
         setLoading(false);
         setAccountToEdit(undefined);
-        showStatus('success', editAccount ? 'Account edited' : 'New account added');
+        showStatus('success', accountToEdit ? 'Account edited' : 'New account added');
     });
 
     const submit = (event) => {
