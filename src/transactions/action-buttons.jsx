@@ -28,6 +28,7 @@ const ActionButtons = ({
     setShowAddDialog, transactionToEdit, setTransactionToEdit, setImportMode, canImport,
 }) => {
     const theme = useTheme();
+    const setLoading = state.useState(state.loading)[1];
     const selectedRows = state.useState(state.selectedRows)[0];
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
@@ -36,18 +37,22 @@ const ActionButtons = ({
     const startIcon = (startIcon) => isMobile ? {} : { startIcon };
 
     const submitDelete = () => {
+        setLoading(true);
         const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
         const txDate = dayjs(transactions.filter((t) => t.id === selectedRows[0])[0].date);
 
         deleteTransaction(selectedRows[0], () => {
-            setShowConfirmDelete(false);
             if (txDate.isSame(maxDate)) {
                 setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
                 showStatus('success', 'Transaction deleted');
+                setLoading(false);
+                setShowConfirmDelete(false);
             } else {
                 listTransactions(selectedAccount.id, (response) => {
                     setTransactions(response);
                     showStatus('success', 'Transaction deleted');
+                    setLoading(false);
+                    setShowConfirmDelete(false);
                 });
             }
             listAccounts((data) => setAccounts(data));
