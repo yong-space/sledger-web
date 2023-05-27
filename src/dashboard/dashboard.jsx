@@ -2,7 +2,6 @@ import { HorizontalLoader } from '../core/loader';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
@@ -19,43 +18,25 @@ const DashRoot = styled(Stack)`
 
 const Wrapper = styled.div`
     display: flex;
+    flex-direction: column;
 `;
 
-const Table = styled.div`
-    display: grid;
-    grid-template-columns: repeat(3, auto);
+const Table = styled.table`
     background: #222;
     border-radius: .5rem;
-    padding: .3rem;
-    overflow: hidden;
-`;
-
-const Cell = styled.div`
-    padding: .8rem;
-    border-top: 1px solid #666;
-    :nth-child(3n+1) { width: 15vw; text-overflow: ellipsis; overflow: hidden }
-    :nth-child(3n+2) { width: 20vw }
-    :nth-child(3n+3) { width: 10vw; text-align: right; padding-right: 1.5rem; }
-    :nth-child(-n+3) {
-        font-weight: 800;
-        border-top: none;
+    margin: 0;
+    border-collapse: collapse;
+    thead tr, tbody tr:not(:last-child) {
+        border-bottom: 1px solid #666;
     }
-    :not(:nth-child(-n+3)) {
-        cursor: pointer;
+    tbody tr { cursor: pointer }
+    th, td {
+        text-align: left;
+        padding: .8rem 1.2rem;
     }
-    ${props => props.theme.breakpoints.down("md")} {
-        :nth-child(3n+1) { width: 25vw }
-        :nth-child(3n+2) { width: 40vw }
-        :nth-child(3n+3) { width: 26vw; padding-right: 1rem; }
-    }
-`;
-
-const SummaryCell = styled(Cell)`
-    :nth-child(1) { width: 35vw }
-    :nth-child(2) { width: 10vw; text-align: right; padding-right: 1.5rem; }
-    ${props => props.theme.breakpoints.down("md")} {
-        :nth-child(1) { width: 70vw }
-        :nth-child(2) { width: 21vw; padding-right: 1rem; }
+    td:first-child { font-weight: 800 }
+    th:last-child, td:last-child {
+        text-align: right;
     }
 `;
 
@@ -103,22 +84,30 @@ const Dashboard = () => {
         (type === 'Credit' && header === 'Account') ? 'Card' : header;
 
     const SummaryGrid = ({ label, data }) => data.length > 0 && (
-        <Box>
-            <SubTitle>{label}</SubTitle>
-            <Wrapper>
-                <Table>
-                    { columns.map(({ field, headerName }) => (
-                        <Cell key={field}>{getHeaderLabel(data[0].type, headerName)}</Cell>
+        <Wrapper>
+            <SubTitle mb={5}>{label}</SubTitle>
+            <Table>
+                <thead>
+                    <tr>
+                        { columns.map(({ field, headerName }) => (
+                            <th key={field}>{getHeaderLabel(data[0].type, headerName)}</th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    { data.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                            { columns.map((column) => (
+                                <td key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
+                                    { getValue(column, row, rowIndex) }
+                                    { column.field === 'name' && row.multiCurrency && <sup>FX</sup> }
+                                </td>
+                            )) }
+                        </tr>
                     ))}
-                    { data.map((row, rowIndex) => columns.map((column) => (
-                        <Cell key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
-                            { getValue(column, row, rowIndex) }
-                            { column.field === 'name' && row.multiCurrency && <sup>FX</sup> }
-                        </Cell>
-                    )))}
-                </Table>
-            </Wrapper>
-        </Box>
+                </tbody>
+            </Table>
+        </Wrapper>
     );
 
     const CpfSummaryGrid = () => {
@@ -148,18 +137,14 @@ const Dashboard = () => {
 
     const TotalNetWorth = () => {
         return (
-            <Box>
-                <Wrapper>
-                    <Table>
-                        <SummaryCell>
-                            Total Net Worth
-                        </SummaryCell>
-                        <SummaryCell>
-                            { formatNumber(netWorth) }
-                        </SummaryCell>
-                    </Table>
-                </Wrapper>
-            </Box>
+            <Wrapper>
+                <Table>
+                    <tr>
+                        <td>Total Net Worth</td>
+                        <td>{ formatNumber(netWorth) }</td>
+                    </tr>
+                </Table>
+            </Wrapper>
         );
     };
 
