@@ -8,7 +8,14 @@ import ConfirmDialog from '../core/confirm-dialog';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
+import styled from 'styled-components';
 import Title from '../core/title';
+
+const GridBox = styled.div`
+    flex: 1 1 1px;
+    width: calc(100vw - 3rem);
+    padding-bottom: 1rem;
+`;
 
 const Templates = () => {
     const [ originalData, setOriginalData ] = state.useState(state.templates);
@@ -64,7 +71,7 @@ const Templates = () => {
     };
 
     return (
-        <Stack spacing={1} height="98%">
+        <Stack spacing={1} sx={{ flex: '1 1 1px' }}>
             <Stack direction="row" justifyContent="space-between">
                 <Title>Templates</Title>
                 <Stack spacing={2} direction="row">
@@ -90,18 +97,18 @@ const Templates = () => {
                 </Stack>
             </Stack>
             { !data ? <HorizontalLoader /> : (
-                <DataGrid
-                    autoHeight
-                    disableColumnMenu
-                    showColumnRightBorder
-                    density="compact"
-                    rows={data}
-                    columns={columns}
-                    editMode="row"
-                    processRowUpdate={editRow}
-                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
-                    rowSelectionModel={selectedRows}
-                />
+                <GridBox>
+                    <DataGrid
+                        disableColumnMenu
+                        density="compact"
+                        rows={data}
+                        columns={columns}
+                        editMode="row"
+                        processRowUpdate={editRow}
+                        onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
+                        rowSelectionModel={selectedRows}
+                    />
+                </GridBox>
             )}
             <ConfirmDialog
                 title="Confirm delete template?"

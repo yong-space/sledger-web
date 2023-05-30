@@ -8,10 +8,18 @@ import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
+import styled from 'styled-components';
 import Title from '../core/title';
 import TransactionsGrid from './transactions-grid';
 import TransactionsImport from './transactions-import';
 import useMediaQuery from '@mui/material/useMediaQuery';
+
+const TransactionsRoot = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1 1 1px;
+`;
 
 const Transactions = () => {
     dayjs.extend(minMax);
@@ -68,7 +76,7 @@ const Transactions = () => {
     };
 
     return loading ? <HorizontalLoader /> : (
-        <>
+        <TransactionsRoot>
             <Stack direction="row" justifyContent="space-between">
                 <Title>Transactions { importMode && 'Import'}</Title>
                 { isMobile && <ActionButtons {...actionProps} />}
@@ -81,7 +89,7 @@ const Transactions = () => {
                 <TransactionsImport {...{ setImportMode, selectedAccount }} /> :
                 <TransactionsGrid {...{ setShowAddDialog, setTransactionToEdit }} />
             }
-        </>
+        </TransactionsRoot>
     )
 };
 export default Transactions;

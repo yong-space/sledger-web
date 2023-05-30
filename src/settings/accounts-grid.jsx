@@ -2,7 +2,6 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useState } from 'react';
 import Alert from '@mui/material/Alert';
 import api from '../core/api';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import ConfirmDialog from '../core/confirm-dialog';
@@ -125,6 +124,7 @@ const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccoun
             <>
                 { accounts.filter(a => a.visible).length === 0 && <NoVisible /> }
                 <DataGrid
+                    sx={{ maxWidth: 'calc(100vw - 3rem)' }}
                     rows={accounts}
                     columns={columns}
                     autoHeight
@@ -141,6 +141,6 @@ const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccoun
                 />
             </>
         );
-    return <Box><AccountsDataGrid /></Box>;
+    return <AccountsDataGrid />;
 };
 export default AccountsGrid;

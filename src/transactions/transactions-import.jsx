@@ -15,10 +15,11 @@ const ImportRoot = styled.div`
     flex-direction: column;
     flex: 1 1 1px;
     gap: 1rem;
+    padding-bottom: 1rem;
 `;
 
 const ImportGridRoot = styled.div`
-    height: calc(100vh - 15.6rem);
+    height: calc(100vh - 16.8rem);
 `;
 
 const ImportZone = styled.div`
@@ -134,13 +135,14 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                     color="info"
                     variant="contained"
                     onClick={submitTransactions}
-                    disabled={!importTransactions}
+                    disabled={!importTransactions || loading}
                 >
                     Import Transactions
                 </Button>
                 <Button
                     variant="contained"
                     onClick={() => setImportMode(false)}
+                    disabled={loading}
                 >
                     Cancel
                 </Button>

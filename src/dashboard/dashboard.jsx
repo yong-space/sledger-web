@@ -10,7 +10,10 @@ import SubTitle from '../core/sub-title';
 import Title from '../core/title';
 
 const DashRoot = styled(Stack)`
-    width: 45vw;
+    width: 35vw;
+    ${props => props.theme.breakpoints.down("lg")} {
+        width: 45vw;
+    }
     ${props => props.theme.breakpoints.down("md")} {
         width: 100%;
     }
@@ -139,10 +142,12 @@ const Dashboard = () => {
         return (
             <Wrapper>
                 <Table>
-                    <tr>
-                        <td>Total Net Worth</td>
-                        <td>{ formatNumber(netWorth) }</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>Total Net Worth</td>
+                            <td>{ formatNumber(netWorth) }</td>
+                        </tr>
+                    </tbody>
                 </Table>
             </Wrapper>
         );

@@ -20,6 +20,12 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 
+const GridBox = styled.div`
+    flex: 1 1 1px;
+    width: calc(100vw - 3rem);
+    padding-bottom: 1rem;
+`;
+
 const ColourTextField = styled(TextField)`
     & * { color: #${props => props.colour} !important }
     & fieldset { border-color: #${props => props.colour} !important }
@@ -62,14 +68,14 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
         <Alert severity="info" variant="outlined">No issuers added yet</Alert> :
         (
             <>
-                <DataGrid
-                    rows={issuers}
-                    columns={columns}
-                    autoHeight
-                    disableColumnMenu
-                    showColumnRightBorder
-                    hideFooter
-                />
+                <GridBox>
+                    <DataGrid
+                        rows={issuers}
+                        columns={columns}
+                        disableColumnMenu
+                        hideFooter
+                    />
+                </GridBox>
                 <ConfirmDialog
                     title="Confirm delete issuer?"
                     message="This is a permanent change"

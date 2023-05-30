@@ -1,11 +1,19 @@
 import { DataGrid } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
 import { useEffect, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
 import dayjs from 'dayjs';
 import state from '../core/state';
-import { useTheme } from '@mui/material/styles';
+import styled from 'styled-components';
 import useMediaQuery from '@mui/material/useMediaQuery';
+
+const GridBox = styled.div`
+    flex: 1 1 1px;
+    height: 10vh;
+    width: calc(100vw - 3rem);
+    padding-bottom: 1rem;
+`;
 
 const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const theme = useTheme();
@@ -79,18 +87,18 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     };
 
     return !transactions ? <HorizontalLoader /> : (
-        <DataGrid
-            disableColumnMenu
-            showColumnRightBorder
-            density="compact"
-            rows={transactions}
-            columns={getColumns()}
-            onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
-            rowSelectionModel={selectedRows}
-            onRowDoubleClick={handleDoubleClick}
-            columnVisibilityModel={visibleColumns}
-            style={{ height: '45vh' }}
-        />
+        <GridBox>
+            <DataGrid
+                disableColumnMenu
+                density="compact"
+                rows={transactions}
+                columns={getColumns()}
+                onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
+                rowSelectionModel={selectedRows}
+                onRowDoubleClick={handleDoubleClick}
+                columnVisibilityModel={visibleColumns}
+            />
+        </GridBox>
     );
 };
 export default TransactionsGrid;

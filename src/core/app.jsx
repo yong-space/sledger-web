@@ -1,7 +1,6 @@
 import { lazy, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import api from './api';
-import Container from '@mui/material/Container';
 import NavBar from '../nav-bar/main-menu';
 import Settings from '../settings/settings';
 import state from './state';
@@ -13,11 +12,12 @@ const Profile = lazy(() => import('../settings/profile'));
 const Admin = lazy(() => import('../admin/admin'));
 const NotFound = lazy(() => import('./not-found'));
 
-const Root = styled(Container)`
+const Root = styled.div`
     display: flex;
+    flex-direction: column;
     flex: 1 1 1px;
-    height: 100%;
-    padding-top: 5rem;
+    min-height: 100%;
+    padding: 5rem 1.5rem 0 1.5rem;
 `;
 
 const Content = styled.div`
@@ -25,7 +25,6 @@ const Content = styled.div`
     flex-direction: column;
     flex: 1 1 1px;
     gap: .5rem;
-    margin-bottom: .8rem;
 `;
 
 const App = () => {
