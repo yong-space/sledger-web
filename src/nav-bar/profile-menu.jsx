@@ -14,6 +14,11 @@ import MenuItem from '@mui/material/MenuItem';
 import state from '../core/state';
 import styled from 'styled-components';
 
+const FloatingMenu = styled(Menu)`
+    pointer-events: none;
+    .MuiPaper-root { pointer-events: all }
+`;
+
 const NavButton = styled(Button)`
     color: #fff;
     background-color: ${props => props.variant === 'contained' ? '#28415b' : 'transparent'};
@@ -66,19 +71,22 @@ const ProfileMenu = ({ currentPath }) => {
                 aria-label="Profile Menu"
                 aria-controls="profile-menu"
                 aria-haspopup="true"
+                onClick={() => open ? goto('profile') : setOpen(true)}
                 onMouseOver={() => setOpen(true)}
-                onClick={() => setOpen(true)}
+                onMouseLeave={(e) => (e.relatedTarget.attributes.role?.value !== 'menu') && setOpen(false)}
                 variant={currentPath.indexOf('profile') > -1 ? 'contained' : 'text'}
             >
                 { session.name }
             </NavButton>
-            <Menu
+            <FloatingMenu
                 id="profile-menu"
                 anchorEl={() => document.querySelector('#avatar')}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                 open={open}
-                onClose={() => setOpen(false)}
+                MenuListProps={{
+                    onMouseLeave: () => setOpen(false),
+                }}
             >
                 { menuItems.map((item) => <ProfileMenuItem key={item.uri} {...item} />) }
                 <Divider />
@@ -88,7 +96,7 @@ const ProfileMenu = ({ currentPath }) => {
                     </ListItemIcon>
                     <ListItemText>Logout</ListItemText>
                 </MenuItem>
-            </Menu>
+            </FloatingMenu>
         </>
     );
 };
