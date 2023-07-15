@@ -8,6 +8,11 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import styled from 'styled-components';
 
+const FloatingMenu = styled(Menu)`
+    pointer-events: none;
+    .MuiPaper-root { pointer-events: all }
+`;
+
 const NavButton = styled(Button)`
     color: #fff;
     padding: .4rem .8rem;
@@ -33,7 +38,8 @@ const DesktopMenu = ({ pages, currentPath }) => {
                     'aria-label': label,
                     'aria-controls': `${link.substring(1)}-menu`,
                     'aria-haspopup': true,
-                    onMouseOver: () => setOpenMenu(link)
+                    onMouseOver: () => setOpenMenu(link),
+                    onMouseLeave: (e) => (e.relatedTarget.attributes.role?.value !== 'menu') && setOpenMenu(undefined),
                 };
                 return (
                     <Fragment key={link}>
@@ -42,24 +48,27 @@ const DesktopMenu = ({ pages, currentPath }) => {
                             to={link}
                             variant={getVariant(currentPath, link)}
                             {...buttonProps}
+                            onClick={() => setOpenMenu(undefined)}
                         >
                             {label}
                         </NavButton>
                         { children && (
-                            <Menu
+                            <FloatingMenu
                                 id={`${link.substring(1)}-menu`}
                                 anchorEl={() => document.querySelector(`#${link.substring(1)}-button`)}
                                 anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                                 transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                 open={openMenu === link}
-                                onClose={() => setOpenMenu(undefined)}
+                                MenuListProps={{
+                                    onMouseLeave: () => setOpenMenu(undefined),
+                                }}
                             >
                                 { children.map((item) => (
                                     <MenuItem key={item.link} onClick={() => goto(item.link)}>
                                         <ListItemText>{item.label}</ListItemText>
                                     </MenuItem>
                                 ))}
-                            </Menu>
+                            </FloatingMenu>
                         )}
                     </Fragment>
                 );
