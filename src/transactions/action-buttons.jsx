@@ -10,7 +10,6 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import IconButton from '@mui/material/IconButton';
 import PublishIcon from '@mui/icons-material/Publish';
-import SearchIcon from '@mui/icons-material/Search';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
@@ -22,6 +21,9 @@ const ActionButton = styled(Button)`
 
 const ActionIconButton = styled(IconButton)`
     height: 2.5rem;
+    color: ${props => props.theme.palette[props.color].contrastText};
+    background-color: ${props => props.theme.palette[props.color].main};
+    &:hover { background-color: ${props => props.theme.palette[props.color].dark} }
 `;
 
 const ActionButtons = ({
@@ -69,6 +71,7 @@ const ActionButtons = ({
         <Stack direction="row" spacing={1}>
             { selectedRows.length === 0 && (
                 <ButtonComponent
+                    theme={theme}
                     color="success"
                     variant="contained"
                     onClick={() => setShowAddDialog(true)}
@@ -80,6 +83,7 @@ const ActionButtons = ({
 
             { selectedRows.length === 1 && (
                 <ButtonComponent
+                    theme={theme}
                     color="warning"
                     variant="contained"
                     onClick={editTransaction}
@@ -91,6 +95,7 @@ const ActionButtons = ({
 
             { selectedRows.length > 0 && (
                 <ButtonComponent
+                    theme={theme}
                     color="error"
                     variant="contained"
                     onClick={() => setShowConfirmDelete(true)}
@@ -102,6 +107,7 @@ const ActionButtons = ({
 
             { useMediaQuery(theme.breakpoints.up('md')) && canImport && (
                 <ButtonComponent
+                    theme={theme}
                     color="info"
                     variant="contained"
                     onClick={() => setImportMode(true)}
@@ -110,14 +116,6 @@ const ActionButtons = ({
                     Import
                 </ButtonComponent>
             )}
-
-            <ButtonComponent
-                variant="contained"
-                {...startIcon(<SearchIcon />)}
-                disabled
-            >
-                { isMobile ? <SearchIcon /> : 'Search' }
-            </ButtonComponent>
 
             { showAddDialog && (
                 <AddTransactionDialog {...{ setShowAddDialog, transactionToEdit, setTransactionToEdit }} />
