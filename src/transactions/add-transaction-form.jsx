@@ -35,8 +35,8 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ side, setSide ] = useState();
-    const [ date, setDate ] = useState('');
-    const [ month, setMonth ] = useState('');
+    const [ date, setDate ] = useState(dayjs().utc().startOf('day'));
+    const [ month, setMonth ] = useState(dayjs().utc().startOf('day'));
     const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || '');
     const [ currency, setCurrency ] = useState('');
     const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || '');
@@ -168,6 +168,7 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
                 key="date"
                 label="Date"
                 value={date}
+                format="YYYY-MM-DD"
                 onChange={(newValue) => setDate(newValue)}
                 slotProps={{ textField: { variant: 'outlined' } }}
             />
@@ -175,9 +176,11 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
         month: (
             <DatePicker
                 key="month"
+                openTo="month"
                 views={[ 'year', 'month' ]}
                 label={`${selectedAccount.type === 'Credit' ? 'Billing' : 'For'} Month`}
                 value={month}
+                format="YYYY MMM"
                 onChange={(newValue) => setMonth(newValue)}
                 slotProps={{ textField: { variant: 'outlined' } }}
             />
@@ -336,7 +339,7 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
     const addTransactionForm = (
         <form onSubmit={submit} autoComplete="off">
             <Stack spacing={2} mt={1}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
                     { fieldMap[selectedAccount.type + (selectedAccount.multiCurrency ? 'FX' : '')] }
                 </LocalizationProvider>
 
