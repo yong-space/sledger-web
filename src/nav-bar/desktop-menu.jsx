@@ -39,7 +39,7 @@ const DesktopMenu = ({ pages, currentPath }) => {
                     'aria-controls': `${link.substring(1)}-menu`,
                     'aria-haspopup': true,
                     onMouseOver: () => setOpenMenu(link),
-                    onMouseLeave: (e) => (e.relatedTarget.attributes.role?.value !== 'menu') && setOpenMenu(undefined),
+                    onMouseLeave: (e) => (e.relatedTarget.attributes?.role?.value !== 'menu') && setOpenMenu(undefined),
                 };
                 return (
                     <Fragment key={link}>
