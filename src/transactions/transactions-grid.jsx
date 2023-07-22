@@ -9,10 +9,9 @@ import styled from 'styled-components';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const GridBox = styled.div`
+    display: flex;
     flex: 1 1 1px;
-    height: 10vh;
-    width: calc(100vw - 3rem);
-    padding-bottom: 1rem;
+    margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
 `;
 
 const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
@@ -41,8 +40,11 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     }, [ selectedAccount ]);
 
     useEffect(() => {
-        const vColumns = !isMobile ? { amount: false } :
-            { id: false, credit: false, debit: false, remarks: false, fx: false, code: false, forMonth: false, ordinaryAmount: false, specialAmount: false, medisaveAmount: false };
+        const vColumns = !isMobile ? { amount: false } : {
+            id: false, credit: false, debit: false, category: false, balance: false,
+            fx: false, originalAmount: false, code: false, forMonth: false, billingMonth: false,
+            ordinaryAmount: false, specialAmount: false, medisaveAmount: false
+        };
         setVisibleColumns(vColumns);
     }, [ isMobile ]);
 
@@ -58,12 +60,12 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
     const columns = {
         id: { flex: 1, field: 'id', headerName: 'ID' },
-        date: { flex: 2, field: 'date', headerName: 'Date', type: 'date', valueGetter: getDate, valueFormatter: formatDate },
+        date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueGetter: getDate, valueFormatter: formatDate },
         billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', valueFormatter: formatMonth },
         forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', valueFormatter: formatMonth },
         credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
         debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
-        amount: { flex: 2, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
+        amount: { flex: 2.5, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
         originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber },
         fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: getFx },
         balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatNumber },
@@ -94,10 +96,15 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         paginationModel ? n : { ...n, page: Math.floor(transactions.length / n.pageSize) }
     );
 
+    const maxGridSize = {
+        maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 13.2 : 14}rem)`,
+    };
+
     return !transactions ? <HorizontalLoader /> : (
-        <GridBox>
+        <GridBox isMobile={isMobile}>
             <DataGrid
-                checkboxSelection
+                checkboxSelection={!isMobile}
                 density="compact"
                 rows={transactions}
                 columns={getColumns()}
@@ -108,6 +115,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
                 autoPageSize
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePagination}
+                sx={maxGridSize}
             />
         </GridBox>
     );

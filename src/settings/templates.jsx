@@ -13,11 +13,10 @@ import Title from '../core/title';
 
 const GridBox = styled.div`
     flex: 1 1 1px;
-    width: calc(100vw - 3rem);
-    padding-bottom: 1rem;
+    padding-bottom: ${props => props.isMobile ? '.5rem' : '1rem'};
 `;
 
-const Templates = () => {
+const Templates = ({ isMobile }) => {
     const [ originalData, setOriginalData ] = state.useState(state.templates);
     const [ data, setData ] = useState();
     const [ selectedRows, setSelectedRows ] = useState([]);
@@ -97,9 +96,8 @@ const Templates = () => {
                 </Stack>
             </Stack>
             { !data ? <HorizontalLoader /> : (
-                <GridBox>
+                <GridBox isMobile={isMobile}>
                     <DataGrid
-                        disableColumnMenu
                         density="compact"
                         rows={data}
                         columns={columns}
@@ -107,6 +105,7 @@ const Templates = () => {
                         processRowUpdate={editRow}
                         onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
                         rowSelectionModel={selectedRows}
+                        sx={{ maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)` }}
                     />
                 </GridBox>
             )}

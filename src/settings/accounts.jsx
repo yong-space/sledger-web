@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import Title from '../core/title';
 
-const Accounts = () => {
+const Accounts = ({ isMobile }) => {
     const issuers = state.useState(state.issuers)[0];
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const [ showForm, setShowForm ] = useState(false);
@@ -20,6 +20,7 @@ const Accounts = () => {
             <Stack spacing={4} pb={3}>
                 <AccountsGrid
                     showForm={showForm}
+                    isMobile={isMobile}
                     {...{ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit }}
                 />
                 { showForm && <AccountsForm {...{ issuers, accounts, setAccounts, setShowForm, accountToEdit, setAccountToEdit }} /> }

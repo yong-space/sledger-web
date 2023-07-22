@@ -23,7 +23,9 @@ const FxRoot = styled.sup`
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
-const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit, showForm }) => {
+const AccountsGrid = ({
+    issuers, accounts, setAccounts, accountToEdit, setAccountToEdit, showForm, isMobile,
+}) => {
     const { deleteAccount, editAccountVisibility, showStatus } = api();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const [ accountId, setAccountId ] = useState();
@@ -124,13 +126,13 @@ const AccountsGrid = ({ issuers, accounts, setAccounts, accountToEdit, setAccoun
             <>
                 { accounts.filter(a => a.visible).length === 0 && <NoVisible /> }
                 <DataGrid
-                    sx={{ maxWidth: 'calc(100vw - 3rem)' }}
                     rows={accounts}
                     columns={columns}
                     autoHeight
                     disableColumnMenu
                     showColumnRightBorder
                     hideFooter
+                    sx={{ maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)` }}
                 />
                 <ConfirmDialog
                     title="Confirm delete account?"

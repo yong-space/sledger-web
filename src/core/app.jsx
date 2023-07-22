@@ -1,12 +1,14 @@
 import { lazy, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 import api from './api';
+import Dashboard from '../dashboard/dashboard';
 import NavBar from '../nav-bar/main-menu';
 import Settings from '../settings/settings';
 import state from './state';
 import styled from 'styled-components';
-import Dashboard from '../dashboard/dashboard';
 import Transactions from '../transactions/transactions';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Profile = lazy(() => import('../settings/profile'));
 const Admin = lazy(() => import('../admin/admin'));
@@ -17,7 +19,7 @@ const Root = styled.div`
     flex-direction: column;
     flex: 1 1 1px;
     min-height: 100%;
-    padding: 5rem 1.5rem 0 1.5rem;
+    padding: ${props => props.isMobile ? '5rem .5rem 0 .5rem' : '5rem 1.5rem 0 1.5rem'};
 `;
 
 const Content = styled.div`
@@ -28,6 +30,8 @@ const Content = styled.div`
 `;
 
 const App = () => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ issuers, setIssuers ] = state.useState(state.issuers);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const { listIssuers, listAccounts } = api();
@@ -42,7 +46,7 @@ const App = () => {
     }, []);
 
     return issuers && accounts && (
-        <Root>
+        <Root isMobile={isMobile}>
             <NavBar />
             <Content>
                 <Routes>

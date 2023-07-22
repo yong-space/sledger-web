@@ -15,7 +15,8 @@ const DashRoot = styled(Stack)`
         width: 45vw;
     }
     ${props => props.theme.breakpoints.down("md")} {
-        width: 100%;
+        width: 92vw;
+        align-self: center;
     }
 `;
 
