@@ -106,9 +106,10 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
         setLoading(true);
         const endpoint = transactionToEdit ? editTransaction : addTransaction;
         const verb = transactionToEdit ? 'edited' : 'added';
-        endpoint(tx, (response) => {
-            if (dayjs(response.date).isAfter(maxDate)) {
-                setTransactions((t) => [ ...t, response ]);
+        endpoint([ tx ], (response) => {
+            const minDate = dayjs.min(response.map(t => dayjs(t.date)));
+            if (minDate.isAfter(maxDate)) {
+                setTransactions((t) => [ ...t, ...response ]);
                 setShowAddDialog(false);
                 showStatus('success', 'Transaction ' + verb);
                 setTimeout(() => setLoading(false), 500);
@@ -333,6 +334,7 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
         Cash: [ fields.date, fields.creditDebit, fields.amount, fields.remarks, fields.category ],
         CashFX: [ fields.date, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category ],
         Credit: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.remarks, fields.category ],
+        CreditFX: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category ],
         Retirement: [ fields.date, fields.month, fields.code, fields.company, fields.amount, fields.ordinaryAmount, fields.specialAmount, fields.medisaveAmount ],
     };
 

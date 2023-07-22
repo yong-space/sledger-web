@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import ConfirmDialog from '../core/confirm-dialog';
 import dayjs from 'dayjs';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import IconButton from '@mui/material/IconButton';
 import PublishIcon from '@mui/icons-material/Publish';
 import SearchIcon from '@mui/icons-material/Search';
@@ -41,8 +42,8 @@ const ActionButtons = ({
         const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
         const txDate = dayjs(transactions.filter((t) => t.id === selectedRows[0])[0].date);
 
-        deleteTransaction(selectedRows[0], () => {
-            if (txDate.isSame(maxDate)) {
+        deleteTransaction(selectedRows, () => {
+            if (selectedRows.length === 1 && txDate.isSame(maxDate)) {
                 setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
                 showStatus('success', 'Transaction deleted');
                 setLoading(false);
@@ -59,16 +60,34 @@ const ActionButtons = ({
         });
     };
 
+    const editTransaction = () => {
+        setTransactionToEdit(transactions.find(({ id }) => id === selectedRows[0]));
+        setShowAddDialog(true);
+    };
+
     return (
         <Stack direction="row" spacing={1}>
-            <ButtonComponent
-                color="success"
-                variant="contained"
-                onClick={() => setShowAddDialog(true)}
-                {...startIcon(<AddCircleOutlineIcon />)}
-            >
-                { isMobile ? <AddCircleOutlineIcon /> : 'Add' }
-            </ButtonComponent>
+            { selectedRows.length === 0 && (
+                <ButtonComponent
+                    color="success"
+                    variant="contained"
+                    onClick={() => setShowAddDialog(true)}
+                    {...startIcon(<AddCircleOutlineIcon />)}
+                >
+                    { isMobile ? <AddCircleOutlineIcon /> : 'Add' }
+                </ButtonComponent>
+            )}
+
+            { selectedRows.length === 1 && (
+                <ButtonComponent
+                    color="warning"
+                    variant="contained"
+                    onClick={editTransaction}
+                    {...startIcon(<EditOutlinedIcon />)}
+                >
+                    { isMobile ? <EditOutlinedIcon /> : 'Edit' }
+                </ButtonComponent>
+            )}
 
             { selectedRows.length > 0 && (
                 <ButtonComponent
