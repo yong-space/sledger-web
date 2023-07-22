@@ -53,17 +53,19 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const formatNumber = ({ value }) => value === 0 ? '' : decimalFomat.format(value);
     const getDate = ({ row }) => new Date(row.date);
     const formatDate = ({ value }) => dayjs(value).format('YYYY-MM-DD');
+    const formatMonth = ({ value }) => dayjs(value).format('YYYY MMM');
+    const getFx = ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5);
 
     const columns = {
         id: { flex: 1, field: 'id', headerName: 'ID' },
         date: { flex: 2, field: 'date', headerName: 'Date', type: 'date', valueGetter: getDate, valueFormatter: formatDate },
-        billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', valueGetter: ({ row }) => dayjs(row.billingMonth).format('YYYY-MM') },
-        forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', valueGetter: ({ row }) => dayjs(row.forMonth).format('YYYY-MM') },
+        billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', valueFormatter: formatMonth },
+        forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', valueFormatter: formatMonth },
         credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
         debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
         amount: { flex: 2, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
         originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber },
-        fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5) },
+        fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: getFx },
         balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatNumber },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
@@ -95,11 +97,11 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     return !transactions ? <HorizontalLoader /> : (
         <GridBox>
             <DataGrid
-                disableColumnMenu
+                checkboxSelection
                 density="compact"
                 rows={transactions}
                 columns={getColumns()}
-                onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
+                onRowSelectionModelChange={(m) => setSelectedRows(m)}
                 rowSelectionModel={selectedRows}
                 onRowDoubleClick={handleDoubleClick}
                 columnVisibilityModel={visibleColumns}
