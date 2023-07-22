@@ -24,6 +24,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
+    const [ paginationModel, setPaginationModel ] = useState();
 
     useEffect(() => {
         if (!selectedAccount) {
@@ -31,6 +32,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         }
         if (selectedAccount.id !== transactionsAccountId) {
             setTransactions(undefined);
+            setPaginationModel(undefined);
             listTransactions(selectedAccount.id, (response) => {
                 setTransactions(response);
                 setTansactionsAccountId(selectedAccount.id);
@@ -86,6 +88,10 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         setShowAddDialog(true);
     };
 
+    const handlePagination = (n) => setPaginationModel(
+        paginationModel ? n : { ...n, page: Math.floor(transactions.length / n.pageSize) }
+    );
+
     return !transactions ? <HorizontalLoader /> : (
         <GridBox>
             <DataGrid
@@ -97,6 +103,9 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
                 rowSelectionModel={selectedRows}
                 onRowDoubleClick={handleDoubleClick}
                 columnVisibilityModel={visibleColumns}
+                autoPageSize
+                paginationModel={paginationModel}
+                onPaginationModelChange={handlePagination}
             />
         </GridBox>
     );
