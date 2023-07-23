@@ -83,7 +83,7 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
         event.preventDefault();
         const tx = {
             date: date.toISOString(),
-            account: { id: selectedAccount.id },
+            accountId: selectedAccount.id,
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
         if (selectedAccount.type !== 'Retirement') {

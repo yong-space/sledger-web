@@ -39,7 +39,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ loading, setLoading ] = state.useState(state.loading);
     const [ importTransactions, setImportTransactions ] = useState();
     const setTransactions = state.useState(state.transactions)[1];
-    const { uploadImport, addTransactions, showStatus } = api();
+    const { uploadImport, addTransaction, showStatus } = api();
 
     const onDrop = (acceptedFiles) => {
         const data = new FormData();
@@ -55,7 +55,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
     const submitTransactions = () => {
         setLoading(true);
-        addTransactions(selectedAccount.id, importTransactions, (response) => {
+        addTransaction(importTransactions, (response) => {
             setTransactions((existing) => [ ...existing, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date)));
             setLoading(false);
             setImportMode(false);

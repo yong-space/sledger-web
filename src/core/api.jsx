@@ -82,7 +82,6 @@ const api = () => {
         deleteAccount: (id, callback) => apiCall(DELETE, `account/${id}`, callback),
         listTransactions: (id, callback) => apiCall(GET, `transaction/${id}`, callback),
         addTransaction: (payload, callback) => apiCall(POST, 'transaction', callback, payload),
-        addTransactions: (accountId, payload, callback) => apiCall(POST, `transaction/${accountId}`, callback, payload),
         editTransaction: (payload, callback) => apiCall(PUT, 'transaction', callback, payload),
         deleteTransaction: (id, callback) => apiCall(DELETE, `transaction/${id}`, callback),
         suggestRemarks: (input, callback) => apiCall(GET, `data/suggest-remarks?q=${input}`, callback),
