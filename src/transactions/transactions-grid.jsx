@@ -116,6 +116,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePagination}
                 sx={maxGridSize}
+                disableColumnSelector
             />
         </GridBox>
     );
