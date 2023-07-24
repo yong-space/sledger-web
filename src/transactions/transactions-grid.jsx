@@ -1,8 +1,14 @@
-import { DataGrid } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    useGridApiRef,
+    gridFilteredSortedRowEntriesSelector,
+} from '@mui/x-data-grid';
+import { GridPagination } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
+import Box from '@mui/system/Box';
 import dayjs from 'dayjs';
 import state from '../core/state';
 import styled from 'styled-components';
@@ -12,6 +18,17 @@ const GridBox = styled.div`
     display: flex;
     flex: 1 1 1px;
     margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
+`;
+
+const FooterRoot = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: rgb(81, 81, 81) 1px solid;
+    min-height: 3.25rem;
+    .MuiTablePagination-root { overflow: hidden }
+    .MuiTablePagination-actions { margin-left: .5rem }
+    .MuiButtonBase-root { padding: .2rem }
 `;
 
 const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
@@ -101,10 +118,44 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         maxHeight: `calc(100vh - ${isMobile ? 13.2 : 14}rem)`,
     };
 
+    const apiRef = useGridApiRef();
+    const numberFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    const Summary = () => {
+        const data = (selectedRows.length > 0) ?
+            transactions.filter(({ id }) => selectedRows.indexOf(id) > -1) :
+            gridFilteredSortedRowEntriesSelector(apiRef).map(({ model }) => model);
+        const length = data.length;
+        const plural = length > 1 ? 's' : '';
+        const amountSum = { value: data.reduce((acc, obj) => acc + obj.amount, 0) };
+
+        return (
+            <Box sx={{ marginLeft: '1rem' }}>
+                {numberFomat.format(length)} row{plural}: {formatNumber(amountSum)}
+            </Box>
+        );
+    };
+
+    const PageLabel = () => {
+        const totalPages = Math.ceil(transactions?.length/paginationModel?.pageSize);
+        return <>p{paginationModel?.page+1}{!isMobile && ` / ${totalPages}`}</>;
+    };
+
+    const TransactionsGridFooter = () => (
+        <FooterRoot>
+            <Summary />
+            <GridPagination
+                showFirstButton
+                showLastButton
+                labelDisplayedRows={PageLabel}
+            />
+        </FooterRoot>
+    );
+
     return !transactions ? <HorizontalLoader /> : (
         <GridBox isMobile={isMobile}>
             <DataGrid
-                checkboxSelection={!isMobile}
+                apiRef={apiRef}
+                checkboxSelection
                 density="compact"
                 rows={transactions}
                 columns={getColumns()}
@@ -117,6 +168,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
                 onPaginationModelChange={handlePagination}
                 sx={maxGridSize}
                 disableColumnSelector
+                slots={{ footer: TransactionsGridFooter }}
             />
         </GridBox>
     );
