@@ -42,7 +42,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     useEffect(() => {
         const vColumns = !isMobile ? { amount: false } : {
             id: false, credit: false, debit: false, category: false, balance: false,
-            fx: false, originalAmount: false, code: false, forMonth: false, billingMonth: false,
+            fx: false, originalAmount: false, company: false, forMonth: false, billingMonth: false,
             ordinaryAmount: false, specialAmount: false, medisaveAmount: false
         };
         setVisibleColumns(vColumns);
@@ -55,7 +55,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const formatNumber = ({ value }) => value === 0 ? '' : decimalFomat.format(value);
     const getDate = ({ row }) => new Date(row.date);
     const formatDate = ({ value }) => dayjs(value).format('YYYY-MM-DD');
-    const formatMonth = ({ value }) => dayjs(value).format('YYYY MMM');
+    const formatMonth = ({ value }) => !value ? '' : dayjs(value).format('YYYY MMM');
     const getFx = ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5);
 
     const columns = {
