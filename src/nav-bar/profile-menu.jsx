@@ -73,7 +73,7 @@ const ProfileMenu = ({ currentPath }) => {
                 aria-haspopup="true"
                 onClick={() => open ? goto('profile') : setOpen(true)}
                 onMouseOver={() => setOpen(true)}
-                onMouseLeave={(e) => (e.relatedTarget.attributes.role?.value !== 'menu') && setOpen(false)}
+                onMouseLeave={(e) => (e.relatedTarget.attributes?.role?.value !== 'menu') && setOpen(false)}
                 variant={currentPath.indexOf('profile') > -1 ? 'contained' : 'text'}
             >
                 { session.name }
@@ -87,6 +87,7 @@ const ProfileMenu = ({ currentPath }) => {
                 MenuListProps={{
                     onMouseLeave: () => setOpen(false),
                 }}
+                disableScrollLock
             >
                 { menuItems.map((item) => <ProfileMenuItem key={item.uri} {...item} />) }
                 <Divider />

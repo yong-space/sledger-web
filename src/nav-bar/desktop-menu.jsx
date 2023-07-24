@@ -62,6 +62,7 @@ const DesktopMenu = ({ pages, currentPath }) => {
                                 MenuListProps={{
                                     onMouseLeave: () => setOpenMenu(undefined),
                                 }}
+                                disableScrollLock
                             >
                                 { children.map((item) => (
                                     <MenuItem key={item.link} onClick={() => goto(item.link)}>
