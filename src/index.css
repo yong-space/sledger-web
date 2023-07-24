@@ -3,6 +3,8 @@ html, body, #root {
     background-color: #121212;
     display: flex;
     flex: 1 1 1px;
+    max-width: 100vw;
 }
 a, a:active, a:visited { color: white; text-decoration: none }
 button.MuiButton-containedSuccess { color: #fff; }
+.MuiDataGrid-panelWrapper, .MuiModal-root { max-width: 98vw }
