@@ -25,9 +25,9 @@ const Templates = ({ isMobile }) => {
 
     const columns = [
         { field: 'id', headerName: 'ID' },
-        { field: 'reference', headerName: 'Reference', editable: true },
-        { field: 'remarks', headerName: 'Remarks', editable: true },
-        { field: 'category', headerName: 'Category', editable: true },
+        { flex: 1, field: 'reference', headerName: 'Reference', editable: true },
+        { flex: 1, field: 'remarks', headerName: 'Remarks', editable: true },
+        { flex: 1, field: 'category', headerName: 'Category', editable: true },
     ];
 
     useEffect(() => {

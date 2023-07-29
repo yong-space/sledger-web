@@ -4,11 +4,11 @@ import { red, green, blue, grey } from '@mui/material/colors';
 import { useState } from 'react';
 import api from '../core/api';
 import Button from '@mui/material/Button';
+import dayjs from 'dayjs';
 import Dropzone from 'react-dropzone';
 import Stack from '@mui/material/Stack';
-import styled from 'styled-components';
-import dayjs from 'dayjs';
 import state from '../core/state';
+import styled from 'styled-components';
 
 const ImportRoot = styled.div`
     display: flex;
@@ -19,7 +19,7 @@ const ImportRoot = styled.div`
 `;
 
 const ImportGridRoot = styled.div`
-    height: calc(100vh - 16.8rem);
+    height: calc(100vh - 17rem);
 `;
 
 const ImportZone = styled.div`
@@ -38,7 +38,9 @@ const ImportZone = styled.div`
 const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ loading, setLoading ] = state.useState(state.loading);
     const [ importTransactions, setImportTransactions ] = useState();
-    const setTransactions = state.useState(state.transactions)[1];
+    const setSelectedRows = state.useState(state.selectedRows)[1];
+    const setPaginationModel = state.useState(state.paginationModel)[1];
+    const [ transactions, setTransactions ] = state.useState(state.transactions);
     const { uploadImport, addTransaction, showStatus } = api();
 
     const onDrop = (acceptedFiles) => {
@@ -48,15 +50,19 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         setLoading(true);
 
         uploadImport(data, (response) => {
-            setLoading(false);
             setImportTransactions(response);
+            setLoading(false);
         });
     };
 
     const submitTransactions = () => {
         setLoading(true);
         addTransaction(importTransactions, (response) => {
-            setTransactions((existing) => [ ...existing, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date)));
+            const tx = [ ...transactions, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date));
+            setTransactions(tx);
+            setSelectedRows(response.map(({ id }) => id));
+            const index = tx.map(({ id }) => id).indexOf(response[0].id) + 1;
+            setPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) }));
             setLoading(false);
             setImportMode(false);
             showStatus('success', 'Transactions imported');

@@ -163,8 +163,6 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         );
     };
 
-    useEffect(() => { console.log(paginationModel) }, [ paginationModel ]);
-
     return !transactions ? <HorizontalLoader /> : (
         <GridBox isMobile={isMobile}>
             <DataGrid
