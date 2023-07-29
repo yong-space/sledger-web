@@ -22,6 +22,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
+import { Mail } from '@mui/icons-material';
 
 const ForeignCurrencyBar = styled.div`
     display: flex;
@@ -29,7 +30,9 @@ const ForeignCurrencyBar = styled.div`
     & :first-child { width: 8rem }
 `;
 
-const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransactionToEdit }) => {
+const AddTransactionDialog = ({
+    setShowAddDialog, transactionToEdit, setTransactionToEdit, setSelectedRows, setPaginationModel,
+ }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
     const theme = useTheme();
@@ -105,22 +108,24 @@ const AddTransactionDialog = ({ setShowAddDialog, transactionToEdit, setTransact
 
         setLoading(true);
         const endpoint = transactionToEdit ? editTransaction : addTransaction;
-        const verb = transactionToEdit ? 'edited' : 'added';
+
+        const postProcess = (response, tx) => {
+            setTransactions(tx);
+            setSelectedRows(response.map(({ id }) => id));
+            setShowAddDialog(false);
+            showStatus('success', 'Transaction ' + (transactionToEdit ? 'edited' : 'added'));
+            setTransactionToEdit(undefined);
+            const index = tx.map(({ id }) => id).indexOf(response[0].id) + 1;
+            setPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) }));
+            setTimeout(() => setLoading(false), 500);
+        };
+
         endpoint([ tx ], (response) => {
             const minDate = dayjs.min(response.map(t => dayjs(t.date)));
             if (minDate.isAfter(maxDate)) {
-                setTransactions((t) => [ ...t, ...response ]);
-                setShowAddDialog(false);
-                showStatus('success', 'Transaction ' + verb);
-                setTimeout(() => setLoading(false), 500);
+                postProcess(response, [ ...transactions, ...response ]);
             } else {
-                listTransactions(selectedAccount.id, (response) => {
-                    setTransactions(response);
-                    setShowAddDialog(false);
-                    showStatus('success', 'Transaction ' + verb);
-                    setTransactionToEdit(undefined);
-                    setTimeout(() => setLoading(false), 500);
-                });
+                listTransactions(selectedAccount.id, (allTx) => postProcess(response, allTx));
             }
             listAccounts((data) => setAccounts(data));
         });

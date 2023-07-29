@@ -32,7 +32,8 @@ const ActionButtons = ({
 }) => {
     const theme = useTheme();
     const setLoading = state.useState(state.loading)[1];
-    const selectedRows = state.useState(state.selectedRows)[0];
+    const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
+    const setPaginationModel = state.useState(state.paginationModel)[1];
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
@@ -118,7 +119,13 @@ const ActionButtons = ({
             )}
 
             { showAddDialog && (
-                <AddTransactionDialog {...{ setShowAddDialog, transactionToEdit, setTransactionToEdit }} />
+                <AddTransactionDialog {...{
+                    setShowAddDialog,
+                    transactionToEdit,
+                    setTransactionToEdit,
+                    setSelectedRows,
+                    setPaginationModel,
+                }} />
             )}
 
             { showConfirmDelete && (

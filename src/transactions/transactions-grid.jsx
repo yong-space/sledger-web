@@ -40,7 +40,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
-    const [ paginationModel, setPaginationModel ] = useState();
+    const [ paginationModel, setPaginationModel ] = state.useState(state.paginationModel);
 
     useEffect(() => {
         if (!selectedAccount) {
@@ -162,6 +162,8 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             </FooterRoot>
         );
     };
+
+    useEffect(() => { console.log(paginationModel) }, [ paginationModel ]);
 
     return !transactions ? <HorizontalLoader /> : (
         <GridBox isMobile={isMobile}>
