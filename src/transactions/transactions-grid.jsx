@@ -119,6 +119,13 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     };
 
     const apiRef = useGridApiRef();
+    useEffect(() => {
+        // Weird MUI-X bug
+        if (apiRef.current === null) {
+            apiRef.current = {};
+        }
+    }, [ apiRef.current ]);
+
     const numberFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 });
     const Summary = () => {
         const data = (selectedRows.length > 0) ?
@@ -136,20 +143,25 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     };
 
     const PageLabel = () => {
-        const totalPages = Math.ceil(transactions?.length/paginationModel?.pageSize);
+        const totalPages = Math.ceil(gridFilteredSortedRowEntriesSelector(apiRef)?.length/paginationModel?.pageSize);
         return <>p{paginationModel?.page+1}{!isMobile && ` / ${totalPages}`}</>;
     };
 
-    const TransactionsGridFooter = () => (
-        <FooterRoot>
-            <Summary />
-            <GridPagination
-                showFirstButton
-                showLastButton
-                labelDisplayedRows={PageLabel}
-            />
-        </FooterRoot>
-    );
+    const TransactionsGridFooter = () => {
+        if (gridFilteredSortedRowEntriesSelector(apiRef).length === 0) {
+            return <></>;
+        }
+        return (
+            <FooterRoot>
+                <Summary />
+                <GridPagination
+                    showFirstButton
+                    showLastButton
+                    labelDisplayedRows={PageLabel}
+                />
+            </FooterRoot>
+        );
+    };
 
     return !transactions ? <HorizontalLoader /> : (
         <GridBox isMobile={isMobile}>
