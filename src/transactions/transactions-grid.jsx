@@ -49,6 +49,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         if (selectedAccount.id !== transactionsAccountId) {
             setTransactions(undefined);
             setPaginationModel(undefined);
+            setSelectedRows([]);
             listTransactions(selectedAccount.id, (response) => {
                 setTransactions(response);
                 setTansactionsAccountId(selectedAccount.id);
