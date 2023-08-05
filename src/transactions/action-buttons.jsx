@@ -8,7 +8,6 @@ import ConfirmDialog from '../core/confirm-dialog';
 import dayjs from 'dayjs';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import IconButton from '@mui/material/IconButton';
 import PublishIcon from '@mui/icons-material/Publish';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
@@ -17,13 +16,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 const ActionButton = styled(Button)`
     height: 2.5rem;
-`;
-
-const ActionIconButton = styled(IconButton)`
-    height: 2.5rem;
-    color: ${props => props.theme.palette[props.color].contrastText};
-    background-color: ${props => props.theme.palette[props.color].main};
-    &:hover { background-color: ${props => props.theme.palette[props.color].dark} }
 `;
 
 const ActionButtons = ({
@@ -37,8 +29,6 @@ const ActionButtons = ({
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
-    const ButtonComponent = isMobile ? ActionIconButton : ActionButton;
-    const startIcon = (startIcon) => isMobile ? {} : { startIcon };
 
     const submitDelete = () => {
         setLoading(true);
@@ -71,51 +61,51 @@ const ActionButtons = ({
     return (
         <Stack direction="row" spacing={1}>
             { selectedRows.length === 0 && (
-                <ButtonComponent
+                <ActionButton
                     theme={theme}
                     color="success"
                     variant="contained"
                     onClick={() => setShowAddDialog(true)}
-                    {...startIcon(<AddCircleOutlineIcon />)}
+                    startIcon={<AddCircleOutlineIcon />}
                 >
-                    { isMobile ? <AddCircleOutlineIcon /> : 'Add' }
-                </ButtonComponent>
+                    Add
+                </ActionButton>
             )}
 
             { selectedRows.length === 1 && (
-                <ButtonComponent
+                <ActionButton
                     theme={theme}
                     color="warning"
                     variant="contained"
                     onClick={editTransaction}
-                    {...startIcon(<EditOutlinedIcon />)}
+                    startIcon={<EditOutlinedIcon />}
                 >
-                    { isMobile ? <EditOutlinedIcon /> : 'Edit' }
-                </ButtonComponent>
+                    Edit
+                </ActionButton>
             )}
 
             { selectedRows.length > 0 && (
-                <ButtonComponent
+                <ActionButton
                     theme={theme}
                     color="error"
                     variant="contained"
                     onClick={() => setShowConfirmDelete(true)}
-                    {...startIcon(<DeleteForeverIcon />)}
+                    startIcon={<DeleteForeverIcon />}
                 >
-                    { isMobile ? <DeleteForeverIcon /> : 'Delete' }
-                </ButtonComponent>
+                    Delete
+                </ActionButton>
             )}
 
             { useMediaQuery(theme.breakpoints.up('md')) && canImport && (
-                <ButtonComponent
+                <ActionButton
                     theme={theme}
                     color="info"
                     variant="contained"
                     onClick={() => setImportMode(true)}
-                    {...startIcon(<PublishIcon />)}
+                    startIcon={<PublishIcon />}
                 >
                     Import
-                </ButtonComponent>
+                </ActionButton>
             )}
 
             { showAddDialog && (
