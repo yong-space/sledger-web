@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import Title from '../core/title';
+import AccountsActionButtons from './accounts-action-buttons';
 
 const Accounts = ({ isMobile }) => {
     const issuers = state.useState(state.issuers)[0];
@@ -16,7 +17,10 @@ const Accounts = ({ isMobile }) => {
 
     return (
         <>
-            <Title>Accounts</Title>
+            <Stack direction="row" justifyContent="space-between">
+                <Title>Accounts</Title>
+                <AccountsActionButtons />
+            </Stack>
             <Stack spacing={4} pb={3}>
                 <AccountsGrid
                     showForm={showForm}

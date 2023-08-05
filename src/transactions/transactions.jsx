@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import AccountSelector from './account-selector';
-import ActionButtons from './action-buttons';
+import TransactionsActionButtons from './transactions-action-buttons';
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
@@ -71,19 +71,19 @@ const Transactions = () => {
     }, [ accounts, selectedAccount ]);
 
     const actionProps = {
-        isMobile, transactions, setTransactions, setAccounts, showAddDialog,
-        setShowAddDialog, transactionToEdit, setTransactionToEdit, setImportMode, canImport,
+        transactions, setTransactions, setAccounts, showAddDialog, setShowAddDialog,
+        transactionToEdit, setTransactionToEdit, setImportMode, canImport,
     };
 
     return loading ? <HorizontalLoader /> : (
         <TransactionsRoot>
             <Stack direction="row" justifyContent="space-between">
                 <Title>Transactions { importMode && 'Import'}</Title>
-                { isMobile && <ActionButtons {...actionProps} />}
+                { isMobile && <TransactionsActionButtons {...actionProps} />}
             </Stack>
             <Stack direction="row" spacing={1} justifyContent="space-between">
                 <AccountSelector disabled={importMode} handleChange={({ target }) => navigate(`/tx/${target.value}`)} />
-                { !isMobile && !importMode && <ActionButtons {...actionProps} /> }
+                { !isMobile && !importMode && <TransactionsActionButtons {...actionProps} /> }
             </Stack>
             { importMode ?
                 <TransactionsImport {...{ setImportMode, selectedAccount }} /> :

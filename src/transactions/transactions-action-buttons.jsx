@@ -1,26 +1,17 @@
+import { AddButton, EditButton, DeleteButton, ImportButton } from '../core/buttons';
 import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddTransactionDialog from './add-transaction-form';
 import api from '../core/api';
-import Button from '@mui/material/Button';
 import ConfirmDialog from '../core/confirm-dialog';
 import dayjs from 'dayjs';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import PublishIcon from '@mui/icons-material/Publish';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
-import styled from 'styled-components';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-const ActionButton = styled(Button)`
-    height: 2.5rem;
-`;
-
-const ActionButtons = ({
-    isMobile, transactions, setTransactions, setAccounts, showAddDialog,
-    setShowAddDialog, transactionToEdit, setTransactionToEdit, setImportMode, canImport,
+const TransactionsActionButtons = ({
+    transactions, setTransactions, setAccounts, showAddDialog, setShowAddDialog,
+    transactionToEdit, setTransactionToEdit, setImportMode, canImport,
 }) => {
     const theme = useTheme();
     const setLoading = state.useState(state.loading)[1];
@@ -60,52 +51,12 @@ const ActionButtons = ({
 
     return (
         <Stack direction="row" spacing={1}>
-            { selectedRows.length === 0 && (
-                <ActionButton
-                    theme={theme}
-                    color="success"
-                    variant="contained"
-                    onClick={() => setShowAddDialog(true)}
-                    startIcon={<AddCircleOutlineIcon />}
-                >
-                    Add
-                </ActionButton>
-            )}
-
-            { selectedRows.length === 1 && (
-                <ActionButton
-                    theme={theme}
-                    color="warning"
-                    variant="contained"
-                    onClick={editTransaction}
-                    startIcon={<EditOutlinedIcon />}
-                >
-                    Edit
-                </ActionButton>
-            )}
-
-            { selectedRows.length > 0 && (
-                <ActionButton
-                    theme={theme}
-                    color="error"
-                    variant="contained"
-                    onClick={() => setShowConfirmDelete(true)}
-                    startIcon={<DeleteForeverIcon />}
-                >
-                    Delete
-                </ActionButton>
-            )}
+            { selectedRows.length === 0 && <AddButton onClick={() => setShowAddDialog(true)} />}
+            { selectedRows.length === 1 && <EditButton onClick={editTransaction} />}
+            { selectedRows.length > 0 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
 
             { useMediaQuery(theme.breakpoints.up('md')) && canImport && (
-                <ActionButton
-                    theme={theme}
-                    color="info"
-                    variant="contained"
-                    onClick={() => setImportMode(true)}
-                    startIcon={<PublishIcon />}
-                >
-                    Import
-                </ActionButton>
+                <ImportButton onClick={() => setImportMode(true)} />
             )}
 
             { showAddDialog && (
@@ -130,4 +81,4 @@ const ActionButtons = ({
         </Stack>
     );
 };
-export default ActionButtons;
+export default TransactionsActionButtons;
