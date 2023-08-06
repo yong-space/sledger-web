@@ -48,6 +48,10 @@ const NavBar = () => {
         {
             label: 'Dashboard',
             link: '/dash',
+            children: [
+                { label: 'Summary', link: '/dash/summary' },
+                { label: 'Insights', link: '/dash/insights' },
+            ],
         },
         {
             label: 'Transactions',

@@ -93,6 +93,7 @@ const api = () => {
         editTemplates: (payload, callback) => apiCall(PUT, 'template', callback, payload),
         deleteTemplate: (id, callback) => apiCall(DELETE, `template/${id}`, callback),
         uploadImport: (payload, callback) => apiCall(POST, 'import', callback, payload),
+        getInsights: (callback) => apiCall(GET, 'dash/insights', callback),
     };
 };
 export default api;
