@@ -4,11 +4,11 @@ import { red, green, blue, grey } from '@mui/material/colors';
 import { useState } from 'react';
 import api from '../core/api';
 import Button from '@mui/material/Button';
-import dayjs from 'dayjs';
 import Dropzone from 'react-dropzone';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
+import { formatDate, formatNumber } from '../util/formatters';
 
 const ImportRoot = styled.div`
     display: flex;
@@ -89,9 +89,6 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
     const ImportGrid = () => {
         const [ selectedRows, setSelectedRows ] = useState([]);
-        const decimalFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const formatNumber = ({ value }) => value === 0 ? '' : decimalFomat.format(value);
-        const formatDate = ({ value }) => dayjs(value).format('YYYY-MM-DD');
 
         const columns = {
             date: { editable: true, width: '100', field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },

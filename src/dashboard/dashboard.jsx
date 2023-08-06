@@ -1,6 +1,7 @@
+import { formatDecimal } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -70,15 +71,12 @@ const Dashboard = () => {
         { field: 'balance', headerName: 'Balance' },
     ];
 
-    const decimalFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const formatNumber = (num) => !num ? '0.00' : decimalFomat.format(parseFloat(num));
-
     const getValue = (column, row, rowIndex) => {
         switch (column.field) {
             case 'issuer':
                 const issuer = issuers.find(i => i.id === row.issuerId).name;
                 return (issuer !== 'CPF' || rowIndex === 0) ? issuer : '';
-            case 'balance': return formatNumber(row[column.field]);
+            case 'balance': return formatDecimal(row[column.field], false);
             default: return row[column.field];
         }
     };
@@ -146,7 +144,7 @@ const Dashboard = () => {
                     <tbody>
                         <tr>
                             <td>Total Net Worth</td>
-                            <td>{ formatNumber(netWorth) }</td>
+                            <td>{ formatDecimal(netWorth, false) }</td>
                         </tr>
                     </tbody>
                 </Table>

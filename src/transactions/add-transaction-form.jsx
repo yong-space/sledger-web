@@ -22,7 +22,6 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
-import { Mail } from '@mui/icons-material';
 
 const ForeignCurrencyBar = styled.div`
     display: flex;
@@ -163,9 +162,19 @@ const AddTransactionDialog = ({
         setAmountValue(Object.values(newCpfAmounts).reduce((a, i) => a + (parseFloat(i) || 0), 0).toFixed(2));
     };
 
+    const restrictFormat = (value) => {
+        value = value.replace(/[^0-9.]/g, '');
+        const dotIndex = value.indexOf('.');
+        if (dotIndex >= 0) {
+            value = value.slice(0, dotIndex + 3);
+        }
+        return value;
+    };
+
     const numericProps = {
         inputMode: 'numeric',
         pattern: '\-?[0-9]+\.?[0-9]{0,2}',
+        onInput: (e) => e.target.value = restrictFormat(e.target.value),
     };
 
     const fields = {

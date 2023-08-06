@@ -9,10 +9,10 @@ import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
 import Box from '@mui/system/Box';
-import dayjs from 'dayjs';
 import state from '../core/state';
 import styled from 'styled-components';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { formatNumber, formatDecimal, formatDate, formatMonth } from '../util/formatters';
 
 const GridBox = styled.div`
     display: flex;
@@ -69,11 +69,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const getAmount = ({ field, row }) => (field === 'credit') ?
         (row.amount > 0 ? row.amount : 0) :
         (row.amount < 0 ? -row.amount : 0);
-    const decimalFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const formatNumber = ({ value }) => value === 0 ? '' : decimalFomat.format(value);
     const getDate = ({ row }) => new Date(row.date);
-    const formatDate = ({ value }) => dayjs(value).format('YYYY-MM-DD');
-    const formatMonth = ({ value }) => !value ? '' : dayjs(value).format('YYYY MMM');
     const getFx = ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5);
 
     const columns = {
@@ -81,19 +77,19 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueGetter: getDate, valueFormatter: formatDate },
         billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', valueFormatter: formatMonth },
         forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', valueFormatter: formatMonth },
-        credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
-        debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatNumber },
-        amount: { flex: 2.5, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
-        originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber },
+        credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal },
+        debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal },
+        amount: { flex: 2.5, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
+        originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimal },
         fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: getFx },
-        balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatNumber },
+        balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimal },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
         code: { flex: 2, field: 'code', headerName: 'Code' },
         company: { flex: 2, field: 'company', headerName: 'Company' },
-        ordinaryAmount: { flex: 2, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatNumber },
-        specialAmount: { flex: 2, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatNumber },
-        medisaveAmount: { flex: 2, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatNumber },
+        ordinaryAmount: { flex: 2, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal },
+        specialAmount: { flex: 2, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatDecimal },
+        medisaveAmount: { flex: 2, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatDecimal },
     };
 
     const columnMap = {
@@ -127,7 +123,6 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         }
     }, [ apiRef.current ]);
 
-    const numberFomat = new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 });
     const Summary = () => {
         const data = (selectedRows.length > 0) ?
             transactions.filter(({ id }) => selectedRows.indexOf(id) > -1) :
@@ -138,7 +133,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
         return (
             <Box sx={{ marginLeft: '1rem' }}>
-                {numberFomat.format(length)} row{plural}: {formatNumber(amountSum)}
+                {formatNumber(length, false)} row{plural}: {formatDecimal(amountSum, false)}
             </Box>
         );
     };
@@ -167,20 +162,20 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     return !transactions ? <HorizontalLoader /> : (
         <GridBox isMobile={isMobile}>
             <DataGrid
-                apiRef={apiRef}
+                autoPageSize
                 checkboxSelection
+                disableColumnSelector
                 density="compact"
+                apiRef={apiRef}
                 rows={transactions}
                 columns={getColumns()}
-                onRowSelectionModelChange={(m) => setSelectedRows(m)}
                 rowSelectionModel={selectedRows}
+                onRowSelectionModelChange={(m) => setSelectedRows(m)}
                 onRowDoubleClick={handleDoubleClick}
                 columnVisibilityModel={visibleColumns}
-                autoPageSize
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePagination}
                 sx={maxGridSize}
-                disableColumnSelector
                 slots={{ footer: TransactionsGridFooter }}
             />
         </GridBox>
