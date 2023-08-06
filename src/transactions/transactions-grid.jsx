@@ -141,7 +141,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
     const PageLabel = () => {
         const totalPages = Math.ceil(gridFilteredSortedRowEntriesSelector(apiRef)?.length/paginationModel?.pageSize);
-        return <>p{paginationModel?.page+1}{!isMobile && ` / ${totalPages}`}</>;
+        return <>Page {paginationModel?.page+1}{!isMobile && ` / ${totalPages}`}</>;
     };
 
     const TransactionsGridFooter = () => {
