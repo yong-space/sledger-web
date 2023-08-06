@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import api from '../core/api';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import CpfSlider from './cpf-slider';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid';
@@ -18,8 +22,11 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm, accountToEdit, setAccountToEdit }) => {
+const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, accountToEdit, setAccountToEdit }) => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ issuerId, setIssuerId ] = useState(accountToEdit?.issuerId);
     const [ paymentAccount, setPaymentAccount ] = useState(accountToEdit?.paymentAccountId || 0);
     const [ type, setType ] = useState(accountToEdit?.type || 'Cash');
@@ -43,7 +50,7 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm, accountToEd
     }, [ type ]);
 
     const postProcess = () => listAccounts((data) => {
-        setShowForm(false);
+        setShowAddDialog(false);
         setAccounts(data);
         setLoading(false);
         setAccountToEdit(undefined);
@@ -206,7 +213,7 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm, accountToEd
         </ToggleButtonGroup>
     );
 
-    return (
+    const addAccountForm = (
         <form onSubmit={submit} autoComplete="off">
             <Grid container item xs={12} md={5} direction="column" gap={2}>
                 <Typography variant="h6">
@@ -232,7 +239,7 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm, accountToEd
                         variant="outlined"
                         onClick={() => {
                             setAccountToEdit(undefined);
-                            setShowForm(false);
+                            setShowAddDialog(false);
                         }}
                     >
                         Cancel
@@ -241,5 +248,21 @@ const AccountsForm = ({ issuers, accounts, setAccounts, setShowForm, accountToEd
             </Grid>
         </form>
     );
+    return (
+        <Dialog
+            open
+            fullWidth
+            fullScreen={isMobile}
+            aria-labelledby="add-account-dialog"
+            aria-describedby="add-account-dialog"
+        >
+            <DialogTitle id="add-account-dialog">
+                Add Account
+            </DialogTitle>
+            <DialogContent>
+                { addAccountForm }
+            </DialogContent>
+        </Dialog>
+    );
 };
-export default AccountsForm;
+export default AccountsDialog;

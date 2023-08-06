@@ -1,13 +1,18 @@
 import { DataGrid } from '@mui/x-data-grid';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import api from '../core/api';
-import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
-import ConfirmDialog from '../core/confirm-dialog';
 import styled from 'styled-components';
 import Switch from '@mui/material/Switch';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { flexbox } from '@mui/system';
+
+const GridBox = styled.div`
+    display: flex;
+    flex: 1 1 1px;
+    margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
+`;
 
 const IssuerChip = styled(Chip)`
     border-radius: .5rem;
@@ -24,15 +29,19 @@ const FxRoot = styled.sup`
 const Fx = () => <FxRoot>FX</FxRoot>;
 
 const AccountsGrid = ({
-    issuers, accounts, setAccounts, accountToEdit, setAccountToEdit, showForm, isMobile,
+    issuers, accounts, setAccounts, isMobile, selectedAccount, setSelectedAccount, setAccountToEdit, setShowAddDialog,
 }) => {
-    const { deleteAccount, editAccountVisibility, showStatus } = api();
-    const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
-    const [ accountId, setAccountId ] = useState();
+    const [ visibleColumns, setVisibleColumns ] = useState({});
+    const { editAccountVisibility, showStatus } = api();
     const colors = {
         'Cash': 'success',
         'Credit': 'warning',
         'Retirement': 'info',
+    };
+
+    const maxGridSize = {
+        maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 9 : 10}rem)`,
     };
 
     const getIssuer = (id) => issuers.find(i => i.id === id);
@@ -43,27 +52,43 @@ const AccountsGrid = ({
             (account.id !== id) ? account : { ...account, visible: event.target.checked }));
     });
 
-    const setEditAccountId = (eid) => setAccountToEdit(accounts.find(({ id }) => id === eid));
-
-    const disableControls = showForm || !!accountToEdit;
-
     const columns = [
+        {
+            field: 'id',
+            headerName: 'ID',
+            width: 50,
+            sortable: false,
+        },
         {
             field: 'visible',
             renderHeader: () => <VisibilityIcon sx={{ ml: '1rem' }} />,
-            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} disabled={disableControls} onChange={(e) => updateVisibility(e, id)} />,
+            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} onChange={(e) => updateVisibility(e, id)} />,
+            width: 70,
+            sortable: false,
         },
         {
             field: 'type',
             headerName: 'Type',
-            width: '109',
+            width: 109,
             renderCell: ({ value }) => <Chip sx={{ borderRadius: '.5rem' }} label={value} color={colors[value]} />
         },
         {
             field: 'issuer',
             headerName: 'Issuer',
-            valueGetter: ({ row }) => getIssuer(row.issuerId).name,
-            renderCell: ({ row }) => <IssuerChip colour={getIssuer(row.issuerId).colour} label={getIssuer(row.issuerId).name} variant="outlined" />
+            valueGetter: ({ row }) => getIssuer(row.issuerId),
+            renderCell: ({ value }) => <IssuerChip colour={value.colour} label={value.name} variant="outlined" />
+        },
+        {
+            field: 'typeAndIssuer',
+            headerName: 'Type + Issuer',
+            valueGetter: ({ row }) => ({ type: row.type, issuer: getIssuer(row.issuerId) }),
+            renderCell: ({ value }) => (
+                <div style={{ display: 'flex', gap: '.5rem' }}>
+                    <Chip sx={{ borderRadius: '.5rem' }} label={value.type} color={colors[value.type]} />
+                    <IssuerChip colour={value.issuer.colour} label={value.issuer.name} variant="outlined" />
+                </div>
+            ),
+            width: 165,
         },
         {
             field: 'name',
@@ -81,33 +106,15 @@ const AccountsGrid = ({
             type: 'number',
             width: '103',
             valueGetter: ({ row }) => row.transactions || 0,
-        },
-        {
-            field: 'edit', headerName: 'Edit',
             sortable: false,
-            renderCell: ({ id }) => (
-                <Button size="small" variant="outlined" color="warning" disabled={disableControls} onClick={() => setEditAccountId(id)}>Edit</Button>
-            )
-        },
-        {
-            field: 'delete', headerName: 'Delete',
-            sortable: false,
-            renderCell: ({ id }) => {
-                const confirm = (e) => {
-                    e.stopPropagation();
-                    setAccountId(id);
-                    setShowConfirmDelete(true);
-                };
-                return <Button size="small" variant="outlined" color="error" disabled={disableControls} onClick={confirm}>Delete</Button>;
-            }
         },
     ];
 
-    const submitDelete = () => deleteAccount(accountId, () => {
-        setAccounts(accounts.filter(i => i.id !== accountId));
-        showStatus('success', 'Account deleted');
-        setShowConfirmDelete(false);
-    });
+    useEffect(() => {
+        const vColumns = isMobile ? { id: false, type: false, issuer: false } :
+            { typeAndIssuer: false };
+        setVisibleColumns(vColumns);
+    }, [ isMobile ]);
 
     const Empty = () => (
         <Alert severity="info" variant="outlined">
@@ -121,28 +128,41 @@ const AccountsGrid = ({
         </Alert>
     );
 
-    const AccountsDataGrid = () =>
-        accounts.length === 0 ? <Empty /> : (
-            <>
-                { accounts.filter(a => a.visible).length === 0 && <NoVisible /> }
-                <DataGrid
-                    rows={accounts}
-                    columns={columns}
-                    autoHeight
-                    disableColumnMenu
-                    showColumnRightBorder
-                    hideFooter
-                    sx={{ maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)` }}
-                />
-                <ConfirmDialog
-                    title="Confirm delete account?"
-                    message="All transactions under this account will be permanently deleted"
-                    open={showConfirmDelete}
-                    setOpen={setShowConfirmDelete}
-                    confirm={submitDelete}
-                />
-            </>
-        );
-    return <AccountsDataGrid />;
+    const updateRowSelection = (newRows) => {
+        console.log(`hello ${newRows}`)
+        if (newRows.length === 0) {
+            return;
+        }
+        setSelectedAccount(newRows);
+    };
+
+    const handleDoubleClick = (params) => {
+        setAccountToEdit(params.row);
+        setShowAddDialog(true);
+    };
+
+    const handleClick = ({ id }) => {
+        const selection = (id === selectedAccount[0]) ? [] : [ id ];
+        setSelectedAccount(selection);
+    };
+
+    return accounts.length === 0 ? <Empty /> : (
+        <GridBox isMobile={isMobile}>
+            { accounts.filter(a => a.visible).length === 0 && <NoVisible /> }
+            <DataGrid
+                hideFooter
+                disableColumnMenu
+                disableRowSelectionOnClick
+                rows={accounts}
+                columns={columns}
+                columnVisibilityModel={visibleColumns}
+                rowSelectionModel={selectedAccount}
+                onRowSelectionModelChange={updateRowSelection}
+                onRowDoubleClick={handleDoubleClick}
+                onRowClick={handleClick}
+                sx={maxGridSize}
+            />
+        </GridBox>
+    );
 };
 export default AccountsGrid;
