@@ -10,6 +10,7 @@ const FxRoot = styled.sup`
     font-size: .8rem;
     position: relative;
     top: -.3rem;
+    left: -.3rem;
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
