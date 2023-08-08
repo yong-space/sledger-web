@@ -6,7 +6,7 @@ const Dashboard = () => {
     return (
         <Routes>
             <Route path="summary" element={<Summary /> } />
-            <Route path="insights" element={<Insights /> } />
+            <Route path="insights/*" element={<Insights /> } />
             <Route path="" element={<Navigate to="summary" />} />
         </Routes>
     );

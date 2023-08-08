@@ -1,21 +1,27 @@
+import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
+import { HorizontalLoader } from '../core/loader';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
-import Stack from '@mui/material/Stack';
 import styled from 'styled-components';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Title from '../core/title';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-const Root = styled(Stack)`
-    width: 35vw;
-    ${props => props.theme.breakpoints.down("lg")} {
-        width: 45vw;
-    }
-    ${props => props.theme.breakpoints.down("md")} {
-        width: 92vw;
-        align-self: center;
-    }
-    th { text-align: left }
-    th:not(:first-child), td:not(:first-child) { text-align: right }
+const Root = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1 1 1px;
+`;
+
+const GridBox = styled.div`
+    display: flex;
+    flex: 1 1 1px;
+    margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
 `;
 
 const Insights = () => {
@@ -25,59 +31,60 @@ const Insights = () => {
 
     useEffect(() => getInsights((response) => setInsights(response)), []);
 
-    const SummaryTable = () => (
-        <table>
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Average</th>
-                    <th>Transactions</th>
-                </tr>
-            </thead>
-            <tbody>
-                { insights.summary
-                    .filter(({ category }) => ignoredCategories.indexOf(category) === -1)
-                    .map((insight, i) => (
-                        <tr key={i}>
-                            <td>{insight.category || "<No Category>"}</td>
-                            <td>{formatDecimal(insight.average)}</td>
-                            <td>{formatNumber(insight.transactions)}</td>
-                        </tr>
-                    ))
-                }
-            </tbody>
-        </table>
-    );
+    const AverageGrid = () => {
+        const theme = useTheme();
+        const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+        const maxGridSize = {
+            maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
+            maxHeight: `calc(100vh - ${isMobile ? 12 : 13}rem)`,
+        };
+        const formatBlanks = ({ value }) => value || '<No Category>';
+        const columns = [
+            { flex: 1, field: 'category', headerName: 'Category', valueFormatter: formatBlanks, },
+            { flex: 1, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average' },
+            { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
+        ];
+        return (
+            <GridBox isMobile={isMobile}>
+                <DataGrid
+                    hideFooter
+                    disableColumnMenu
+                    density="compact"
+                    rows={insights.summary.filter(({ category }) => ignoredCategories.indexOf(category) === -1)}
+                    columns={columns}
+                    sx={maxGridSize}
+                    getRowId={({ category }) =>  category}
+                />
+            </GridBox>
+        );
+    };
 
-    const DataTable = () => (
-        <table>
-            <thead>
-                <tr>
-                    <th>Year</th>
-                    <th>Month</th>
-                    <th>Category</th>
-                    <th>Transactions</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                { insights.data.map((insight, i) => (
-                    <tr key={i}>
-                        <td>{insight.year}</td>
-                        <td>{insight.month}</td>
-                        <td>{insight.category}</td>
-                        <td>{insight.transactions}</td>
-                        <td>{insight.total}</td>
-                    </tr>
-                )) }
-            </tbody>
-        </table>
-    );
+    const MonthlyTable = () => "Coming soon..";
+
+    const [ tab, setTab ] = useState(0);
 
     return (
         <Root spacing={3} pb={3}>
             <Title mb={-1}>Insights</Title>
-            { insights && <SummaryTable /> }
+            { !insights ? <HorizontalLoader /> : (
+                <>
+                    <Tabs
+                        value={tab}
+                        onChange={(event, newValue) => setTab(newValue)}
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        aria-label="Select insights page"
+                    >
+                        <Tab label="Average" component={Link} to="average" />
+                        <Tab label="Monthly" component={Link} to="monthly" />
+                    </Tabs>
+                    <Routes>
+                        <Route path="average" element={<AverageGrid /> } />
+                        <Route path="monthly" element={<MonthlyTable /> } />
+                        <Route path="" element={<Navigate to="average" />} />
+                    </Routes>
+                </>
+            )}
         </Root>
     );
 };
