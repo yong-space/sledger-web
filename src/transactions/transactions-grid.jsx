@@ -169,7 +169,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const slotProps = {
         toolbar: {
             showQuickFilter: true,
-            printOptions: { disableToolbarButton: isMobile },
+            printOptions: { disableToolbarButton: true },
             csvOptions: { disableToolbarButton: isMobile },
         },
     };
