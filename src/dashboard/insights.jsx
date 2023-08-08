@@ -21,6 +21,7 @@ const Root = styled(Stack)`
 const Insights = () => {
     const { getInsights } = api();
     const [ insights, setInsights ] = useState();
+    const ignoredCategories = [ 'Transient', 'Credit Card Bill' ];
 
     useEffect(() => getInsights((response) => setInsights(response)), []);
 
@@ -29,18 +30,21 @@ const Insights = () => {
             <thead>
                 <tr>
                     <th>Category</th>
-                    <th>Total</th>
+                    <th>Average</th>
                     <th>Transactions</th>
                 </tr>
             </thead>
             <tbody>
-                { insights.summary.map((insight, i) => (
-                    <tr key={i}>
-                        <td>{insight.category || "<No Category>"}</td>
-                        <td>{formatDecimal(insight.total)}</td>
-                        <td>{formatNumber(insight.transactions)}</td>
-                    </tr>
-                )) }
+                { insights.summary
+                    .filter(({ category }) => ignoredCategories.indexOf(category) === -1)
+                    .map((insight, i) => (
+                        <tr key={i}>
+                            <td>{insight.category || "<No Category>"}</td>
+                            <td>{formatDecimal(insight.average)}</td>
+                            <td>{formatNumber(insight.transactions)}</td>
+                        </tr>
+                    ))
+                }
             </tbody>
         </table>
     );
