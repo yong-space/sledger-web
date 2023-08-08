@@ -10,7 +10,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid';
 import InputLabel from '@mui/material/InputLabel';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
@@ -21,7 +20,6 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, accountToEdit, setAccountToEdit }) => {
@@ -215,11 +213,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
 
     const addAccountForm = (
         <form onSubmit={submit} autoComplete="off">
-            <Grid container item xs={12} md={5} direction="column" gap={2}>
-                <Typography variant="h6">
-                    { !!accountToEdit ? 'Edit' : 'Add New' } Account
-                </Typography>
-
+            <Stack spacing={2} mt={1}>
                 { !accountToEdit && <AccountTypeToggle /> }
 
                 { fieldMap[type] }
@@ -245,7 +239,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                         Cancel
                     </Button>
                 </Stack>
-            </Grid>
+            </Stack>
         </form>
     );
     return (
@@ -257,7 +251,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
             aria-describedby="add-account-dialog"
         >
             <DialogTitle id="add-account-dialog">
-                Add Account
+                { !!accountToEdit ? 'Edit' : 'Add New' } Account
             </DialogTitle>
             <DialogContent>
                 { addAccountForm }
