@@ -1,5 +1,6 @@
 import {
     DataGrid,
+    GridToolbar,
     useGridApiRef,
     gridFilteredSortedRowEntriesSelector,
 } from '@mui/x-data-grid';
@@ -160,24 +161,41 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         );
     };
 
+    const slots = {
+        toolbar: GridToolbar,
+        footer: TransactionsGridFooter,
+    };
+
+    const slotProps = {
+        toolbar: {
+            showQuickFilter: true,
+            printOptions: { disableToolbarButton: isMobile },
+            csvOptions: { disableToolbarButton: isMobile },
+        },
+    };
+
     return !transactions ? <HorizontalLoader /> : (
         <GridBox isMobile={isMobile}>
             <DataGrid
                 autoPageSize
                 checkboxSelection
                 disableColumnSelector
+                disableDensitySelector
+                disableColumnMenu
                 density="compact"
                 apiRef={apiRef}
                 rows={transactions}
                 columns={getColumns()}
+                columnVisibilityModel={visibleColumns}
                 rowSelectionModel={selectedRows}
                 onRowSelectionModelChange={(m) => setSelectedRows(m)}
-                onRowDoubleClick={handleDoubleClick}
-                columnVisibilityModel={visibleColumns}
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePagination}
+                onRowDoubleClick={handleDoubleClick}
+                onFilterModelChange={() => setSelectedRows([])}
                 sx={maxGridSize}
-                slots={{ footer: TransactionsGridFooter }}
+                slots={slots}
+                slotProps={slotProps}
             />
         </GridBox>
     );
