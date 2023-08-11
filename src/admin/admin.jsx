@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -10,15 +10,15 @@ const ManageIssuers = lazy(() => import('./manage-issuers'));
 const ManageUsers = lazy(() => import('./manage-users'));
 
 const Admin = () => {
-    const [ value, setValue ] = useState(0);
-    const handleChange = (event, newValue) => setValue(newValue);
+    const location = useLocation();
+    const [ tab, setTab ] = useState(location.pathname.endsWith('users') ? 1 : 0);
 
     return (
         <>
             <Title>Admin</Title>
             <Tabs
-                value={value}
-                onChange={handleChange}
+                value={tab}
+                onChange={(event, newValue) => setTab(newValue)}
                 variant="scrollable"
                 scrollButtons="auto"
                 aria-label="Select admin page"

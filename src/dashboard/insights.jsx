@@ -1,7 +1,8 @@
+import { BarChart } from '@mui/x-charts';
 import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
@@ -18,6 +19,12 @@ const Root = styled.div`
     flex: 1 1 1px;
 `;
 
+const ContentRoot = styled.div`
+    display: flex;
+    flex: 1 1 1px;
+    height: calc(100vh - 12rem);
+`;
+
 const GridBox = styled.div`
     display: flex;
     flex: 1 1 1px;
@@ -25,9 +32,10 @@ const GridBox = styled.div`
 `;
 
 const Insights = () => {
+    const location = useLocation();
     const { getInsights } = api();
+    const [ tab, setTab ] = useState(location.pathname.endsWith('monthly') ? 1 : 0);
     const [ insights, setInsights ] = useState();
-    const ignoredCategories = [ 'Transient', 'Credit Card Bill' ];
 
     useEffect(() => getInsights((response) => setInsights(response)), []);
 
@@ -38,9 +46,8 @@ const Insights = () => {
             maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
             maxHeight: `calc(100vh - ${isMobile ? 12 : 13}rem)`,
         };
-        const formatBlanks = ({ value }) => value || '<No Category>';
         const columns = [
-            { flex: 1, field: 'category', headerName: 'Category', valueFormatter: formatBlanks, },
+            { flex: 1, field: 'category', headerName: 'Category' },
             { flex: 1, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average' },
             { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
         ];
@@ -50,7 +57,7 @@ const Insights = () => {
                     hideFooter
                     disableColumnMenu
                     density="compact"
-                    rows={insights.summary.filter(({ category }) => ignoredCategories.indexOf(category) === -1)}
+                    rows={insights.summary}
                     columns={columns}
                     sx={maxGridSize}
                     getRowId={({ category }) =>  category}
@@ -59,9 +66,14 @@ const Insights = () => {
         );
     };
 
-    const MonthlyTable = () => "Coming soon..";
-
-    const [ tab, setTab ] = useState(0);
+    const MonthlyChart = () => (
+        <BarChart
+            series={insights.series}
+            xAxis={[{ data: insights.xaxis, scaleType: 'band' }]}
+            sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
+            margin={{ top: 10, right: 0 }}
+        />
+    );
 
     return (
         <Root spacing={3} pb={3}>
@@ -78,11 +90,13 @@ const Insights = () => {
                         <Tab label="Average" component={Link} to="average" />
                         <Tab label="Monthly" component={Link} to="monthly" />
                     </Tabs>
-                    <Routes>
-                        <Route path="average" element={<AverageGrid /> } />
-                        <Route path="monthly" element={<MonthlyTable /> } />
-                        <Route path="" element={<Navigate to="average" />} />
-                    </Routes>
+                    <ContentRoot>
+                        <Routes>
+                            <Route path="average" element={<AverageGrid /> } />
+                            <Route path="monthly" element={<MonthlyChart /> } />
+                            <Route path="" element={<Navigate to="average" />} />
+                        </Routes>
+                    </ContentRoot>
                 </>
             )}
         </Root>
