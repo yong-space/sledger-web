@@ -1,8 +1,9 @@
 import { AddButton, EditButton, DeleteButton, ImportButton } from '../core/buttons';
 import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import AddTransactionDialog from './add-transaction-form';
+import AddTransactionDialog from './add-transaction-dialog';
 import api from '../core/api';
+import BulkTransactionDialog from './bulk-transaction-dialog';
 import ConfirmDialog from '../core/confirm-dialog';
 import dayjs from 'dayjs';
 import Stack from '@mui/material/Stack';
@@ -15,6 +16,7 @@ const TransactionsActionButtons = ({
 }) => {
     const theme = useTheme();
     const setLoading = state.useState(state.loading)[1];
+    const [ showBulkDialog, setShowBulkDialog ] = useState(false);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
     const setPaginationModel = state.useState(state.paginationModel)[1];
     const selectedAccount = state.useState(state.selectedAccount)[0];
@@ -45,14 +47,19 @@ const TransactionsActionButtons = ({
     };
 
     const editTransaction = () => {
-        setTransactionToEdit(transactions.find(({ id }) => id === selectedRows[0]));
-        setShowAddDialog(true);
+        if (selectedRows.length === 1) {
+            setTransactionToEdit(transactions.find(({ id }) => id === selectedRows[0]));
+            setShowAddDialog(true);
+        } else {
+            setTransactionToEdit(selectedRows);
+            setShowBulkDialog(true);
+        }
     };
 
     return (
         <Stack direction="row" spacing={1}>
             { selectedRows.length === 0 && <AddButton onClick={() => setShowAddDialog(true)} />}
-            { selectedRows.length === 1 && <EditButton onClick={editTransaction} />}
+            { selectedRows.length > 0 && <EditButton onClick={editTransaction} />}
             { selectedRows.length > 0 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
 
             { useMediaQuery(theme.breakpoints.up('md')) && canImport && (
@@ -66,6 +73,14 @@ const TransactionsActionButtons = ({
                     setTransactionToEdit,
                     setSelectedRows,
                     setPaginationModel,
+                }} />
+            )}
+
+            { showBulkDialog && (
+                <BulkTransactionDialog {...{
+                    setShowBulkDialog,
+                    transactionToEdit,
+                    setTransactionToEdit,
                 }} />
             )}
 
