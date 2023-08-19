@@ -6,6 +6,7 @@ import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
+import dayjs from 'dayjs';
 import styled from 'styled-components';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -66,10 +67,12 @@ const Insights = () => {
         );
     };
 
+    const formatAxis = ({ xaxis }) => xaxis.map((str) => dayjs(str).format('MMM'));
+
     const MonthlyChart = () => (
         <BarChart
             series={insights.series}
-            xAxis={[{ data: insights.xaxis, scaleType: 'band' }]}
+            xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
             sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
             margin={{ top: 10, right: 0 }}
         />
