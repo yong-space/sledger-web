@@ -2,7 +2,7 @@ import { HorizontalLoader } from '../core/loader';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
-import AccountSelector from './account-selector';
+import AccountSelector from '../core/account-selector';
 import TransactionsActionButtons from './transactions-action-buttons';
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
@@ -39,9 +39,6 @@ const Transactions = () => {
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
     useEffect(() => {
-        if (!accounts) {
-            return;
-        }
         if (getVisibleAccounts().length === 0) {
             navigate('/settings/accounts');
             return;
@@ -82,7 +79,11 @@ const Transactions = () => {
                 { isMobile && <TransactionsActionButtons {...actionProps} />}
             </Stack>
             <Stack direction="row" spacing={1} justifyContent="space-between">
-                <AccountSelector disabled={importMode} handleChange={({ target }) => navigate(`/tx/${target.value}`)} />
+                <AccountSelector
+                    sx={{ flex: 4 }}
+                    disabled={importMode}
+                    handleChange={({ target }) => navigate(`/tx/${target.value}`)}
+                />
                 { !isMobile && !importMode && <TransactionsActionButtons {...actionProps} /> }
             </Stack>
             { importMode ?

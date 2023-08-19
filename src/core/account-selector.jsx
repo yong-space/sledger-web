@@ -3,7 +3,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import state from '../core/state';
+import state from './state';
 import styled from 'styled-components';
 
 const FxRoot = styled.sup`
@@ -14,11 +14,13 @@ const FxRoot = styled.sup`
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
-const AccountSelector = ({ handleChange, disabled }) => {
+const AccountSelector = ({ handleChange, disabled, sx, accountFilter }) => {
     const issuers = state.useState(state.issuers)[0];
     const accounts = state.useState(state.accounts)[0];
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
+    const getAccounts = () => !accountFilter ? getVisibleAccounts() :
+        getVisibleAccounts().filter(accountFilter);
     const getIssuer = (id) => issuers.find(i => i.id === id);
 
     const colors = {
@@ -37,7 +39,7 @@ const AccountSelector = ({ handleChange, disabled }) => {
     );
 
     return !(accounts && selectedAccount) ? <></> : (
-        <FormControl size="small" sx={{ flex: 4 }}>
+        <FormControl size="small" sx={sx}>
             <InputLabel id="account-label">Account</InputLabel>
             <Select
                 labelId="account-label"
@@ -54,7 +56,7 @@ const AccountSelector = ({ handleChange, disabled }) => {
                     )
                 }}
             >
-                { getVisibleAccounts().map(({ id, name, type, issuerId, multiCurrency }) => (
+                { getAccounts().map(({ id, name, type, issuerId, multiCurrency }) => (
                     <MenuItem key={id} value={id} sx={{ gap: '.4rem' }}>
                         <AccountEntry {...{ type, issuer: getIssuer(issuerId), name, multiCurrency }} />
                     </MenuItem>

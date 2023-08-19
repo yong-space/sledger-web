@@ -51,6 +51,7 @@ const NavBar = () => {
             children: [
                 { label: 'Summary', link: '/dash/summary' },
                 { label: 'Insights', link: '/dash/insights' },
+                { label: 'Credit Card Statements', link: '/dash/credit-card-statements' },
             ],
         },
         {
