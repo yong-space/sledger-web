@@ -11,12 +11,9 @@ import SubTitle from '../core/sub-title';
 import Title from '../core/title';
 
 const Root = styled(Stack)`
-    width: 35vw;
-    ${props => props.theme.breakpoints.down("lg")} {
-        width: 45vw;
-    }
+    width: 35rem;
     ${props => props.theme.breakpoints.down("md")} {
-        width: 92vw;
+        width: 98%;
         align-self: center;
     }
 `;
@@ -31,18 +28,19 @@ const Table = styled.table`
     border-radius: .5rem;
     margin: 0;
     border-collapse: collapse;
-    thead tr, tbody tr:not(:last-child) {
+
+    tr:not(tfoot *) {
         border-bottom: 1px solid #666;
     }
     tbody tr { cursor: pointer }
     th, td {
+        padding: .8rem;
         text-align: left;
-        padding: .8rem 1.2rem;
+        white-space: nowrap;
+        &:first-child { font-weight: 800 }
+        &:last-child { text-align: right }
     }
-    td:first-child { font-weight: 800 }
-    th:last-child, td:last-child {
-        text-align: right;
-    }
+    tfoot { font-weight: 800 }
 `;
 
 const Summary = () => {
@@ -85,6 +83,11 @@ const Summary = () => {
         (type === 'Cash' && header === 'Issuer') ? 'Bank' :
         (type === 'Credit' && header === 'Account') ? 'Card' : header;
 
+    const getSubtotal = (data) => {
+        const sum = data.map((row) => Number(row.balance)).reduce((a, b) => a + b, 0);
+        return formatDecimal(sum);
+    };
+
     const SummaryGrid = ({ label, data }) => data.length > 0 && (
         <Wrapper>
             <SubTitle mb={5}>{label}</SubTitle>
@@ -100,7 +103,7 @@ const Summary = () => {
                     { data.map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             { columns.map((column) => (
-                                <td key={column.field} theme={theme} onClick={() => navigate(`/tx/${row.id}`)}>
+                                <td key={column.field} onClick={() => navigate(`/tx/${row.id}`)}>
                                     { getValue(column, row, rowIndex) }
                                     { column.field === 'name' && row.multiCurrency && <sup>FX</sup> }
                                 </td>
@@ -108,6 +111,12 @@ const Summary = () => {
                         </tr>
                     ))}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colSpan="2">Sub-Total</td>
+                        <td>{ getSubtotal(data) }</td>
+                    </tr>
+                </tfoot>
             </Table>
         </Wrapper>
     );
@@ -141,12 +150,12 @@ const Summary = () => {
         return (
             <Wrapper>
                 <Table>
-                    <tbody>
+                    <tfoot>
                         <tr>
                             <td>Total Net Worth</td>
                             <td>{ formatDecimal(netWorth, false) }</td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </Table>
             </Wrapper>
         );
@@ -163,7 +172,7 @@ const Summary = () => {
     );
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
-        <Root spacing={3} pb={3}>
+        <Root spacing={3} pb={3} theme={theme}>
             <Title mb={-1}>Summary</Title>
             <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
             <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
