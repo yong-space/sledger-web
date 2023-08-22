@@ -63,7 +63,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         const vColumns = !isMobile ? { amount: false } : {
             id: false, credit: false, debit: false, category: false, balance: false,
             fx: false, originalAmount: false, company: false, forMonth: false, billingMonth: false,
-            ordinaryAmount: false, specialAmount: false, medisaveAmount: false
+            ordinaryAmount: false, specialAmount: false, medisaveAmount: false, subCategory: false,
         };
         setVisibleColumns(vColumns);
     }, [ isMobile ]);
@@ -87,6 +87,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimal },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
+        subCategory: { flex: 2, field: 'subCategory', headerName: 'Sub-category' },
         code: { flex: 2, field: 'code', headerName: 'Code' },
         company: { flex: 2, field: 'company', headerName: 'Company' },
         ordinaryAmount: { flex: 2, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal },
@@ -95,9 +96,10 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     };
 
     const columnMap = {
-        Cash: [ columns.id, columns.date, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category ],
-        CashFX: [ columns.id, columns.date, columns.credit, columns.debit, columns.amount, columns.originalAmount, columns.fx, columns.balance, columns.remarks, columns.category ],
-        Credit: [ columns.id, columns.date, columns.billingMonth, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category ],
+        Cash: [ columns.id, columns.date, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category, columns.subCategory ],
+        CashFX: [ columns.id, columns.date, columns.credit, columns.debit, columns.amount, columns.originalAmount, columns.fx, columns.balance, columns.remarks, columns.category, columns.subCategory ],
+        Credit: [ columns.id, columns.date, columns.billingMonth, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category, columns.subCategory ],
+        CreditFX: [ columns.id, columns.date, columns.billingMonth, columns.credit, columns.debit, columns.amount, columns.originalAmount, columns.fx, columns.balance, columns.remarks, columns.category, columns.subCategory ],
         Retirement: [ columns.id, columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ]
     };
 

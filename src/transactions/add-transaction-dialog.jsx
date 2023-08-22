@@ -285,6 +285,19 @@ const AddTransactionDialog = ({
                 }}
             />
         ),
+        subCategory: (
+            <AutoFill
+                key="subCategory"
+                promise={suggestCategory}
+                initValue={transactionToEdit?.subCategory}
+                fieldProps={{
+                    required: true,
+                    inputProps: { minLength: 2 },
+                    name: 'subCategory',
+                    label: 'Sub-category'
+                }}
+            />
+        ),
         code: (
             <AutoFill
                 key="code"
@@ -345,10 +358,10 @@ const AddTransactionDialog = ({
     };
 
     const fieldMap = {
-        Cash: [ fields.date, fields.creditDebit, fields.amount, fields.remarks, fields.category ],
-        CashFX: [ fields.date, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category ],
-        Credit: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.remarks, fields.category ],
-        CreditFX: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category ],
+        Cash: [ fields.date, fields.creditDebit, fields.amount, fields.remarks, fields.category, fields.subCategory ],
+        CashFX: [ fields.date, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category, fields.subCategory ],
+        Credit: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.remarks, fields.category, fields.subCategory ],
+        CreditFX: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category, fields.subCategory ],
         Retirement: [ fields.date, fields.month, fields.code, fields.company, fields.amount, fields.ordinaryAmount, fields.specialAmount, fields.medisaveAmount ],
     };
 
