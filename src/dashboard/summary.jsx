@@ -1,9 +1,10 @@
 import { formatDecimal } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
@@ -23,6 +24,39 @@ const Wrapper = styled.div`
     flex-direction: column;
 `;
 
+const FloatingFooter = styled(Wrapper)`
+    position: fixed;
+    bottom: 1rem;
+    flex: 1 1 1px;
+    width: 35rem;
+    border-radius: .5rem;
+
+    ${props => props.theme.breakpoints.down("md")} {
+        width: calc(100% - 3.8rem);
+        align-self: center;
+    }
+    ${props => props.theme.breakpoints.down("sm")} {
+        width: calc(100% - 1.5rem);
+        align-self: center;
+    }
+
+    box-shadow:
+        1rem -1.5rem 1rem var(--bg),
+        -1rem -1.5rem 1rem var(--bg),
+        1rem 2rem 1rem var(--bg),
+        -1rem 2rem 1rem var(--bg);
+
+    table { background: #2c4866 }
+`;
+
+const IssuerChip = ({ color, label }) => (
+    <Chip
+        label={label}
+        variant="outlined"
+        sx={{ borderRadius: '.5rem', color: `#${color}`, borderColor: `#${color}` }}
+    />
+);
+
 const Table = styled.table`
     background: #222;
     border-radius: .5rem;
@@ -36,11 +70,25 @@ const Table = styled.table`
     th, td {
         padding: .8rem;
         text-align: left;
-        white-space: nowrap;
-        &:first-child { font-weight: 800 }
+        &:first-child {
+            --width: 6rem;
+            width: var(--width);
+            min-width: var(--width);
+            max-width: var(--width);
+            font-weight: 800;
+        }
         &:last-child { text-align: right }
     }
-    tfoot { font-weight: 800 }
+    tfoot {
+        border-radius: .5rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    tfoot:not(:only-child) {
+        td:first-child { border-bottom-left-radius: .5rem }
+        td:last-child { border-bottom-right-radius: .5rem }
+        td { background: #333 }
+    }
 `;
 
 const Summary = () => {
@@ -70,13 +118,37 @@ const Summary = () => {
     ];
 
     const getValue = (column, row, rowIndex) => {
+        const props = {
+            key: column.field,
+            onClick: () => navigate(`/tx/${row.id}`),
+        };
+        let value = undefined;
         switch (column.field) {
             case 'issuer':
-                const issuer = issuers.find(i => i.id === row.issuerId).name;
-                return (issuer !== 'CPF' || rowIndex === 0) ? issuer : '';
-            case 'balance': return formatDecimal(row[column.field], false);
-            default: return row[column.field];
+                const issuer = issuers.find(i => i.id === row.issuerId);
+                if (issuer.name === 'CPF') {
+                    if (rowIndex > 0) {
+                        break;
+                    }
+                    props.rowSpan = 3;
+                }
+                value = <IssuerChip label={issuer.name} color={issuer.colour} />;
+                break;
+            case 'balance':
+                value = formatDecimal(row[column.field], false);
+                break;
+            case 'name':
+                if (row.multiCurrency) {
+                    value = <>{row[column.field]} <sup>FX</sup></>;
+                    break;
+                }
+            default: value = row[column.field];
         }
+        return !value ? <Fragment key={column.field} /> : (
+            <td {...props}>
+                {value}
+            </td>
+        );
     };
 
     const getHeaderLabel = (type, header) =>
@@ -102,12 +174,7 @@ const Summary = () => {
                 <tbody>
                     { data.map((row, rowIndex) => (
                         <tr key={rowIndex}>
-                            { columns.map((column) => (
-                                <td key={column.field} onClick={() => navigate(`/tx/${row.id}`)}>
-                                    { getValue(column, row, rowIndex) }
-                                    { column.field === 'name' && row.multiCurrency && <sup>FX</sup> }
-                                </td>
-                            )) }
+                            { columns.map((column) => getValue(column, row, rowIndex)) }
                         </tr>
                     ))}
                 </tbody>
@@ -146,20 +213,18 @@ const Summary = () => {
         );
     };
 
-    const TotalNetWorth = () => {
-        return (
-            <Wrapper>
-                <Table>
-                    <tfoot>
-                        <tr>
-                            <td>Total Net Worth</td>
-                            <td>{ formatDecimal(netWorth, false) }</td>
-                        </tr>
-                    </tfoot>
-                </Table>
-            </Wrapper>
-        );
-    };
+    const TotalNetWorth = () => (
+        <FloatingFooter>
+            <Table>
+                <tfoot>
+                    <tr>
+                        <td colSpan={2}>Total Net Worth</td>
+                        <td>{ formatDecimal(netWorth, false) }</td>
+                    </tr>
+                </tfoot>
+            </Table>
+        </FloatingFooter>
+    );
 
     const Empty = () => (
         <Alert
@@ -172,7 +237,7 @@ const Summary = () => {
     );
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
-        <Root spacing={3} pb={3} theme={theme}>
+        <Root spacing={3} pb={12} theme={theme}>
             <Title mb={-1}>Summary</Title>
             <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
             <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
