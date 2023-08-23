@@ -1,5 +1,6 @@
 import 'dayjs/locale/en-sg';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useState, useEffect } from 'react';
@@ -51,10 +52,33 @@ const AddTransactionDialog = ({
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const setAccounts = state.useState(state.accounts)[1];
+    const [ categories, setCategories ] = state.useState(state.categories);
+    const [ categoryOptions, setCategoryOptions ] = useState([]);
+    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
+    const [ category, setCategory ] = useState('');
+    const [ categoryMap, setCategoryMap ] = useState();
     const {
         listAccounts, addTransaction, editTransaction, listTransactions,
-        showStatus, suggestRemarks, suggestCategory, suggestCode, suggestCompany,
+        showStatus, suggestRemarks, suggestCode, suggestCompany, getCategories,
     } = api();
+
+    useEffect(() => {
+        if (categories.length === 0) {
+            getCategories((response) => setCategories(response));
+        }
+    }, []);
+
+    const prepareOptions = (array, field) => ([
+        ...new Set(array.map((s) => s[field]))
+    ].map((o) => ({ label: o })));
+
+    useEffect(() => {
+        setCategoryOptions(prepareOptions(categories, 'category'));
+        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
+        setCategoryMap(
+            categories.reduce((o, c) => ({ ...o, [c.subCategory]: c.category }), {})
+        );
+    }, [ categories ]);
 
     useEffect(() => {
         if (!transactionToEdit) {
@@ -273,29 +297,40 @@ const AddTransactionDialog = ({
             />
         ),
         category: (
-            <AutoFill
+            <Autocomplete
                 key="category"
-                promise={suggestCategory}
-                initValue={transactionToEdit?.category}
-                fieldProps={{
-                    required: true,
-                    inputProps: { minLength: 2 },
-                    name: 'category',
-                    label: 'Category'
-                }}
+                freeSolo
+                options={categoryOptions}
+                filterOptions={createFilterOptions({ limit: 5 })}
+                value={category}
+                onChange={(e, v) => setCategory(v)}
+                renderInput={(params) => (
+                    <TextField
+                        required
+                        inputProps={{ minLength: 2 }}
+                        name="category"
+                        label="Category"
+                        {...params}
+                    />
+                )}
             />
         ),
         subCategory: (
-            <AutoFill
+            <Autocomplete
                 key="subCategory"
-                promise={suggestCategory}
-                initValue={transactionToEdit?.subCategory}
-                fieldProps={{
-                    required: true,
-                    inputProps: { minLength: 2 },
-                    name: 'subCategory',
-                    label: 'Sub-category'
-                }}
+                freeSolo
+                options={subCategoryOptions}
+                filterOptions={createFilterOptions({ limit: 5 })}
+                onInputChange={(e, value) => setCategory((old) => categoryMap[value] || old)}
+                renderInput={(params) => (
+                    <TextField
+                        required
+                        inputProps={{ minLength: 2 }}
+                        name="subCategory"
+                        label="Sub-category"
+                        {...params}
+                    />
+                )}
             />
         ),
         code: (

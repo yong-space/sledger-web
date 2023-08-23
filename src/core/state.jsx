@@ -13,6 +13,7 @@ const state = () => ({
     transactionsAccountId: atom({ key: 'transactionsAccountId', default: undefined }),
     selectedRows: atom({ key: 'selectedRows', default: [] }),
     paginationModel: atom({ key: 'paginationModel', default: undefined }),
+    categories: atom({ key: 'categories', default: [] }),
 });
 
 export default state();

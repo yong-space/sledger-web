@@ -87,6 +87,7 @@ const api = () => {
         deleteTransaction: (id, callback) => apiCall(DELETE, `transaction/${id}`, callback),
         suggestRemarks: (input, callback) => apiCall(GET, `suggest/remarks?q=${input}`, callback),
         suggestCategory: (input, callback) => apiCall(GET, `suggest/category?q=${input}`, callback),
+        getCategories: (callback) => apiCall(GET, 'suggest/categories', callback),
         suggestCode: (input, callback) => apiCall(GET, `suggest/code?q=${input}`, callback),
         suggestCompany: (input, callback) => apiCall(GET, `suggest/company?q=${input}`, callback),
         listTemplates: (callback) => apiCall(GET, 'template', callback),

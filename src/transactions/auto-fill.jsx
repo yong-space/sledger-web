@@ -10,7 +10,7 @@ const AutoFill = ({ initValue, fieldProps, promise }) => {
     const [ options, setOptions ] = useState([]);
 
     const fetcher = useMemo(() => debounce((request, callback) =>
-        promise(request, callback), 300), []);
+        promise(request, callback), 200), []);
 
     useEffect(() => {
         if (inputValue.length < 3) {
