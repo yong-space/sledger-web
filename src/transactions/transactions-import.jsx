@@ -42,6 +42,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const setPaginationModel = state.useState(state.paginationModel)[1];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const { uploadImport, addTransaction, showStatus } = api();
+    const [ selectedImportRows, setSelectedImportRows ] = useState([]);
 
     const onDrop = (acceptedFiles) => {
         const data = new FormData();
@@ -51,13 +52,15 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
         uploadImport(data, (response) => {
             setImportTransactions(response);
+            setSelectedImportRows(response.map(({ id }) => id));
             setLoading(false);
         });
     };
 
     const submitTransactions = () => {
         setLoading(true);
-        addTransaction(importTransactions, (response) => {
+        const selectedTransactions = importTransactions.filter(({ id }) => selectedImportRows.indexOf(id) > -1);
+        addTransaction(selectedTransactions, (response) => {
             const tx = [ ...transactions, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date));
             setTransactions(tx);
             setSelectedRows(response.map(({ id }) => id));
@@ -88,8 +91,6 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     );
 
     const ImportGrid = () => {
-        const [ selectedRows, setSelectedRows ] = useState([]);
-
         const columns = {
             date: { editable: true, width: '100', field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
             billingMonth: { editable: true, width: '100', field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatDate },
@@ -98,6 +99,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber },
             remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks' },
             category: { editable: true, field: 'category', headerName: 'Category' },
+            subCategory: { editable: true, field: 'subCategory', headerName: 'Sub-category' },
             code: { editable: true, field: 'code', headerName: 'Code' },
             company: { editable: true, field: 'company', headerName: 'Company' },
             ordinaryAmount: { editable: true, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatNumber },
@@ -106,23 +108,24 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         };
 
         const columnMap = {
-            Cash: [ columns.date, columns.amount, columns.remarks, columns.category ],
-            Credit: [ columns.date, columns.billingMonth, columns.amount, columns.remarks, columns.category ],
+            Cash: [ columns.date, columns.amount, columns.remarks, columns.category, columns.subCategory ],
+            Credit: [ columns.date, columns.billingMonth, columns.amount, columns.remarks, columns.category, columns.subCategory ],
             Retirement: [ columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ]
         };
 
         return (
             <ImportGridRoot>
                 <DataGrid
-                    hideFooter
+                    autoPageSize
+                    checkboxSelection
                     disableColumnMenu
                     showColumnRightBorder
                     density="compact"
                     rows={importTransactions}
                     columns={columnMap[selectedAccount.type]}
                     editMode="row"
-                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
-                    rowSelectionModel={selectedRows}
+                    rowSelectionModel={selectedImportRows}
+                    onRowSelectionModelChange={(m) => setSelectedImportRows(m)}
                 />
             </ImportGridRoot>
         );
