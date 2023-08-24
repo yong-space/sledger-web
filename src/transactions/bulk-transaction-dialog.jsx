@@ -1,10 +1,12 @@
 import 'dayjs/locale/en-sg';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
+import Autocomplete from '@mui/material/Autocomplete';
 import AutoFill from './auto-fill';
 import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
@@ -14,6 +16,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
+import TextField from '@mui/material/TextField';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
 
@@ -27,10 +30,33 @@ const BulkTransactionDialog = ({
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ month, setMonth ] = useState();
+    const [ categories, setCategories ] = state.useState(state.categories);
+    const [ categoryOptions, setCategoryOptions ] = useState([]);
+    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
+    const [ category, setCategory ] = useState('');
+    const [ categoryMap, setCategoryMap ] = useState();
 
     const {
-        bulkEditTransactions, suggestRemarks, suggestCategory, showStatus,
+        bulkEditTransactions, suggestRemarks, showStatus, getCategories,
     } = api();
+
+    useEffect(() => {
+        if (categories.length === 0) {
+            getCategories((response) => setCategories(response));
+        }
+    }, []);
+
+    const prepareOptions = (array, field) => ([
+        ...new Set(array.map((s) => s[field]))
+    ].map((o) => ({ label: o })));
+
+    useEffect(() => {
+        setCategoryOptions(prepareOptions(categories, 'category'));
+        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
+        setCategoryMap(
+            categories.reduce((o, c) => ({ ...o, [c.subCategory]: c.category }), {})
+        );
+    }, [ categories ]);
 
     const submit = (event) => {
         event.preventDefault();
@@ -88,13 +114,32 @@ const BulkTransactionDialog = ({
                             label: 'Remarks'
                         }}
                     />
-                    <AutoFill
-                        promise={suggestCategory}
-                        fieldProps={{
-                            inputProps: { minLength: 2 },
-                            name: 'category',
-                            label: 'Category'
-                        }}
+                    <Autocomplete
+                        freeSolo
+                        options={categoryOptions}
+                        filterOptions={createFilterOptions({ limit: 5 })}
+                        value={category}
+                        onChange={(e, v) => setCategory(v)}
+                        renderInput={(params) => (
+                            <TextField
+                                name="category"
+                                label="Category"
+                                {...params}
+                            />
+                        )}
+                    />
+                    <Autocomplete
+                        freeSolo
+                        options={subCategoryOptions}
+                        filterOptions={createFilterOptions({ limit: 5 })}
+                        onInputChange={(e, value) => setCategory((old) => categoryMap[value] || old)}
+                        renderInput={(params) => (
+                            <TextField
+                                name="subCategory"
+                                label="Sub-category"
+                                {...params}
+                            />
+                        )}
                     />
                 </LocalizationProvider>
 
