@@ -133,9 +133,10 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
     return (
         <ImportRoot>
-            { loading && <CircularLoader /> }
-            { !loading && !importTransactions && <DropZone /> }
-            { !loading && importTransactions && <ImportGrid /> }
+            {
+                loading ? <CircularLoader /> :
+                !importTransactions ? <DropZone /> : <ImportGrid />
+            }
             <Stack direction="row" spacing={2}>
                 <Button
                     color="info"

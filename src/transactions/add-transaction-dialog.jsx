@@ -56,7 +56,7 @@ const AddTransactionDialog = ({
     const [ categoryOptions, setCategoryOptions ] = useState([]);
     const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
     const [ category, setCategory ] = useState('');
-    const [ categoryMap, setCategoryMap ] = useState();
+    const [ categoryMap, setCategoryMap ] = useState({});
     const {
         listAccounts, addTransaction, editTransaction, listTransactions,
         showStatus, suggestRemarks, suggestCode, suggestCompany, getCategories,
@@ -103,6 +103,7 @@ const AddTransactionDialog = ({
         } else if (selectedAccount?.type === 'Retirement') {
             setMonth(dayjs(transactionToEdit.forMonth));
         }
+        setCategory(transactionToEdit.category || '');
     }, [ selectedAccount, transactionToEdit ]);
 
     const submit = (event) => {
@@ -319,13 +320,12 @@ const AddTransactionDialog = ({
             <Autocomplete
                 key="subCategory"
                 freeSolo
+                defaultValue={transactionToEdit?.subCategory}
                 options={subCategoryOptions}
                 filterOptions={createFilterOptions({ limit: 5 })}
                 onInputChange={(e, value) => setCategory((old) => categoryMap[value] || old)}
                 renderInput={(params) => (
                     <TextField
-                        required
-                        inputProps={{ minLength: 2 }}
                         name="subCategory"
                         label="Sub-category"
                         {...params}
@@ -434,7 +434,7 @@ const AddTransactionDialog = ({
             aria-describedby="add-transaction-dialog-description"
         >
             <DialogTitle id="add-transaction-dialog-title">
-                Add Transaction
+                { transactionToEdit ? 'Edit' : 'Add' } Transaction
             </DialogTitle>
             <DialogContent>
                 { addTransactionForm }
