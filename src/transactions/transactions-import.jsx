@@ -1,15 +1,18 @@
 import { CircularLoader } from '../core/loader';
-import { DataGrid } from '@mui/x-data-grid';
+import { createFilterOptions } from '@mui/material/Autocomplete';
+import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
 import { formatDate, formatNumber } from '../util/formatters';
 import { red, green, blue, grey } from '@mui/material/colors';
-import { useState } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import api from '../core/api';
+import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import Dropzone from 'react-dropzone';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
+import TextField from '@mui/material/TextField';
 
 const ImportRoot = styled.div`
     display: flex;
@@ -42,7 +45,30 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const setPaginationModel = state.useState(state.paginationModel)[1];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ checkHeader, setCheckHeader ] = useState({ checked: true, indeterminate: false });
-    const { uploadImport, addTransaction, showStatus } = api();
+    const [ categories, setCategories ] = state.useState(state.categories);
+    const [ categoryOptions, setCategoryOptions ] = useState([]);
+    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
+    const [ category, setCategory ] = useState('');
+    const [ categoryMap, setCategoryMap ] = useState();
+    const { uploadImport, addTransaction, showStatus, getCategories } = api();
+
+    useEffect(() => {
+        if (categories.length === 0) {
+            getCategories((response) => setCategories(response));
+        }
+    }, []);
+
+    const prepareOptions = (array, field) => ([
+        ...new Set(array.map((s) => s[field]))
+    ].map((o) => ({ label: o })));
+
+    useEffect(() => {
+        setCategoryOptions(prepareOptions(categories, 'category'));
+        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
+        setCategoryMap(
+            categories.reduce((o, c) => ({ ...o, [c.subCategory]: c.category }), {})
+        );
+    }, [ categories ]);
 
     const maxGridSize = {
         maxWidth: `calc(100vw - 3rem)`,
@@ -118,6 +144,53 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         });
     };
 
+    const CategoryEditor = (props) => {
+        const { id, value, field, hasFocus } = props;
+        const apiRef = useGridApiContext();
+        const ref = useRef();
+
+        useLayoutEffect(() => {
+          if (hasFocus) {
+            ref.current.focus();
+          }
+        }, [ hasFocus ]);
+
+        const handleChange = (e, v) => {
+            apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
+        };
+
+        const handleInputChange = (e, v) => {
+            if (!props.sub) {
+                return;
+            }
+            const lookupCategory = categoryMap[v];
+            if (lookupCategory) {
+                apiRef.current.setEditCellValue({ id, field: 'category', value: lookupCategory });
+            }
+        };
+
+        return (
+            <Autocomplete
+                freeSolo
+                options={props.sub ? subCategoryOptions : categoryOptions}
+                filterOptions={createFilterOptions({ limit: 5 })}
+                value={value || ""}
+                onChange={handleChange}
+                onInputChange={handleInputChange}
+                disableClearable
+                sx={{ flex: 1 }}
+                renderInput={(params) => (
+                    <TextField
+                        inputRef={ref}
+                        name={props.sub ? "subCategory" : "category"}
+                        label={props.sub ? "Sub-category" : "Category"}
+                        {...params}
+                    />
+                )}
+            />
+        );
+    };
+
     const ImportGrid = () => {
         const columns = {
             selector: {
@@ -135,8 +208,8 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
             originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber },
             remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks' },
-            category: { editable: true, field: 'category', headerName: 'Category' },
-            subCategory: { editable: true, field: 'subCategory', headerName: 'Sub-category' },
+            category: { editable: true, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
+            subCategory: { editable: true, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
             code: { editable: true, field: 'code', headerName: 'Code' },
             company: { editable: true, field: 'company', headerName: 'Company' },
             ordinaryAmount: { editable: true, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatNumber },
