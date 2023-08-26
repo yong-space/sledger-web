@@ -6,6 +6,7 @@ import { red, green, blue, grey } from '@mui/material/colors';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import api from '../core/api';
 import Autocomplete from '@mui/material/Autocomplete';
+import AutoFill from './auto-fill';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import Dropzone from 'react-dropzone';
@@ -48,9 +49,8 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ categories, setCategories ] = state.useState(state.categories);
     const [ categoryOptions, setCategoryOptions ] = useState([]);
     const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
-    const [ category, setCategory ] = useState('');
     const [ categoryMap, setCategoryMap ] = useState();
-    const { uploadImport, addTransaction, showStatus, getCategories } = api();
+    const { uploadImport, addTransaction, showStatus, getCategories, suggestRemarks } = api();
 
     useEffect(() => {
         if (categories.length === 0) {
@@ -144,6 +144,38 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         });
     };
 
+    const RemarksEditor = (props) => {
+        const { id, value, field, hasFocus } = props;
+        const apiRef = useGridApiContext();
+        const ref = useRef();
+
+        useLayoutEffect(() => {
+          if (hasFocus) {
+            ref.current.focus();
+          }
+        }, [ hasFocus ]);
+
+        const handleChange = (e, v) => {
+            apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
+        };
+
+        return (
+            <AutoFill
+                promise={suggestRemarks}
+                initValue={value || ""}
+                onChange={handleChange}
+                disableClearable
+                sx={{ flex: 1 }}
+                fieldProps={{
+                    inputRef: ref,
+                    inputProps: { minLength: 2 },
+                    name: 'remarks',
+                    label: 'Remarks'
+                }}
+            />
+        );
+    }
+
     const CategoryEditor = (props) => {
         const { id, value, field, hasFocus } = props;
         const apiRef = useGridApiContext();
@@ -207,7 +239,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             forMonth: { editable: true, field: 'forMonth', headerName: 'Month' },
             amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
             originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber },
-            remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks' },
+            remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks', renderEditCell: (p) => <RemarksEditor {...p} /> },
             category: { editable: true, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
             subCategory: { editable: true, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
             code: { editable: true, field: 'code', headerName: 'Code' },

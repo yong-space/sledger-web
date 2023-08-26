@@ -3,7 +3,7 @@ import TextField from '@mui/material/TextField';
 import { useState, useEffect, useMemo } from 'react';
 import { debounce } from '@mui/material/utils';
 
-const AutoFill = ({ initValue, fieldProps, promise }) => {
+const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
     const [ loading, setLoading ] = useState(false);
     const [ value, setValue ] = useState(null);
     const [ inputValue, setInputValue ] = useState(initValue || '');
@@ -40,6 +40,7 @@ const AutoFill = ({ initValue, fieldProps, promise }) => {
             onChange={(e, v) => setValue(v)}
             filterOptions={(x) => x}
             renderInput={(params) => <TextField {...fieldProps} {...params} />}
+            {...props}
         />
     );
 };
