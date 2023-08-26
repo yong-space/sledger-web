@@ -1,14 +1,15 @@
 import { CircularLoader } from '../core/loader';
 import { DataGrid } from '@mui/x-data-grid';
+import { formatDate, formatNumber } from '../util/formatters';
 import { red, green, blue, grey } from '@mui/material/colors';
 import { useState } from 'react';
 import api from '../core/api';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import Dropzone from 'react-dropzone';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
-import { formatDate, formatNumber } from '../util/formatters';
 
 const ImportRoot = styled.div`
     display: flex;
@@ -38,11 +39,15 @@ const ImportZone = styled.div`
 const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ loading, setLoading ] = state.useState(state.loading);
     const [ importTransactions, setImportTransactions ] = useState();
-    const setSelectedRows = state.useState(state.selectedRows)[1];
     const setPaginationModel = state.useState(state.paginationModel)[1];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
+    const [ checkHeader, setCheckHeader ] = useState({ checked: true, indeterminate: false });
     const { uploadImport, addTransaction, showStatus } = api();
-    const [ selectedImportRows, setSelectedImportRows ] = useState([]);
+
+    const maxGridSize = {
+        maxWidth: `calc(100vw - 3rem)`,
+        maxHeight: `calc(100vh - 14rem)`,
+    };
 
     const onDrop = (acceptedFiles) => {
         const data = new FormData();
@@ -51,15 +56,14 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         setLoading(true);
 
         uploadImport(data, (response) => {
-            setImportTransactions(response);
-            setSelectedImportRows(response.map(({ id }) => id));
+            setImportTransactions(response.map((e) => ({ ...e, selected: true })));
             setLoading(false);
         });
     };
 
     const submitTransactions = () => {
         setLoading(true);
-        const selectedTransactions = importTransactions.filter(({ id }) => selectedImportRows.indexOf(id) > -1);
+        const selectedTransactions = importTransactions.filter(({ selected }) => selected);
         addTransaction(selectedTransactions, (response) => {
             const tx = [ ...transactions, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date));
             setTransactions(tx);
@@ -90,8 +94,41 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         </Dropzone>
     );
 
+    const isAllSelected = () => {
+        const total = importTransactions.length;
+        const selected = importTransactions.filter(({ selected }) => selected).length;
+        return total === selected;
+    };
+
+    const toggleSelection = (row) => {
+        row.selected = !row.selected;
+        const allSelected = isAllSelected();
+        setCheckHeader({
+            checked: allSelected,
+            indeterminate: !allSelected && importTransactions.filter(({ selected }) => selected).length > 0,
+        });
+    };
+
+    const toggleMassSelection = () => {
+        const allSelected = isAllSelected();
+        setImportTransactions((old) => old.map((e) => ({ ...e, selected: !allSelected })));
+        setCheckHeader({
+            checked: !allSelected,
+            indeterminate: false,
+        });
+    };
+
     const ImportGrid = () => {
         const columns = {
+            selector: {
+                field: 'selected',
+                headerName: 'Import?',
+                renderHeader: (x) => <Checkbox checked={checkHeader.checked} indeterminate={checkHeader.indeterminate} onClick={toggleMassSelection} />,
+                renderCell: ({ id, row }) => <Checkbox checked={row.selected} onClick={() => toggleSelection(row)} />,
+                width: 70,
+                sortable: false,
+                type: 'boolean',
+            },
             date: { editable: true, width: '100', field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
             billingMonth: { editable: true, width: '100', field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatDate },
             forMonth: { editable: true, field: 'forMonth', headerName: 'Month' },
@@ -107,42 +144,49 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             medisaveAmount: { editable: true, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatNumber },
         };
 
+        const cashFields = [ columns.selector, columns.date, columns.amount, columns.remarks, columns.category, columns.subCategory ];
+        const creditFields = [ ...cashFields ];
+        creditFields.splice(1, 0, columns.billingMonth);
+        const retirementFields = [ columns.selector, columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ];
+
         const columnMap = {
-            Cash: [ columns.date, columns.amount, columns.remarks, columns.category, columns.subCategory ],
-            Credit: [ columns.date, columns.billingMonth, columns.amount, columns.remarks, columns.category, columns.subCategory ],
-            Retirement: [ columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ]
+            Cash: cashFields,
+            Credit: creditFields,
+            Retirement: retirementFields,
         };
 
         return (
             <ImportGridRoot>
                 <DataGrid
                     autoPageSize
-                    checkboxSelection
                     disableColumnMenu
                     showColumnRightBorder
                     density="compact"
                     rows={importTransactions}
                     columns={columnMap[selectedAccount.type]}
                     editMode="row"
-                    rowSelectionModel={selectedImportRows}
-                    onRowSelectionModelChange={(m) => setSelectedImportRows(m)}
+                    sx={maxGridSize}
                 />
             </ImportGridRoot>
         );
     };
 
+    const importDisabled = !importTransactions
+        || importTransactions.filter(({ selected }) => selected).length === 0
+        || loading;
+
     return (
         <ImportRoot>
             {
                 loading ? <CircularLoader /> :
-                !importTransactions ? <DropZone /> : <ImportGrid />
+                    !importTransactions ? <DropZone /> : <ImportGrid />
             }
             <Stack direction="row" spacing={2}>
                 <Button
                     color="info"
                     variant="contained"
                     onClick={submitTransactions}
-                    disabled={!importTransactions || loading}
+                    disabled={importDisabled}
                 >
                     Import Transactions
                 </Button>
