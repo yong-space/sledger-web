@@ -1,7 +1,7 @@
 import { CircularLoader } from '../core/loader';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
-import { formatDate, formatNumber } from '../util/formatters';
+import { formatDate, formatNumber, formatDecimal } from '../util/formatters';
 import { red, green, blue, grey } from '@mui/material/colors';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import api from '../core/api';
@@ -50,6 +50,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ categoryOptions, setCategoryOptions ] = useState([]);
     const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
     const [ categoryMap, setCategoryMap ] = useState();
+    const setSelectedRows = state.useState(state.selectedRows)[1];
     const { uploadImport, addTransaction, showStatus, getCategories, suggestRemarks } = api();
 
     useEffect(() => {
@@ -237,16 +238,16 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             date: { editable: true, width: '100', field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
             billingMonth: { editable: true, width: '100', field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatDate },
             forMonth: { editable: true, field: 'forMonth', headerName: 'Month' },
-            amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatNumber },
-            originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatNumber },
+            amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
+            originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimal },
             remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks', renderEditCell: (p) => <RemarksEditor {...p} /> },
             category: { editable: true, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
             subCategory: { editable: true, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
             code: { editable: true, field: 'code', headerName: 'Code' },
             company: { editable: true, field: 'company', headerName: 'Company' },
-            ordinaryAmount: { editable: true, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatNumber },
-            specialAmount: { editable: true, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatNumber },
-            medisaveAmount: { editable: true, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatNumber },
+            ordinaryAmount: { editable: true, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal },
+            specialAmount: { editable: true, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatDecimal },
+            medisaveAmount: { editable: true, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatDecimal },
         };
 
         const cashFields = [ columns.selector, columns.date, columns.amount, columns.remarks, columns.category, columns.subCategory ];
