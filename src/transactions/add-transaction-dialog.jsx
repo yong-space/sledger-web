@@ -56,6 +56,7 @@ const AddTransactionDialog = ({
     const [ categoryOptions, setCategoryOptions ] = useState([]);
     const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
     const [ category, setCategory ] = useState('');
+    const [ subCategory, setSubCategory ] = useState('');
     const [ categoryMap, setCategoryMap ] = useState({});
     const {
         listAccounts, addTransaction, editTransaction, listTransactions,
@@ -202,6 +203,17 @@ const AddTransactionDialog = ({
         onInput: (e) => e.target.value = restrictFormat(e.target.value),
     };
 
+    const lookupCategory = (event, value) => {
+        if (!value) {
+            return;
+        }
+        const match = transactions.find((t) => t.remarks === value);
+        if (match) {
+            setCategory(match.category);
+            setSubCategory(match.subCategory);
+        }
+    };
+
     const fields = {
         date: (
             <DatePicker
@@ -295,6 +307,7 @@ const AddTransactionDialog = ({
                     name: 'remarks',
                     label: 'Remarks'
                 }}
+                onChange={lookupCategory}
             />
         ),
         category: (
@@ -323,6 +336,8 @@ const AddTransactionDialog = ({
                 defaultValue={transactionToEdit?.subCategory}
                 options={subCategoryOptions}
                 filterOptions={createFilterOptions({ limit: 5 })}
+                value={subCategory}
+                onChange={(e, v) => setSubCategory(v)}
                 onInputChange={(e, value) => setCategory((old) => categoryMap[value] || old)}
                 renderInput={(params) => (
                     <TextField

@@ -5,7 +5,7 @@ import { debounce } from '@mui/material/utils';
 
 const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
     const [ loading, setLoading ] = useState(false);
-    const [ value, setValue ] = useState(null);
+
     const [ inputValue, setInputValue ] = useState(initValue || '');
     const [ options, setOptions ] = useState([]);
 
@@ -18,7 +18,7 @@ const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
         }
         setOptions([]);
         setLoading(true);
-        if (inputValue === initValue || inputValue === value) {
+        if (inputValue === initValue) {
             return;
         }
         fetcher(inputValue, (response) => {
@@ -33,12 +33,9 @@ const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
             autoComplete
             loading={loading}
             options={options}
-            inputValue={inputValue}
             getOptionLabel={(option) => option}
+            inputValue={inputValue}
             onInputChange={(e, v) => setInputValue(v)}
-            value={value}
-            onChange={(e, v) => setValue(v)}
-            filterOptions={(x) => x}
             renderInput={(params) => <TextField {...fieldProps} {...params} />}
             {...props}
         />
