@@ -5,7 +5,10 @@ import api from '../core/api';
 import ConfirmDialog from '../core/confirm-dialog';
 import Stack from '@mui/material/Stack';
 
-const AccountsActionButtons = ({ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit, selectedAccount, showAddDialog, setShowAddDialog }) => {
+const AccountsActionButtons = ({
+    issuers, accounts, setAccounts, accountToEdit, setAccountToEdit,
+    selectedAccount, showAddDialog, setShowAddDialog, setSelectedAccount,
+}) => {
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const { deleteAccount, showStatus } = api();
 
@@ -13,6 +16,7 @@ const AccountsActionButtons = ({ issuers, accounts, setAccounts, accountToEdit, 
         setAccounts((accounts) => accounts.filter(i => i.id !== selectedAccount[0]));
         showStatus('success', 'Account deleted');
         setShowConfirmDelete(false);
+        setSelectedAccount([]);
     });
 
     const editAccount = () => {

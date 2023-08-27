@@ -16,13 +16,17 @@ const Accounts = ({ isMobile }) => {
         <>
             <Stack direction="row" justifyContent="space-between">
                 <Title>Accounts</Title>
-                <AccountsActionButtons
-                    {...{ issuers, accounts, setAccounts, accountToEdit, setAccountToEdit, selectedAccount, showAddDialog, setShowAddDialog }}
-                />
+                <AccountsActionButtons {...{
+                    issuers, accounts, setAccounts, accountToEdit, setAccountToEdit,
+                    selectedAccount, showAddDialog, setShowAddDialog, setSelectedAccount,
+                }} />
             </Stack>
             <AccountsGrid
                 isMobile={isMobile}
-                {...{ issuers, accounts, setAccounts, selectedAccount, setSelectedAccount, setAccountToEdit, setShowAddDialog }}
+                {...{
+                    issuers, accounts, setAccounts, selectedAccount,
+                    setSelectedAccount, setAccountToEdit, setShowAddDialog,
+                }}
             />
         </>
     );
