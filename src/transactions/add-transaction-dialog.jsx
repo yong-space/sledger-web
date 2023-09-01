@@ -105,6 +105,7 @@ const AddTransactionDialog = ({
             setMonth(dayjs(transactionToEdit.forMonth));
         }
         setCategory(transactionToEdit.category || '');
+        setSubCategory(transactionToEdit.subCategory || '');
     }, [ selectedAccount, transactionToEdit ]);
 
     const submit = (event) => {
