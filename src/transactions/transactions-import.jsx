@@ -91,6 +91,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const submitTransactions = () => {
         setLoading(true);
         const selectedTransactions = importTransactions.filter(({ selected }) => selected);
+
         addTransaction(selectedTransactions, (response) => {
             const tx = [ ...transactions, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date));
             setTransactions(tx);
@@ -261,6 +262,11 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             Retirement: retirementFields,
         };
 
+        const processRowUpdate = (newRow) => {
+            setImportTransactions((existing) => existing.map((row) => (row.id === newRow.id ? newRow : row)));
+            return newRow;
+        };
+
         return (
             <ImportGridRoot>
                 <DataGrid
@@ -271,6 +277,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                     rows={importTransactions}
                     columns={columnMap[selectedAccount.type]}
                     editMode="row"
+                    processRowUpdate={processRowUpdate}
                     sx={maxGridSize}
                 />
             </ImportGridRoot>
