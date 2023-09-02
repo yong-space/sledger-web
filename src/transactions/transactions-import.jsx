@@ -136,6 +136,11 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
         const handleChange = (e, v) => {
             apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
+            const match = transactions.find((t) => t.remarks === v);
+            if (match) {
+                apiRef.current.setEditCellValue({ id, field: 'category', value: match.category });
+                apiRef.current.setEditCellValue({ id, field: 'subCategory', value: match.subCategory });
+            }
         };
 
         return (
