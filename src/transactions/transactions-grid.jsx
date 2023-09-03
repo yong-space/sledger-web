@@ -61,7 +61,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
     useEffect(() => {
         const vColumns = !isMobile ? { amount: false } : {
-            id: false, credit: false, debit: false, category: false, balance: false,
+            credit: false, debit: false, category: false, balance: false,
             fx: false, originalAmount: false, company: false, forMonth: false, billingMonth: false,
             ordinaryAmount: false, specialAmount: false, medisaveAmount: false, subCategory: false,
         };
@@ -75,7 +75,6 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const getFx = ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5);
 
     const columns = {
-        id: { flex: 1, field: 'id', headerName: 'ID' },
         date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueGetter: getDate, valueFormatter: formatDate },
         billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', valueFormatter: formatMonth },
         forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', valueFormatter: formatMonth },
@@ -95,15 +94,23 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         medisaveAmount: { flex: 2, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatDecimal },
     };
 
-    const columnMap = {
-        Cash: [ columns.id, columns.date, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category, columns.subCategory ],
-        CashFX: [ columns.id, columns.date, columns.credit, columns.debit, columns.amount, columns.originalAmount, columns.fx, columns.balance, columns.remarks, columns.category, columns.subCategory ],
-        Credit: [ columns.id, columns.date, columns.billingMonth, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category, columns.subCategory ],
-        CreditFX: [ columns.id, columns.date, columns.billingMonth, columns.credit, columns.debit, columns.amount, columns.originalAmount, columns.fx, columns.balance, columns.remarks, columns.category, columns.subCategory ],
-        Retirement: [ columns.id, columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ]
-    };
+    const cashFields = [ columns.date, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category, columns.subCategory ];
+    const cpfFields = [ columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ];
 
-    const getColumns = () => columnMap[selectedAccount.type + (selectedAccount.multiCurrency ? 'FX' : '')];
+    const getColumns = () => {
+        if (selectedAccount.type === 'Retirement') {
+            return cpfFields;
+        }
+        const fields = [ ...cashFields ];
+        if (selectedAccount.multiCurrency) {
+            fields.splice(4, 0, columns.originalAmount);
+            fields.splice(5, 0, columns.fx);
+        }
+        if (selectedAccount.type === 'Credit') {
+            fields.splice(1, 0, columns.billingMonth);
+        }
+        return fields;
+    };
 
     const handleDoubleClick = (params) => {
         setTransactionToEdit(params.row);
