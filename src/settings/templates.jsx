@@ -23,8 +23,12 @@ const Templates = ({ isMobile }) => {
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const { listTemplates, addTemplates, editTemplates, deleteTemplate, showStatus } = api();
 
+    const maxGridSize = {
+        maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 13.2 : 9.5}rem)`,
+    };
+
     const columns = [
-        { field: 'id', headerName: 'ID' },
         { flex: 1, field: 'reference', headerName: 'Reference', editable: true },
         { flex: 1, field: 'remarks', headerName: 'Remarks', editable: true },
         { flex: 1, field: 'category', headerName: 'Category', editable: true },
@@ -71,7 +75,7 @@ const Templates = ({ isMobile }) => {
     };
 
     return (
-        <Stack spacing={1} sx={{ flex: '1 1 1px' }}>
+        <GridBox isMobile={isMobile}>
             <Stack direction="row" justifyContent="space-between">
                 <Title>Templates</Title>
                 <Stack spacing={2} direction="row">
@@ -97,18 +101,17 @@ const Templates = ({ isMobile }) => {
                 </Stack>
             </Stack>
             { !data ? <HorizontalLoader /> : (
-                <GridBox isMobile={isMobile}>
-                    <DataGrid
-                        density="compact"
-                        rows={data}
-                        columns={columns}
-                        editMode="row"
-                        processRowUpdate={editRow}
-                        onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
-                        rowSelectionModel={selectedRows}
-                        sx={{ maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)` }}
-                    />
-                </GridBox>
+                <DataGrid
+                    autoPageSize
+                    density="compact"
+                    rows={data}
+                    columns={columns}
+                    editMode="row"
+                    processRowUpdate={editRow}
+                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
+                    rowSelectionModel={selectedRows}
+                    sx={maxGridSize}
+                />
             )}
             <ConfirmDialog
                 title="Confirm delete template?"
@@ -117,7 +120,7 @@ const Templates = ({ isMobile }) => {
                 setOpen={setShowConfirmDelete}
                 confirm={submitDelete}
             />
-        </Stack>
+        </GridBox>
     );
 };
 export default Templates;
