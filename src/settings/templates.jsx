@@ -1,5 +1,5 @@
 import { createFilterOptions } from '@mui/material/Autocomplete';
-import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, useGridApiRef, useGridApiContext, gridPageCountSelector } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -21,6 +21,7 @@ const GridBox = styled.div`
 `;
 
 const Templates = ({ isMobile }) => {
+    const apiRef = useGridApiRef();
     const [ originalData, setOriginalData ] = state.useState(state.templates);
     const [ categories, setCategories ] = state.useState(state.categories);
     const [ categoryOptions, setCategoryOptions ] = useState([]);
@@ -33,7 +34,7 @@ const Templates = ({ isMobile }) => {
 
     const maxGridSize = {
         maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 13.2 : 9.5}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 8.5 : 9.5}rem)`,
     };
 
     const RemarksEditor = (props) => {
@@ -160,12 +161,17 @@ const Templates = ({ isMobile }) => {
 
     const editRow = (row) => {
         const fields = [ 'reference', 'remarks', 'category', 'subCategory' ];
+        let error = false;
         fields.forEach((field) => {
             if (!row[field] || row[field].length < 3) {
                 showStatus('warning', `Field ${field} cannot be less than 3 characters`);
+                error = true;
                 return;
             }
         });
+        if (error) {
+            return;
+        }
 
         delete row.owner;
         const existing = originalData.find(t => t.id === row.id);
@@ -201,6 +207,11 @@ const Templates = ({ isMobile }) => {
         }
     };
 
+    const addTemplateRow = () => {
+        setData((old) => ([ ...old, { id: new Date().getTime() } ]));
+        apiRef.current.setPage(gridPageCountSelector(apiRef));
+    };
+
     return (
         <GridBox isMobile={isMobile}>
             <Stack direction="row" justifyContent="space-between">
@@ -210,7 +221,7 @@ const Templates = ({ isMobile }) => {
                         color="success"
                         variant="contained"
                         startIcon={<AddCircleOutlineIcon />}
-                        onClick={() => setData((old) => ([ ...old, { id: new Date().getTime() } ]))}
+                        onClick={addTemplateRow}
                         sx={{ height: '2.5rem' }}
                     >
                         Add
@@ -229,6 +240,7 @@ const Templates = ({ isMobile }) => {
             </Stack>
             { !data ? <HorizontalLoader /> : (
                 <DataGrid
+                    apiRef={apiRef}
                     autoPageSize
                     density="compact"
                     rows={data}
