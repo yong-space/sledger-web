@@ -1,14 +1,18 @@
-import { DataGrid } from '@mui/x-data-grid';
+import { createFilterOptions } from '@mui/material/Autocomplete';
+import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import api from '../core/api';
+import Autocomplete from '@mui/material/Autocomplete';
+import AutoFill from '../transactions/auto-fill';
 import Button from '@mui/material/Button';
 import ConfirmDialog from '../core/confirm-dialog';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
+import TextField from '@mui/material/TextField';
 import Title from '../core/title';
 
 const GridBox = styled.div`
@@ -18,42 +22,165 @@ const GridBox = styled.div`
 
 const Templates = ({ isMobile }) => {
     const [ originalData, setOriginalData ] = state.useState(state.templates);
+    const [ categories, setCategories ] = state.useState(state.categories);
+    const [ categoryOptions, setCategoryOptions ] = useState([]);
+    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
+    const [ categoryMap, setCategoryMap ] = useState();
     const [ data, setData ] = useState();
     const [ selectedRows, setSelectedRows ] = useState([]);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
-    const { listTemplates, addTemplates, editTemplates, deleteTemplate, showStatus } = api();
+    const { listTemplates, addTemplates, editTemplates, deleteTemplate, showStatus, getCategories, suggestRemarks } = api();
 
     const maxGridSize = {
         maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
         maxHeight: `calc(100vh - ${isMobile ? 13.2 : 9.5}rem)`,
     };
 
+    const RemarksEditor = (props) => {
+        const { id, value, field, hasFocus } = props;
+        const apiRef = useGridApiContext();
+        const ref = useRef();
+
+        useLayoutEffect(() => {
+          if (hasFocus) {
+            ref.current.focus();
+          }
+        }, [ hasFocus ]);
+
+        const handleChange = (e, v) => {
+            apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
+            // TODO: Make universal endpoint
+            // const match = transactions.find((t) => t.remarks === v);
+            // if (match) {
+            //     apiRef.current.setEditCellValue({ id, field: 'category', value: match.category });
+            //     apiRef.current.setEditCellValue({ id, field: 'subCategory', value: match.subCategory });
+            // }
+        };
+
+        return (
+            <AutoFill
+                promise={suggestRemarks}
+                initValue={value || ""}
+                onChange={handleChange}
+                onBlur={(e) => handleChange(e, e.target.value)}
+                disableClearable
+                sx={{ flex: 1 }}
+                fieldProps={{
+                    inputRef: ref,
+                    inputProps: { minLength: 2 },
+                    name: 'remarks',
+                    label: 'Remarks'
+                }}
+            />
+        );
+    }
+
+    const CategoryEditor = (props) => {
+        const { id, value, field, hasFocus } = props;
+        const apiRef = useGridApiContext();
+        const ref = useRef();
+
+        useLayoutEffect(() => {
+          if (hasFocus) {
+            ref.current.focus();
+          }
+        }, [ hasFocus ]);
+
+        const handleChange = (e, v) => {
+            apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
+        };
+
+        const handleInputChange = (e, v) => {
+            if (!props.sub) {
+                return;
+            }
+            const lookupCategory = categoryMap[v];
+            if (lookupCategory) {
+                apiRef.current.setEditCellValue({ id, field: 'category', value: lookupCategory });
+            }
+        };
+
+        return (
+            <Autocomplete
+                freeSolo
+                options={props.sub ? subCategoryOptions : categoryOptions}
+                filterOptions={createFilterOptions({ limit: 5 })}
+                value={value || ""}
+                onChange={handleChange}
+                onBlur={(e) => handleChange(e, e.target.value)}
+                onInputChange={handleInputChange}
+                disableClearable
+                sx={{ flex: 1 }}
+                renderInput={(params) => (
+                    <TextField
+                        inputRef={ref}
+                        name={props.sub ? "subCategory" : "category"}
+                        label={props.sub ? "Sub-category" : "Category"}
+                        {...params}
+                    />
+                )}
+            />
+        );
+    };
+
     const columns = [
-        { flex: 1, field: 'reference', headerName: 'Reference', editable: true },
-        { flex: 1, field: 'remarks', headerName: 'Remarks', editable: true },
-        { flex: 1, field: 'category', headerName: 'Category', editable: true },
-        { flex: 1, field: 'subCategory', headerName: 'Sub-category', editable: true },
+        { editable: true, flex: 1, field: 'reference', headerName: 'Reference',  },
+        { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks', renderEditCell: (p) => <RemarksEditor {...p} /> },
+        { editable: true, flex: 1, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
+        { editable: true, flex: 1, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
     ];
+
+    const prepareOptions = (array, field) => ([
+        ...new Set(array.map((s) => s[field]))
+    ].map((o) => ({ label: o })));
 
     useEffect(() => {
         if (!originalData) {
             listTemplates((response) => setOriginalData(response));
         }
+        if (categories.length === 0) {
+            getCategories((response) => setCategories(response));
+        }
     }, []);
+
     useEffect(() => setData(originalData), [ originalData ]);
 
-    const postProcess = (oldRow, newRows, verb) => {
-        setOriginalData((old) => ([
-            ...old.filter(o => o.id !== oldRow.id),
-            newRows[0],
-        ]));
+    useEffect(() => {
+        setCategoryOptions(prepareOptions(categories, 'category'));
+        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
+        setCategoryMap(
+            categories.reduce((o, c) => ({ ...o, [c.subCategory]: c.category }), {})
+        );
+    }, [ categories ]);
+
+    const postProcess = (row, newRows, verb) => {
+        setOriginalData(data.map((o) => o.id !== row.id ? o : newRows[0]));
         showStatus('success', 'Template ' + verb);
     };
 
     const editRow = (row) => {
+        const fields = [ 'reference', 'remarks', 'category', 'subCategory' ];
+        fields.forEach((field) => {
+            if (!row[field] || row[field].length < 3) {
+                showStatus('warning', `Field ${field} cannot be less than 3 characters`);
+                return;
+            }
+        });
+
         delete row.owner;
-        if (originalData.find(t => t.id === row.id)) {
-            editTemplates([ row ], (newRows) => postProcess(row, newRows, 'edited'));
+        const existing = originalData.find(t => t.id === row.id);
+        if (existing) {
+            let match = true;
+            fields.forEach((field) => {
+                if (existing[field] !== row[field]) {
+                    match = false;
+                }
+            });
+            if (!match) {
+                editTemplates([ row ], (newRows) => postProcess(row, newRows, 'edited'));
+            } else {
+                showStatus('warning', 'No change to template');
+            }
         } else {
             addTemplates([ row ], (newRows) => postProcess(row, newRows, 'added'));
         }
