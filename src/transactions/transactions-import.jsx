@@ -1,7 +1,7 @@
 import { CircularLoader } from '../core/loader';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
-import { formatDate, formatDecimal } from '../util/formatters';
+import { formatDate, formatMonth, formatDecimal } from '../util/formatters';
 import { red, green, blue, grey } from '@mui/material/colors';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import api from '../core/api';
@@ -148,6 +148,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                 promise={suggestRemarks}
                 initValue={value || ""}
                 onChange={handleChange}
+                onBlur={(e) => handleChange(e, e.target.value)}
                 disableClearable
                 sx={{ flex: 1 }}
                 fieldProps={{
@@ -192,6 +193,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                 filterOptions={createFilterOptions({ limit: 5 })}
                 value={value || ""}
                 onChange={handleChange}
+                onBlur={(e) => handleChange(e, e.target.value)}
                 onInputChange={handleInputChange}
                 disableClearable
                 sx={{ flex: 1 }}
@@ -209,14 +211,14 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
     const ImportGrid = () => {
         const columns = {
-            date: { editable: true, width: '100', field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
-            billingMonth: { editable: true, width: '100', field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatDate },
+            date: { editable: true, width: 100, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
+            billingMonth: { editable: true, width: 100, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth },
             forMonth: { editable: true, field: 'forMonth', headerName: 'Month' },
             amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
             originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimal },
             remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks', renderEditCell: (p) => <RemarksEditor {...p} /> },
-            category: { editable: true, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
-            subCategory: { editable: true, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
+            category: { editable: true, width: 120, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
+            subCategory: { editable: true, width: 120, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
             code: { editable: true, field: 'code', headerName: 'Code' },
             company: { editable: true, field: 'company', headerName: 'Company' },
             ordinaryAmount: { editable: true, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal },
