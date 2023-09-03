@@ -1,13 +1,17 @@
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { CircularLoader } from '../core/loader';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { formatDate, formatMonth, formatDecimal } from '../util/formatters';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { red, green, blue, grey } from '@mui/material/colors';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import api from '../core/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import AutoFill from './auto-fill';
 import Button from '@mui/material/Button';
+import dayjs from 'dayjs';
 import Dropzone from 'react-dropzone';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
@@ -123,6 +127,38 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         </Dropzone>
     );
 
+    const DateEditor = (props) => {
+        const { id, value, field } = props;
+        const apiRef = useGridApiContext();
+
+        return (
+            <DatePicker
+                label="Date"
+                value={dayjs(value)}
+                format="YYYY-MM-DD"
+                onChange={(v) => apiRef.current.setEditCellValue({ id, field, value: v.toISOString() })}
+                slotProps={{ textField: { variant: 'outlined' } }}
+            />
+        );
+    };
+
+    const MonthEditor = (props) => {
+        const { id, value, field } = props;
+        const apiRef = useGridApiContext();
+
+        return (
+            <DatePicker
+                openTo="month"
+                views={[ 'year', 'month' ]}
+                label={`${selectedAccount.type === 'Credit' ? 'Billing' : 'For'} Month`}
+                value={dayjs(value)}
+                format="YYYY MMM"
+                onChange={(v) => apiRef.current.setEditCellValue({ id, field, value: v.toISOString() })}
+                slotProps={{ textField: { variant: 'outlined' } }}
+            />
+        );
+    };
+
     const RemarksEditor = (props) => {
         const { id, value, field, hasFocus } = props;
         const apiRef = useGridApiContext();
@@ -211,8 +247,8 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
     const ImportGrid = () => {
         const columns = {
-            date: { editable: true, width: 100, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
-            billingMonth: { editable: true, width: 100, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth },
+            date: { editable: true, width: 100, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate, renderEditCell: (p) => <DateEditor {...p} /> },
+            billingMonth: { editable: true, width: 100, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth, renderEditCell: (p) => <MonthEditor {...p} /> },
             forMonth: { editable: true, field: 'forMonth', headerName: 'Month' },
             amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
             originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimal },
@@ -255,24 +291,26 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
         return (
             <ImportGridRoot>
-                <DataGrid
-                    checkboxSelection
-                    disableRowSelectionOnClick
-                    autoPageSize
-                    disableColumnMenu
-                    showColumnRightBorder
-                    density="compact"
-                    rows={importTransactions}
-                    columns={columnMap[selectedAccount.type]}
-                    editMode="row"
-                    processRowUpdate={processRowUpdate}
-                    rowSelectionModel={selectedRows}
-                    onRowSelectionModelChange={(m) => setSelectedRows(m)}
-                    onRowClick={handleRowClick}
-                    paginationModel={paginationModel}
-                    onPaginationModelChange={(n) => setPaginationModel(n)}
-                    sx={maxGridSize}
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DataGrid
+                        checkboxSelection
+                        disableRowSelectionOnClick
+                        autoPageSize
+                        disableColumnMenu
+                        showColumnRightBorder
+                        density="compact"
+                        rows={importTransactions}
+                        columns={columnMap[selectedAccount.type]}
+                        editMode="row"
+                        processRowUpdate={processRowUpdate}
+                        rowSelectionModel={selectedRows}
+                        onRowSelectionModelChange={(m) => setSelectedRows(m)}
+                        onRowClick={handleRowClick}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={(n) => setPaginationModel(n)}
+                        sx={maxGridSize}
+                    />
+                </LocalizationProvider>
             </ImportGridRoot>
         );
     };
