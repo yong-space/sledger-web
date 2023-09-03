@@ -71,13 +71,12 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const getAmount = ({ field, row }) => (field === 'credit') ?
         (row.amount > 0 ? row.amount : 0) :
         (row.amount < 0 ? -row.amount : 0);
-    const getDate = ({ row }) => new Date(row.date);
     const getFx = ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5);
 
     const columns = {
-        date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueGetter: getDate, valueFormatter: formatDate },
-        billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', valueFormatter: formatMonth },
-        forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', valueFormatter: formatMonth },
+        date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
+        billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth },
+        forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', type: 'date', valueFormatter: formatMonth },
         credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal },
         debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal },
         amount: { flex: 2.5, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
