@@ -37,16 +37,17 @@ const AddTransactionDialog = ({
     dayjs.extend(minMax);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [ side, setSide ] = useState();
+    const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = useState(dayjs().utc().startOf('day'));
     const [ month, setMonth ] = useState(dayjs().utc().startOf('day'));
     const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || '');
     const [ currency, setCurrency ] = useState('');
-    const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || '');
+    const [ code, setCode ] = useState(transactionToEdit?.code || '');
+    const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || 0);
     const [ cpfAmounts, setCpfAmounts ] = useState({
-        ordinaryAmount: transactionToEdit?.ordinaryAmount || '',
-        specialAmount: transactionToEdit?.specialAmount || '',
-        medisaveAmount: transactionToEdit?.medisaveAmount || '',
+        ordinaryAmount: transactionToEdit?.ordinaryAmount || 0,
+        specialAmount: transactionToEdit?.specialAmount || 0,
+        medisaveAmount: transactionToEdit?.medisaveAmount || 0,
     });
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
@@ -83,18 +84,6 @@ const AddTransactionDialog = ({
 
     useEffect(() => {
         if (!transactionToEdit) {
-            const defaultDate = dayjs().utc().startOf('day');
-            setDate(defaultDate);
-            if (selectedAccount?.type === 'Credit') {
-                if (defaultDate.get('date') < selectedAccount.billingCycle) {
-                    setMonth(defaultDate.subtract(1, 'month').startOf('month'));
-                } else {
-                    setMonth(defaultDate.startOf('month'));
-                }
-            } else if (selectedAccount?.type === 'Retirement') {
-                setMonth(defaultDate.startOf('month'));
-            }
-            setSide(-1);
             return;
         }
         setSide(transactionToEdit.amount > 0 ? 1 : -1);
@@ -107,6 +96,16 @@ const AddTransactionDialog = ({
         setCategory(transactionToEdit.category || '');
         setSubCategory(transactionToEdit.subCategory || '');
     }, [ selectedAccount, transactionToEdit ]);
+
+    useEffect(() => {
+        if (selectedAccount?.type === 'Credit') {
+            if (date.get('date') < selectedAccount.billingCycle) {
+                setMonth(date.subtract(1, 'month').startOf('month'));
+            } else {
+                setMonth(date.startOf('month'));
+            }
+        }
+    }, [ date ]);
 
     const submit = (event) => {
         event.preventDefault();
@@ -125,7 +124,12 @@ const AddTransactionDialog = ({
         if (selectedAccount.type === 'Credit') {
             tx.billingMonth = month.toISOString();
         } else if (selectedAccount.type === 'Retirement') {
-            tx.forMonth = month.toISOString();
+            tx.code = tx.code.toUpperCase();
+            if (code === 'CON') {
+                tx.forMonth = month.toISOString();
+            } else {
+                delete tx.forMonth;
+            }
         }
         if (transactionToEdit) {
             tx.id = transactionToEdit.id;
@@ -166,12 +170,12 @@ const AddTransactionDialog = ({
         setAmountValue(target.value);
 
         if (selectedAccount?.type === 'Retirement') {
-            const code = target.closest('form').code.value;
             if (code === 'CON') {
+                const value = isNaN(parseFloat(target.value)) ? 0 : target.value;
                 setCpfAmounts({
-                    ordinaryAmount: (target.value * parseFloat(selectedAccount.ordinaryRatio)).toFixed(2),
-                    specialAmount: (target.value * parseFloat(selectedAccount.specialRatio)).toFixed(2),
-                    medisaveAmount: (target.value * parseFloat(selectedAccount.medisaveRatio)).toFixed(2)
+                    ordinaryAmount: (value * parseFloat(selectedAccount.ordinaryRatio)).toFixed(2),
+                    specialAmount: (value * parseFloat(selectedAccount.specialRatio)).toFixed(2),
+                    medisaveAmount: (value * parseFloat(selectedAccount.medisaveRatio)).toFixed(2)
                 });
             } else {
                 setCpfAmounts({
@@ -189,8 +193,9 @@ const AddTransactionDialog = ({
         setAmountValue(Object.values(newCpfAmounts).reduce((a, i) => a + (parseFloat(i) || 0), 0).toFixed(2));
     };
 
-    const restrictFormat = (value) => {
-        value = value.replace(/[^0-9.]/g, '');
+    const restrictFormat = (value, allowNegative) => {
+        const pattern = allowNegative ? /[^0-9.\-]/g : /[^0-9.]/g;
+        value = value.replace(pattern, '');
         const dotIndex = value.indexOf('.');
         if (dotIndex >= 0) {
             value = value.slice(0, dotIndex + 3);
@@ -201,10 +206,16 @@ const AddTransactionDialog = ({
     const numericProps = {
         inputMode: 'numeric',
         pattern: '\-?[0-9]+\.?[0-9]{0,2}',
-        onInput: (e) => e.target.value = restrictFormat(e.target.value),
+        onInput: (e) => e.target.value = restrictFormat(e.target.value, false),
     };
 
-    const lookupCategory = (event, value) => {
+    const numericPropsNegative = {
+        inputMode: 'numeric',
+        pattern: '\-?[0-9]+\.?[0-9]{0,2}',
+        onInput: (e) => e.target.value = restrictFormat(e.target.value, true),
+    };
+
+    const lookupCategory = (e, value) => {
         if (!value) {
             return;
         }
@@ -236,6 +247,7 @@ const AddTransactionDialog = ({
                 format="YYYY MMM"
                 onChange={(newValue) => setMonth(newValue)}
                 slotProps={{ textField: { variant: 'outlined' } }}
+                sx={{ display: (selectedAccount.type === 'Credit' || code === 'CON') ? 'flex' : 'none' }}
             />
         ),
         creditDebit: (
@@ -353,7 +365,8 @@ const AddTransactionDialog = ({
             <AutoFill
                 key="code"
                 promise={suggestCode}
-                initValue={transactionToEdit?.code}
+                value={code}
+                onChange={(e, v) => setCode(v.toUpperCase())}
                 fieldProps={{
                     required: true,
                     inputProps: { minLength: 2 },
@@ -381,7 +394,7 @@ const AddTransactionDialog = ({
                 label="Ordinary Amount"
                 value={cpfAmounts.ordinaryAmount}
                 onChange={updateAmount}
-                inputProps={numericProps}
+                inputProps={numericPropsNegative}
             />
         ),
         specialAmount: (
@@ -392,7 +405,7 @@ const AddTransactionDialog = ({
                 label="Special Amount"
                 value={cpfAmounts.specialAmount}
                 onChange={updateAmount}
-                inputProps={numericProps}
+                inputProps={numericPropsNegative}
             />
         ),
         medisaveAmount: (
@@ -403,24 +416,49 @@ const AddTransactionDialog = ({
                 label="Medisave Amount"
                 value={cpfAmounts.medisaveAmount}
                 onChange={updateAmount}
-                inputProps={numericProps}
+                inputProps={numericPropsNegative}
             />
         ),
     };
 
-    const fieldMap = {
-        Cash: [ fields.date, fields.creditDebit, fields.amount, fields.remarks, fields.category, fields.subCategory ],
-        CashFX: [ fields.date, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category, fields.subCategory ],
-        Credit: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.remarks, fields.category, fields.subCategory ],
-        CreditFX: [ fields.date, fields.month, fields.creditDebit, fields.amount, fields.fx, fields.remarks, fields.category, fields.subCategory ],
-        Retirement: [ fields.date, fields.month, fields.code, fields.company, fields.amount, fields.ordinaryAmount, fields.specialAmount, fields.medisaveAmount ],
+    const cashFields = [
+        fields.date,
+        fields.creditDebit,
+        fields.amount,
+        fields.remarks,
+        fields.category,
+        fields.subCategory,
+    ];
+    const cpfFields = [
+        fields.date,
+        fields.code,
+        fields.month,
+        fields.company,
+        fields.amount,
+        fields.ordinaryAmount,
+        fields.specialAmount,
+        fields.medisaveAmount,
+    ];
+
+    const getFields = () => {
+        if (selectedAccount.type === 'Retirement') {
+            return cpfFields;
+        }
+        const result = [ ...cashFields ];
+        if (selectedAccount.multiCurrency) {
+            result.splice(3, 0, fields.fx);
+        }
+        if (selectedAccount.type === 'Credit') {
+            result.splice(1, 0, fields.month);
+        }
+        return result;
     };
 
     const addTransactionForm = (
         <form onSubmit={submit} autoComplete="off">
             <Stack spacing={2} mt={1}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    { fieldMap[selectedAccount.type + (selectedAccount.multiCurrency ? 'FX' : '')] }
+                    { getFields() }
                 </LocalizationProvider>
 
                 <Stack direction="row" spacing={2}>
