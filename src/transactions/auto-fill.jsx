@@ -23,7 +23,7 @@ const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
         }
         fetcher(inputValue, (response) => {
             setLoading(false);
-            setOptions(response);
+            setOptions(Array.from(new Set([ ...response, inputValue.trim() ])));
         });
     }, [ inputValue ]);
 
