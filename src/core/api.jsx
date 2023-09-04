@@ -64,6 +64,8 @@ const api = () => {
 
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
 
+    const clean = (input) => encodeURIComponent(input).trim();
+
     return {
         showStatus,
         parseJwt,
@@ -85,9 +87,9 @@ const api = () => {
         editTransaction: (payload, callback) => apiCall(PUT, 'transaction', callback, payload),
         bulkEditTransactions: (payload, callback) => apiCall(PUT, 'transaction/bulk', callback, payload),
         deleteTransaction: (id, callback) => apiCall(DELETE, `transaction/${id}`, callback),
-        suggestRemarks: (input, callback) => apiCall(GET, `suggest/remarks?q=${input}`, callback),
-        suggestCode: (input, callback) => apiCall(GET, `suggest/code?q=${input}`, callback),
-        suggestCompany: (input, callback) => apiCall(GET, `suggest/company?q=${input}`, callback),
+        suggestRemarks: (input, callback) => apiCall(GET, `suggest/remarks?q=${clean(input)}`, callback),
+        suggestCode: (input, callback) => apiCall(GET, `suggest/code?q=${clean(input)}`, callback),
+        suggestCompany: (input, callback) => apiCall(GET, `suggest/company?q=${clean(input)}`, callback),
         getCategories: (callback) => apiCall(GET, 'suggest/categories', callback),
         listTemplates: (callback) => apiCall(GET, 'template', callback),
         addTemplates: (payload, callback) => apiCall(POST, 'template', callback, payload),
