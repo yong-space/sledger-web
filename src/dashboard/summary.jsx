@@ -5,23 +5,30 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
 import SubTitle from '../core/sub-title';
 import Title from '../core/title';
 
-const Root = styled(Stack)`
-    width: 35rem;
-    ${props => props.theme.breakpoints.down("md")} {
-        width: 98%;
-        align-self: center;
-    }
-`;
-
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
+`;
+
+const Root = styled(Wrapper)`
+    flex: 1 1 1px;
+    gap: 1rem;
+    padding-bottom: 6rem;
+
+    width: 35rem;
+    ${props => props.theme.breakpoints.down("md")} {
+        width: calc(100vw - 5rem);
+        align-self: center;
+    }
+    ${props => props.theme.breakpoints.down("sm")} {
+        width: calc(100vw - 3rem);
+        align-self: center;
+    }
 `;
 
 const FloatingFooter = styled(Wrapper)`
@@ -32,11 +39,12 @@ const FloatingFooter = styled(Wrapper)`
     border-radius: .5rem;
 
     ${props => props.theme.breakpoints.down("md")} {
-        width: calc(100% - 3.8rem);
+        width: calc(100vw - 5rem);
         align-self: center;
     }
+
     ${props => props.theme.breakpoints.down("sm")} {
-        width: calc(100% - 1.5rem);
+        width: calc(100vw - 3rem);
         align-self: center;
     }
 
@@ -237,7 +245,7 @@ const Summary = () => {
     );
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
-        <Root spacing={3} pb={12} theme={theme}>
+        <Root theme={theme}>
             <Title mb={-1}>Summary</Title>
             <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
             <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />

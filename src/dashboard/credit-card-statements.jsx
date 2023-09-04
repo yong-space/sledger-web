@@ -68,7 +68,7 @@ const CreditCardStatements = () => {
 
         const maxGridSize = {
             maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-            maxHeight: `calc(100vh - ${isMobile ? 11.5 : 12.5}rem)`,
+            maxHeight: `calc(100vh - ${isMobile ? 1 : 12.5}rem)`,
         };
 
         const columns = [

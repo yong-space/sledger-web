@@ -11,9 +11,6 @@ const AppBar = styled.header`
     margin: 0;
     padding: .7rem 1.5rem;
     width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;

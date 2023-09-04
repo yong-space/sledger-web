@@ -19,7 +19,6 @@ const Root = styled.div`
     flex-direction: column;
     flex: 1 1 1px;
     min-height: 100%;
-    padding: ${props => props.isMobile ? '5rem .5rem 0 .5rem' : '5rem 1.5rem 0 1.5rem'};
 `;
 
 const Content = styled.div`
@@ -27,6 +26,9 @@ const Content = styled.div`
     flex-direction: column;
     flex: 1 1 1px;
     gap: .5rem;
+    padding: ${props => props.isMobile ? '1rem .5rem' : '1rem 1.5rem'};
+    padding-bottom: 0;
+    overflow: auto;
 `;
 
 const App = () => {
@@ -46,9 +48,9 @@ const App = () => {
     }, []);
 
     return issuers && accounts && (
-        <Root isMobile={isMobile}>
+        <Root>
             <NavBar />
-            <Content>
+            <Content isMobile={isMobile}>
                 <Routes>
                     <Route path="dash/*" element={<Dashboard />} />
                     <Route path="tx/*" element={<Transactions /> } />

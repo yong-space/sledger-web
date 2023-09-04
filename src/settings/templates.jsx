@@ -34,7 +34,7 @@ const Templates = ({ isMobile }) => {
 
     const maxGridSize = {
         maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 8.5 : 9.5}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 8.1 : 9.5}rem)`,
     };
 
     const RemarksEditor = (props) => {

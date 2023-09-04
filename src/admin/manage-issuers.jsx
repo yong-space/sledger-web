@@ -5,6 +5,7 @@ import api from '../core/api';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
 import ConfirmDialog from '../core/confirm-dialog';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -13,12 +14,18 @@ import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
+
+const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 1px;
+    gap: 1rem;
+    padding-bottom: 2rem;
+`;
 
 const GridBox = styled.div`
     flex: 1 1 1px;
@@ -68,14 +75,12 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
         <Alert severity="info" variant="outlined">No issuers added yet</Alert> :
         (
             <>
-                <GridBox>
-                    <DataGrid
-                        rows={issuers}
-                        columns={columns}
-                        disableColumnMenu
-                        hideFooter
-                    />
-                </GridBox>
+                <DataGrid
+                    rows={issuers}
+                    columns={columns}
+                    disableColumnMenu
+                    hideFooter
+                />
                 <ConfirmDialog
                     title="Confirm delete issuer?"
                     message="This is a permanent change"
@@ -179,10 +184,10 @@ const IssuersForm = ({ setIssuers }) => {
 const ManageIssuers = () => {
     const [ issuers, setIssuers ] = state.useState(state.issuers);
     return (
-        <Stack spacing={4}>
+        <Wrapper>
             <IssuersGrid {...{ issuers, setIssuers }} />
             <IssuersForm {...{ setIssuers }} />
-        </Stack>
+        </Wrapper>
     )
 };
 export default ManageIssuers;

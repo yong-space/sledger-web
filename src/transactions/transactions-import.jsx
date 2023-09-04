@@ -76,7 +76,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     }, [ categories ]);
 
     const maxGridSize = {
-        maxWidth: `calc(100vw - 3rem)`,
+        maxWidth: `calc(100vw - 1rem)`,
         maxHeight: `calc(100vh - 14rem)`,
     };
 

@@ -1,13 +1,17 @@
-import { lazy } from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Title from '../core/title';
+import styled from 'styled-components';
+import ManageIssuers from './manage-issuers';
+import ManageUsers from './manage-users';
 
-const ManageIssuers = lazy(() => import('./manage-issuers'));
-const ManageUsers = lazy(() => import('./manage-users'));
+const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 1px;
+`;
 
 const Admin = () => {
     const location = useLocation();
@@ -26,13 +30,13 @@ const Admin = () => {
                 <Tab label="Issuers" component={Link} to="issuers" />
                 <Tab label="Users" component={Link} to="users" />
             </Tabs>
-            <Box pt={1} pb={3}>
+            <Wrapper>
                 <Routes>
                     <Route path="issuers" element={<ManageIssuers /> } />
                     <Route path="users" element={<ManageUsers /> } />
                     <Route path="" element={<Navigate to="issuers" />} />
                 </Routes>
-            </Box>
+            </Wrapper>
         </>
     )
 };

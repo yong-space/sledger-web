@@ -40,7 +40,7 @@ const AccountsGrid = ({
 
     const maxGridSize = {
         maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 9 : 10}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 8.7 : 10}rem)`,
     };
 
     const getIssuer = (id) => issuers.find(i => i.id === id);

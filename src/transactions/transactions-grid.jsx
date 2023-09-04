@@ -122,7 +122,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
     const maxGridSize = {
         maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 13.2 : 14}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 12.8 : 14}rem)`,
     };
 
     const apiRef = useGridApiRef();
