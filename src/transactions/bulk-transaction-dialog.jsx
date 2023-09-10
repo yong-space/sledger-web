@@ -173,6 +173,7 @@ const BulkTransactionDialog = ({
                 Bulk Edit Transactions
             </DialogTitle>
             <DialogContent>
+                These changes will apply to {transactionToEdit.length} transactions
                 { bulkTransactionForm }
             </DialogContent>
         </Dialog>

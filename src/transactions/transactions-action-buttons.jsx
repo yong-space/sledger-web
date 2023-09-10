@@ -18,6 +18,7 @@ const TransactionsActionButtons = ({
     const setLoading = state.useState(state.loading)[1];
     const [ showBulkDialog, setShowBulkDialog ] = useState(false);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
+    const selectedLength = selectedRows?.length;
     const setPaginationModel = state.useState(state.paginationModel)[1];
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
@@ -29,7 +30,7 @@ const TransactionsActionButtons = ({
         const txDate = dayjs(transactions.filter((t) => t.id === selectedRows[0])[0].date);
 
         deleteTransaction(selectedRows, () => {
-            if (selectedRows.length === 1 && txDate.isSame(maxDate)) {
+            if (selectedLength === 1 && txDate.isSame(maxDate)) {
                 setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
                 showStatus('success', 'Transaction deleted');
                 setLoading(false);
@@ -47,7 +48,7 @@ const TransactionsActionButtons = ({
     };
 
     const editTransaction = () => {
-        if (selectedRows.length === 1) {
+        if (selectedLength === 1) {
             setTransactionToEdit(transactions.find(({ id }) => id === selectedRows[0]));
             setShowAddDialog(true);
         } else {
@@ -58,9 +59,9 @@ const TransactionsActionButtons = ({
 
     return (
         <Stack direction="row" spacing={1}>
-            { selectedRows.length === 0 && <AddButton onClick={() => setShowAddDialog(true)} />}
-            { selectedRows.length > 0 && <EditButton onClick={editTransaction} />}
-            { selectedRows.length > 0 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
+            { selectedLength === 0 && <AddButton onClick={() => setShowAddDialog(true)} />}
+            { selectedLength > 0 && <EditButton onClick={editTransaction} />}
+            { selectedLength > 0 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
 
             { useMediaQuery(theme.breakpoints.up('md')) && canImport && (
                 <ImportButton onClick={() => setImportMode(true)} />
@@ -87,8 +88,8 @@ const TransactionsActionButtons = ({
             { showConfirmDelete && (
                 <ConfirmDialog
                     open
-                    title="Confirm delete transaction?"
-                    message="This is a permanent change"
+                    title="Confirm Deletion"
+                    message={`This will permanently delete ${selectedLength} transaction${selectedLength > 1 ? 's' : ''}`}
                     setOpen={setShowConfirmDelete}
                     confirm={submitDelete}
                 />

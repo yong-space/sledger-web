@@ -105,7 +105,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             setParentPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) }));
             setLoading(false);
             setImportMode(false);
-            showStatus('success', 'Transactions imported');
+            showStatus('success', selectedTransactions.length + ' Transactions imported');
         });
     };
 
