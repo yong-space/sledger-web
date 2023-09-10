@@ -1,4 +1,8 @@
 import { atom, useRecoilState } from 'recoil';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 const state = () => ({
     useState: (atom) => useRecoilState(atom),
@@ -14,6 +18,7 @@ const state = () => ({
     selectedRows: atom({ key: 'selectedRows', default: [] }),
     paginationModel: atom({ key: 'paginationModel', default: undefined }),
     categories: atom({ key: 'categories', default: [] }),
+    date: atom({ key: 'date', default: dayjs().utc().startOf('day') }),
 });
 
 export default state();
