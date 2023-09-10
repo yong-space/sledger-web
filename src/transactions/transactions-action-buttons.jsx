@@ -19,7 +19,6 @@ const TransactionsActionButtons = ({
     const [ showBulkDialog, setShowBulkDialog ] = useState(false);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
     const selectedLength = selectedRows?.length;
-    const setPaginationModel = state.useState(state.paginationModel)[1];
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
@@ -73,7 +72,6 @@ const TransactionsActionButtons = ({
                     transactionToEdit,
                     setTransactionToEdit,
                     setSelectedRows,
-                    setPaginationModel,
                 }} />
             )}
 

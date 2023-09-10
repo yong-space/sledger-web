@@ -31,7 +31,7 @@ const ForeignCurrencyBar = styled.div`
 `;
 
 const AddTransactionDialog = ({
-    setShowAddDialog, transactionToEdit, setTransactionToEdit, setSelectedRows, setPaginationModel,
+    setShowAddDialog, transactionToEdit, setTransactionToEdit, setSelectedRows,
  }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
@@ -59,6 +59,7 @@ const AddTransactionDialog = ({
     const [ category, setCategory ] = useState('');
     const [ subCategory, setSubCategory ] = useState('');
     const [ categoryMap, setCategoryMap ] = useState({});
+    const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const {
         listAccounts, addTransaction, editTransaction, listTransactions,
         showStatus, suggestRemarks, suggestCode, suggestCompany, getCategories,
@@ -145,8 +146,7 @@ const AddTransactionDialog = ({
             setShowAddDialog(false);
             showStatus('success', 'Transaction ' + (transactionToEdit ? 'edited' : 'added'));
             setTransactionToEdit(undefined);
-            const index = tx.map(({ id }) => id).indexOf(response[0].id) + 1;
-            setPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) }));
+            setVisibleTransactionId(response[0].id);
             setTimeout(() => setLoading(false), 500);
         };
 

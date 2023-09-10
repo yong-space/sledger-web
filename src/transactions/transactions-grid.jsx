@@ -3,6 +3,7 @@ import {
     GridToolbar,
     useGridApiRef,
     gridFilteredSortedRowEntriesSelector,
+    gridPaginatedVisibleSortedGridRowIdsSelector,
 } from '@mui/x-data-grid';
 import { GridPagination } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
@@ -42,6 +43,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
     const [ paginationModel, setPaginationModel ] = state.useState(state.paginationModel);
+    const [ visibleTransactionId, setVisibleTransactionId ] = state.useState(state.visibleTransactionId);
 
     useEffect(() => {
         if (!selectedAccount) {
@@ -132,6 +134,18 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             apiRef.current = {};
         }
     }, [ apiRef.current ]);
+
+    useEffect(() => {
+        if (!visibleTransactionId) {
+            return;
+        }
+        const visibleRows = gridPaginatedVisibleSortedGridRowIdsSelector(apiRef);
+        if (visibleRows.indexOf(visibleTransactionId) === -1) {
+            const index = gridFilteredSortedRowEntriesSelector(apiRef).map(({ id }) => id).indexOf(visibleTransactionId) + 1;
+            setPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) }));
+            setVisibleTransactionId(undefined);
+        }
+    }, [ visibleTransactionId ]);
 
     const Summary = () => {
         const data = (selectedRows.length > 0) ?

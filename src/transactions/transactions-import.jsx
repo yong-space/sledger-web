@@ -54,7 +54,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ selectedRows, setSelectedRows ] = useState([]);
     const [ paginationModel, setPaginationModel ] = useState();
     const setParentSelectedRows = state.useState(state.selectedRows)[1];
-    const setParentPaginationModel = state.useState(state.paginationModel)[1];
+    const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const { uploadImport, addTransaction, showStatus, getCategories, suggestRemarks } = api();
 
     useEffect(() => {
@@ -101,8 +101,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             const tx = [ ...transactions, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date));
             setTransactions(tx);
             setParentSelectedRows(response.map(({ id }) => id));
-            const index = tx.map(({ id }) => id).indexOf(response[0].id) + 1;
-            setParentPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) }));
+            setVisibleTransactionId(response[0].id);
             setLoading(false);
             setImportMode(false);
             showStatus('success', selectedTransactions.length + ' Transactions imported');

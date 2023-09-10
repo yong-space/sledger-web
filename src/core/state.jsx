@@ -19,6 +19,7 @@ const state = () => ({
     paginationModel: atom({ key: 'paginationModel', default: undefined }),
     categories: atom({ key: 'categories', default: [] }),
     date: atom({ key: 'date', default: dayjs().utc().startOf('day') }),
+    visibleTransactionId: atom({ key: 'visibleTransactionId', default: undefined }),
 });
 
 export default state();
