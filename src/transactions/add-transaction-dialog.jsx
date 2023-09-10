@@ -461,7 +461,7 @@ const AddTransactionDialog = ({
                     { getFields() }
                 </LocalizationProvider>
 
-                <Stack direction="row" spacing={2}>
+                <Stack direction="row" justifyContent="space-between">
                     <LoadingButton
                         type="submit"
                         loading={loading}
@@ -469,7 +469,7 @@ const AddTransactionDialog = ({
                         variant="contained"
                         color={transactionToEdit ? 'warning' : 'success'}
                     >
-                        { transactionToEdit ? 'Edit' : 'Add' } Transaction
+                        { transactionToEdit ? 'Save Changes' : 'Add Transaction' }
                     </LoadingButton>
                     <Button variant="contained" onClick={dismiss} autoFocus>
                         Cancel
