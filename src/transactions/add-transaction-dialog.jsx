@@ -152,7 +152,9 @@ const AddTransactionDialog = ({
 
         endpoint([ tx ], (response) => {
             const minDate = dayjs.min(response.map(t => dayjs(t.date)));
-            if (minDate.isAfter(maxDate)) {
+            if (transactionToEdit) {
+                postProcess(response, transactions.map((t) => response.find((r) => r.id === t.id) || t));
+            } else if (minDate.isAfter(maxDate)) {
                 postProcess(response, [ ...transactions, ...response ]);
             } else {
                 listTransactions(selectedAccount.id, (allTx) => postProcess(response, allTx));
