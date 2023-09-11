@@ -114,6 +114,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     };
 
     const handleDoubleClick = (params) => {
+        setSelectedRows([ params.id ]);
         setTransactionToEdit(params.row);
         setShowAddDialog(true);
     };
@@ -142,7 +143,8 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         const visibleRows = gridPaginatedVisibleSortedGridRowIdsSelector(apiRef);
         if (visibleRows.indexOf(visibleTransactionId) === -1) {
             const index = gridFilteredSortedRowEntriesSelector(apiRef).map(({ id }) => id).indexOf(visibleTransactionId) + 1;
-            setPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) }));
+            const page = Math.floor(index / old.pageSize);
+            setTimeout(() => setPaginationModel((old) => ({ ...old, page })), 100);
             setVisibleTransactionId(undefined);
         }
     }, [ visibleTransactionId ]);
@@ -218,6 +220,11 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
                 sx={maxGridSize}
                 slots={slots}
                 slotProps={slotProps}
+                initialState={{
+                    sorting: {
+                        sortModel: [{ field: 'date', sort: 'asc' }],
+                    },
+                }}
             />
         </GridBox>
     );
