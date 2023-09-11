@@ -46,6 +46,11 @@ const TransactionsActionButtons = ({
         });
     };
 
+    const addTransaction = () => {
+        setSelectedRows([]);
+        setShowAddDialog(true);
+    };
+
     const editTransaction = () => {
         if (selectedLength === 1) {
             setTransactionToEdit(transactions.find(({ id }) => id === selectedRows[0]));
@@ -58,7 +63,7 @@ const TransactionsActionButtons = ({
 
     return (
         <Stack direction="row" spacing={1}>
-            { selectedLength === 0 && <AddButton onClick={() => setShowAddDialog(true)} />}
+            <AddButton onClick={addTransaction} />
             { selectedLength > 0 && <EditButton onClick={editTransaction} />}
             { selectedLength > 0 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
 
