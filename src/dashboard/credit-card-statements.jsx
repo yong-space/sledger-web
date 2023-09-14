@@ -56,7 +56,7 @@ const CreditCardStatements = () => {
     }, [ accounts, location.pathname ]);
 
     useEffect(() => {
-        if (selectedAccount) {
+        if (selectedAccount && getCreditAccounts().find(({ id }) => id === selectedAccount.id)) {
             getCreditCardStatements(selectedAccount.id, (response) => setStatements(response));
         }
     }, [ selectedAccount ]);
