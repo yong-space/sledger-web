@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import AccountSelector from '../core/account-selector';
 import api from '../core/api';
+import dayjs from 'dayjs';
 import state from '../core/state';
 import styled from 'styled-components';
 import Title from '../core/title';
@@ -33,6 +34,7 @@ const CreditCardStatements = () => {
     const { getCreditCardStatements } = api();
     const [ statements, setStatements ] = useState();
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
+    const setFilterModel = state.useState(state.filterModel)[1];
 
     const getCreditAccounts = () => accounts.filter((a) => a.visible && a.type === 'Credit');
 
@@ -81,6 +83,22 @@ const CreditCardStatements = () => {
             paginationModel ? n : { ...n, page: Math.floor(statements.length / n.pageSize) }
         );
 
+        const handleDoubleClick = ({ row }) => {
+            const filter = {
+                items: [
+                    {
+                        field: "billingMonth",
+                        id: 1,
+                        operator: "is",
+                        value: dayjs.utc(row.month).format('YYYY-MM-DD'),
+                    },
+                ],
+                logicOperator: "and"
+            };
+            setFilterModel(filter);
+            navigate('/tx/' + selectedAccount.id);
+        };
+
         return (
             <GridBox isMobile={isMobile}>
                 <DataGrid
@@ -94,6 +112,7 @@ const CreditCardStatements = () => {
                     onPaginationModelChange={handlePagination}
                     sx={maxGridSize}
                     getRowId={({ month }) =>  month}
+                    onRowDoubleClick={handleDoubleClick}
                 />
             </GridBox>
         );

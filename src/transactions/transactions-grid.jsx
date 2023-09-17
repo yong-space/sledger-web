@@ -43,6 +43,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
     const [ paginationModel, setPaginationModel ] = state.useState(state.paginationModel);
+    const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState(state.visibleTransactionId);
 
     useEffect(() => {
@@ -117,6 +118,11 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         setSelectedRows([ params.id ]);
         setTransactionToEdit(params.row);
         setShowAddDialog(true);
+    };
+
+    const handleFilterModelChange = (model) => {
+        setFilterModel(model);
+        setSelectedRows([]);
     };
 
     const handlePagination = (n) => setPaginationModel(
@@ -216,7 +222,8 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePagination}
                 onRowDoubleClick={handleDoubleClick}
-                onFilterModelChange={() => setSelectedRows([])}
+                filterModel={filterModel}
+                onFilterModelChange={handleFilterModelChange}
                 sx={maxGridSize}
                 slots={slots}
                 slotProps={slotProps}
