@@ -115,6 +115,9 @@ const AddTransactionDialog = ({
             accountId: selectedAccount.id,
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
+        if (tx.remarks) {
+            tx.remarks = tx.remarks.trim();
+        }
         if (selectedAccount.type !== 'Retirement') {
             tx.amount *= side;
         }
