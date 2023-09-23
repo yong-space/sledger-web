@@ -35,7 +35,7 @@ const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
             options={options}
             getOptionLabel={(option) => option}
             inputValue={inputValue}
-            onInputChange={(e, v) => setInputValue(v)}
+            onInputChange={(e, v) => setInputValue(v.replaceAll(/\s+/g, ' '))}
             renderInput={(params) => <TextField {...fieldProps} {...params} />}
             {...props}
         />
