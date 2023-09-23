@@ -29,15 +29,16 @@ const TransactionsActionButtons = ({
         const txDate = dayjs(transactions.filter((t) => t.id === selectedRows[0])[0].date);
 
         deleteTransaction(selectedRows, () => {
+            const plural = selectedLength > 1 ? 's' : '';
             if (selectedLength === 1 && txDate.isSame(maxDate)) {
                 setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
-                showStatus('success', 'Transaction deleted');
+                showStatus('success', selectedLength + ` transaction${plural} deleted`);
                 setLoading(false);
                 setShowConfirmDelete(false);
             } else {
                 listTransactions(selectedAccount.id, (response) => {
                     setTransactions(response);
-                    showStatus('success', 'Transaction deleted');
+                    showStatus('success', selectedLength + ` transaction${plural} deleted`);
                     setLoading(false);
                     setShowConfirmDelete(false);
                 });
