@@ -148,9 +148,10 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         }
         const visibleRows = gridPaginatedVisibleSortedGridRowIdsSelector(apiRef);
         if (visibleRows.indexOf(visibleTransactionId) === -1) {
-            const index = gridFilteredSortedRowEntriesSelector(apiRef).map(({ id }) => id).indexOf(visibleTransactionId) + 1;
-            const page = Math.floor(index / old.pageSize);
-            setTimeout(() => setPaginationModel((old) => ({ ...old, page })), 100);
+            const index = gridFilteredSortedRowEntriesSelector(apiRef)
+                .map(({ id }) => id)
+                .indexOf(visibleTransactionId) + 1;
+            setTimeout(() => setPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) })), 100);
             setVisibleTransactionId(undefined);
         }
     }, [ visibleTransactionId ]);
