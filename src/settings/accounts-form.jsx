@@ -149,7 +149,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                 </FormControl>
             </Tooltip>
         ),
-        paymentRemarks: paymentAccount > 0 && (
+        paymentRemarks: (
             <Tooltip
                 key="paymentRemarks"
                 arrow
@@ -165,7 +165,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                 />
             </Tooltip>
         ),
-        issuer: getIssuers().map(i => i.id).indexOf(issuerId) > -1 && (
+        issuer: (
             <FormControl key="issuer" fullWidth>
                 <InputLabel id="issuer-label">
                     { type === 'Cash' ? 'Bank' : 'Issuer' }
@@ -188,10 +188,21 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
         cpfSlider: !hasCpfAccount() && <CpfSlider key="cpfSlider" {...{ cpfRatio, setCpfRatio, cpfAllocationInvalid }} />,
     };
 
-    const fieldMap = {
-        Cash: [ fields.issuer, fields.name, fields.multiCurrency ],
-        Credit: [ fields.issuer, fields.name, fields.billingCycle, fields.paymentAccount, fields.paymentRemarks ],
-        Retirement: [ fields.singleAccountInfo, fields.cpfSlider ],
+    const cashFields = [ fields.issuer, fields.name, fields.multiCurrency ];
+    const cpfFields = [ fields.singleAccountInfo, fields.cpfSlider ];
+
+    const getFields = () => {
+        if (type === 'Retirement') {
+            return cpfFields;
+        }
+        const formFields = [ ...cashFields ];
+        if (type === 'Credit') {
+            formFields.push(...[ fields.billingCycle, fields.paymentAccount ]);
+            if (paymentAccount > 0) {
+                formFields.push(fields.paymentRemarks);
+            }
+        }
+        return formFields;
     };
 
     const AccountTypeToggle = () => (
@@ -200,11 +211,15 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
             value={type}
             exclusive
             fullWidth
-            onChange={(e, type) => setType(type)}
+            onChange={(e, type) => type && setType(type)}
             aria-label="account-type"
         >
             {[ 'Cash', 'Credit', 'Retirement' ].map((accountType) => (
-                <ToggleButton key={accountType} value={accountType} aria-label={accountType}>
+                <ToggleButton
+                    key={accountType}
+                    value={accountType}
+                    aria-label={accountType}
+                >
                     {accountType}
                 </ToggleButton>
             ))}
@@ -216,7 +231,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
             <Stack spacing={2} mt={1}>
                 { !accountToEdit && <AccountTypeToggle /> }
 
-                { fieldMap[type] }
+                { getIssuers().find(({ id }) => id === issuerId) && getFields() }
 
                 <Stack direction="row" gap={2}>
                     <LoadingButton

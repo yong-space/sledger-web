@@ -124,7 +124,7 @@ const AddTransactionDialog = ({
         if (tx.originalAmount) {
             tx.originalAmount *= side;
         }
-        tx['@type'] = selectedAccount.multiCurrency ? 'fx' : selectedAccount.type.toLowerCase();
+        tx['@type'] = (selectedAccount.multiCurrency ? 'fx-' : '') + selectedAccount.type.toLowerCase();
         if (selectedAccount.type === 'Credit') {
             tx.billingMonth = month.toISOString();
         } else if (selectedAccount.type === 'Retirement') {
