@@ -164,7 +164,7 @@ const Summary = () => {
         (type === 'Credit' && header === 'Account') ? 'Card' : header;
 
     const getSubtotal = (data) => {
-        const sum = data.map((row) => Number(row.balance)).reduce((a, b) => a + b, 0);
+        const sum = data.map((row) => Number(row.balance)).reduce((a, b) => a + b || 0, 0);
         return formatDecimal(sum);
     };
 
