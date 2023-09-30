@@ -25,8 +25,8 @@ const TransactionsActionButtons = ({
 
     const submitDelete = () => {
         setLoading(true);
-        const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
-        const txDate = dayjs(transactions.filter((t) => t.id === selectedRows[0])[0].date);
+        const maxDate = dayjs.max(transactions.map(t => dayjs.utc(t.date)));
+        const txDate = dayjs.utc(transactions.filter((t) => t.id === selectedRows[0])[0].date);
 
         deleteTransaction(selectedRows, () => {
             const plural = selectedLength > 1 ? 's' : '';

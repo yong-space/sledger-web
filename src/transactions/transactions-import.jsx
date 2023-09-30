@@ -133,7 +133,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         return (
             <DatePicker
                 label="Date"
-                value={dayjs(value)}
+                value={dayjs.utc(value)}
                 format="YYYY-MM-DD"
                 onChange={(v) => apiRef.current.setEditCellValue({ id, field, value: v.toISOString() })}
                 slotProps={{ textField: { variant: 'outlined' } }}
@@ -150,7 +150,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                 openTo="month"
                 views={[ 'year', 'month' ]}
                 label={`${selectedAccount.type === 'Credit' ? 'Billing' : 'For'} Month`}
-                value={dayjs(value)}
+                value={dayjs.utc(value)}
                 format="YYYY MMM"
                 onChange={(v) => apiRef.current.setEditCellValue({ id, field, value: v.toISOString() })}
                 slotProps={{ textField: { variant: 'outlined' } }}

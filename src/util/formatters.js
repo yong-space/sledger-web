@@ -26,6 +26,6 @@ export const formatDecimal = (value, hideEmpty = true, decimal = 2) => {
 
 export const formatNumber = (number) => formatDecimal(number, false, 0);
 
-export const formatDate = ({ value }) => !value ? '' : dayjs(value).format('YYYY-MM-DD');
+export const formatDate = ({ value }) => !value ? '' : dayjs.utc(value).format('YYYY-MM-DD');
 
-export const formatMonth = ({ value }) => !value ? '' : dayjs(value).format('YYYY MMM');
+export const formatMonth = ({ value }) => !value ? '' : dayjs.utc(value).format('YYYY MMM');

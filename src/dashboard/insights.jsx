@@ -97,7 +97,7 @@ const Insights = () => {
         );
     };
 
-    const formatAxis = ({ xaxis }) => xaxis.map((str) => dayjs(str).format('MMM'));
+    const formatAxis = ({ xaxis }) => xaxis.map((str) => dayjs.utc(str).format('MMM'));
 
     const MonthlyChart = () => (
         <BarChart

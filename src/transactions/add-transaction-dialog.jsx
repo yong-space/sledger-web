@@ -39,9 +39,9 @@ const AddTransactionDialog = ({
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = state.useState(state.date);
-    const [ month, setMonth ] = useState(dayjs().utc().startOf('day'));
+    const [ month, setMonth ] = useState(dayjs.utc().startOf('day'));
     const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || '');
-    const [ currency, setCurrency ] = useState('');
+    const [ currency, setCurrency ] = useState(transactionToEdit?.currency || '');
     const [ code, setCode ] = useState(transactionToEdit?.code || '');
     const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || 0);
     const [ cpfAmounts, setCpfAmounts ] = useState({
@@ -88,11 +88,11 @@ const AddTransactionDialog = ({
             return;
         }
         setSide(transactionToEdit.amount > 0 ? 1 : -1);
-        setDate(dayjs(transactionToEdit.date));
+        setDate(dayjs.utc(transactionToEdit.date));
         if (selectedAccount?.type === 'Credit') {
-            setMonth(dayjs(transactionToEdit.billingMonth));
+            setMonth(dayjs.utc(transactionToEdit.billingMonth));
         } else if (selectedAccount?.type === 'Retirement') {
-            setMonth(dayjs(transactionToEdit.forMonth));
+            setMonth(dayjs.utc(transactionToEdit.forMonth));
         }
         setCategory(transactionToEdit.category || '');
         setSubCategory(transactionToEdit.subCategory || '');
@@ -138,7 +138,7 @@ const AddTransactionDialog = ({
         if (transactionToEdit) {
             tx.id = transactionToEdit.id;
         }
-        const maxDate = dayjs.max(transactions.map(t => dayjs(t.date)));
+        const maxDate = dayjs.max(transactions.map(t => dayjs.utc(t.date)));
 
         setLoading(true);
         const endpoint = transactionToEdit ? editTransaction : addTransaction;
@@ -154,7 +154,7 @@ const AddTransactionDialog = ({
         };
 
         endpoint([ tx ], (response) => {
-            const minDate = dayjs.min(response.map(t => dayjs(t.date)));
+            const minDate = dayjs.min(response.map(t => dayjs.utc(t.date)));
             if (transactionToEdit) {
                 postProcess(response, transactions.map((t) => response.find((r) => r.id === t.id) || t));
             } else if (minDate.isAfter(maxDate)) {
