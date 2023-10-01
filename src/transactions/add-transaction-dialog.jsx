@@ -41,9 +41,10 @@ const AddTransactionDialog = ({
     const [ date, setDate ] = state.useState(state.date);
     const [ month, setMonth ] = useState(dayjs.utc().startOf('day'));
     const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || '');
-    const [ currency, setCurrency ] = useState(transactionToEdit?.currency || '');
+    const [ currency, setCurrency ] = useState(transactionToEdit?.currency || 'SGD');
     const [ code, setCode ] = useState(transactionToEdit?.code || '');
     const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || 0);
+    const [ originalAmount, setOriginalAmount ] = useState(Math.abs(transactionToEdit?.originalAmount) || 0);
     const [ cpfAmounts, setCpfAmounts ] = useState({
         ordinaryAmount: transactionToEdit?.ordinaryAmount || 0,
         specialAmount: transactionToEdit?.specialAmount || 0,
@@ -171,24 +172,29 @@ const AddTransactionDialog = ({
         setTransactionToEdit(undefined);
     };
 
-    const updateCpfAmounts = ({ target }) => {
+    const handleAmountChange = ({ target }) => {
         setAmountValue(target.value);
-
         if (selectedAccount?.type === 'Retirement') {
-            if (code === 'CON') {
-                const value = isNaN(parseFloat(target.value)) ? 0 : target.value;
-                setCpfAmounts({
-                    ordinaryAmount: (value * parseFloat(selectedAccount.ordinaryRatio)).toFixed(2),
-                    specialAmount: (value * parseFloat(selectedAccount.specialRatio)).toFixed(2),
-                    medisaveAmount: (value * parseFloat(selectedAccount.medisaveRatio)).toFixed(2)
-                });
-            } else {
-                setCpfAmounts({
-                    ordinaryAmount: target.value,
-                    specialAmount: 0,
-                    medisaveAmount: 0
-                });
-            }
+            updateCpfAmounts({ target });
+        } else if (selectedAccount?.multiCurrency && currency === 'SGD') {
+            setOriginalAmount(target.value);
+        }
+    };
+
+    const updateCpfAmounts = ({ target }) => {
+        if (code === 'CON') {
+            const value = isNaN(parseFloat(target.value)) ? 0 : target.value;
+            setCpfAmounts({
+                ordinaryAmount: (value * parseFloat(selectedAccount.ordinaryRatio)).toFixed(2),
+                specialAmount: (value * parseFloat(selectedAccount.specialRatio)).toFixed(2),
+                medisaveAmount: (value * parseFloat(selectedAccount.medisaveRatio)).toFixed(2)
+            });
+        } else {
+            setCpfAmounts({
+                ordinaryAmount: target.value,
+                specialAmount: 0,
+                medisaveAmount: 0
+            });
         }
     };
 
@@ -280,7 +286,7 @@ const AddTransactionDialog = ({
                 name="amount"
                 label="Amount"
                 value={amountValue}
-                onChange={updateCpfAmounts}
+                onChange={handleAmountChange}
                 inputProps={numericProps}
             />
         ),
@@ -307,9 +313,10 @@ const AddTransactionDialog = ({
                 <TextField
                     fullWidth
                     required
-                    defaultValue={transactionToEdit && Math.abs(transactionToEdit.originalAmount)}
                     name="originalAmount"
                     label="Original Amount"
+                    value={originalAmount}
+                    onChange={(e, v) => setOriginalAmount(v)}
                     inputProps={numericProps}
                 />
             </ForeignCurrencyBar>

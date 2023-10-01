@@ -14,7 +14,9 @@ import Box from '@mui/system/Box';
 import state from '../core/state';
 import styled from 'styled-components';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { formatNumber, formatDecimal, formatDate, formatMonth } from '../util/formatters';
+import {
+    formatNumber, formatDecimal, formatDecimalRaw, formatDecimalAbs, formatDate, formatMonth, formatFx,
+} from '../util/formatters';
 
 const GridBox = styled.div`
     display: flex;
@@ -74,7 +76,13 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
     const getAmount = ({ field, row }) => (field === 'credit') ?
         (row.amount > 0 ? row.amount : 0) :
         (row.amount < 0 ? -row.amount : 0);
-    const getFx = ({ row }) => Math.abs(row.amount / row.originalAmount).toFixed(5);
+
+    const getFx = ({ row }) => {
+        if (row.currency === 'SGD') {
+            return '';
+        }
+        return row.currency + ' @ ' + Math.abs(row.amount / row.originalAmount).toFixed(5);
+    }
 
     const columns = {
         date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
@@ -83,9 +91,9 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal },
         debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal },
         amount: { flex: 2.5, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
-        originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimal },
+        originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimalAbs },
         fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: getFx },
-        balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimal },
+        balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimalRaw },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
         subCategory: { flex: 2, field: 'subCategory', headerName: 'Sub-category' },
@@ -105,8 +113,8 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
         }
         const fields = [ ...cashFields ];
         if (selectedAccount.multiCurrency) {
-            fields.splice(4, 0, columns.originalAmount);
-            fields.splice(5, 0, columns.fx);
+            fields.splice(4, 0, columns.fx);
+            // fields.splice(4, 0, columns.originalAmount);
         }
         if (selectedAccount.type === 'Credit') {
             fields.splice(1, 0, columns.billingMonth);
@@ -166,7 +174,7 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
 
         return (
             <Box sx={{ marginLeft: '1rem' }}>
-                {formatNumber(length, false)} row{plural}: {formatDecimal(amountSum, false)}
+                {formatNumber(length, false)} row{plural}: {formatDecimalRaw(amountSum)}
             </Box>
         );
     };
