@@ -60,10 +60,11 @@ const BulkTransactionDialog = ({
 
     const submit = (event) => {
         event.preventDefault();
-        const { category, remarks } = Object.fromEntries(new FormData(event.target).entries());
+        const { category, subCategory, remarks } = Object.fromEntries(new FormData(event.target).entries());
         const values = {
             ids: transactionToEdit,
             category: category.trim().length === 0 ? null : category.trim(),
+            subCategory: subCategory.trim().length === 0 ? null : subCategory.trim(),
             remarks: remarks.trim().length === 0 ? null : remarks.trim(),
         };
         if (selectedAccount?.type === 'Credit') {
@@ -76,6 +77,7 @@ const BulkTransactionDialog = ({
                     ...t,
                     billingMonth: values.billingMonth || t.billingMonth,
                     category: values.category || t.category,
+                    subCategory: values.subCategory || t.subCategory,
                     remarks: values.remarks || t.remarks,
                 })
             );
