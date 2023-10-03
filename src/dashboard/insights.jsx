@@ -47,10 +47,8 @@ const Insights = () => {
     const [ breakdown, setBreakdown ] = useState(false);
 
     useEffect(() => getInsights((response) => {
-        const keys = [ 'sum', 'transactions' ];
-        const summary = response.summary
-            .map((s) => ({ ...s, sum: s.average * s.transactions }))
-            .reduce((acc, curr) => {
+        const keys = [ 'average', 'transactions' ];
+        const summary = response.summary.reduce((acc, curr) => {
                 acc[curr.category] = acc[curr.category] || Object.assign(...keys.map(k => ({ [k]: 0 })));
                 keys.forEach(k => acc[curr.category][k] += curr[k]);
                 return acc;
@@ -58,7 +56,7 @@ const Insights = () => {
         const summaryList = Object.keys(summary).map((category) => ({
             category,
             transactions: summary[category].transactions,
-            average: summary[category].sum / summary[category].transactions,
+            average: summary[category].average,
         }));
         setCategorySummary(summaryList);
         setInsights(response);
