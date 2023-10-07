@@ -45,7 +45,8 @@ const Transactions = () => {
         }
         const match = location.pathname.match(/\d+/);
         if (match) {
-            const account = getVisibleAccounts().find(a => a.id === parseInt(match[0]));
+            const id = parseInt(match[0]);
+            const account = (id === 0) ? { id: 0 } : getVisibleAccounts().find(a => a.id === id);
             if (account) {
                 setSelectedAccount(account);
                 return;
@@ -61,7 +62,7 @@ const Transactions = () => {
         if (!accounts) {
             return;
         }
-        if (selectedAccount && getVisibleAccounts().find(a => a.id === selectedAccount.id)) {
+        if (selectedAccount && (selectedAccount.id === 0 || getVisibleAccounts().find(a => a.id === selectedAccount.id))) {
             setLoading(false);
         }
         setCanImport(issuers.find(({ id }) => id === selectedAccount?.issuerId)?.canImport);
@@ -83,12 +84,13 @@ const Transactions = () => {
                     sx={{ flex: 4 }}
                     disabled={importMode}
                     handleChange={({ target }) => navigate(`/tx/${target.value}`)}
+                    showCashCredit
                 />
                 { !isMobile && !importMode && <TransactionsActionButtons {...actionProps} /> }
             </Stack>
             { importMode ?
                 <TransactionsImport {...{ setImportMode, selectedAccount }} /> :
-                <TransactionsGrid {...{ setShowAddDialog, setTransactionToEdit }} />
+                <TransactionsGrid {...{ accounts, setShowAddDialog, setTransactionToEdit }} />
             }
         </TransactionsRoot>
     )

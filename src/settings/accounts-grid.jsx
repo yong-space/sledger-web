@@ -128,7 +128,6 @@ const AccountsGrid = ({
     );
 
     const updateRowSelection = (newRows) => {
-        console.log(`hello ${newRows}`)
         if (newRows.length === 0) {
             return;
         }

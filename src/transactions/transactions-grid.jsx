@@ -35,7 +35,7 @@ const FooterRoot = styled.div`
     .MuiButtonBase-root { padding: .2rem }
 `;
 
-const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
+const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { listTransactions } = api();
@@ -82,9 +82,12 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             return '';
         }
         return row.currency + ' @ ' + Math.abs(row.amount / row.originalAmount).toFixed(5);
-    }
+    };
+
+    const getAccountName = ({ row }) => accounts.find(({ id }) => id === row.accountId).name;
 
     const columns = {
+        account: { flex : 2, field: 'accountId', headerName: 'Account', valueGetter: getAccountName },
         date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
         billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth },
         forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', type: 'date', valueFormatter: formatMonth },
@@ -112,12 +115,15 @@ const TransactionsGrid = ({ setShowAddDialog, setTransactionToEdit }) => {
             return cpfFields;
         }
         const fields = [ ...cashFields ];
-        if (selectedAccount.multiCurrency) {
-            fields.splice(4, 0, columns.fx);
-            // fields.splice(4, 0, columns.originalAmount);
-        }
-        if (selectedAccount.type === 'Credit') {
-            fields.splice(1, 0, columns.billingMonth);
+        if (!selectedAccount.type) {
+            fields.splice(0, 0, columns.account);
+        } else {
+            if (selectedAccount.multiCurrency) {
+                fields.splice(4, 0, columns.fx);
+            }
+            if (selectedAccount.type === 'Credit') {
+                fields.splice(1, 0, columns.billingMonth);
+            }
         }
         return fields;
     };

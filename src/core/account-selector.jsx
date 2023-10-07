@@ -15,18 +15,23 @@ const FxRoot = styled.sup`
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
-const AccountSelector = ({ handleChange, disabled, sx, accountFilter }) => {
+const AccountSelector = ({ handleChange, disabled, sx, accountFilter, showCashCredit }) => {
     const [ loading, setLoading ] = useState(true);
     const issuers = state.useState(state.issuers)[0];
     const accounts = state.useState(state.accounts)[0];
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
-    const getAccounts = () => !accountFilter ? getVisibleAccounts() :
-        getVisibleAccounts().filter(accountFilter);
+    const getAccounts = () => {
+        let allAccounts = !accountFilter ? getVisibleAccounts() : getVisibleAccounts().filter(accountFilter);
+        if (showCashCredit) {
+            allAccounts.push({ id: 0, name: 'All Transactions', type: 'Aggregated' });
+        }
+        return allAccounts.sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+    };
     const getIssuer = (id) => issuers.find(i => i.id === id);
 
     useEffect(() => {
-        if (!selectedAccount || !getAccounts().find(({ id }) => id === selectedAccount.id)) {
+        if (!selectedAccount || (selectedAccount.id > 0 && !getAccounts().find(({ id }) => id === selectedAccount.id))) {
             setSelectedAccount(getAccounts()[0]);
         } else {
             setLoading(false);
@@ -41,8 +46,14 @@ const AccountSelector = ({ handleChange, disabled, sx, accountFilter }) => {
 
     const AccountEntry = ({ type, issuer, name, multiCurrency }) => (
         <>
-            <Chip sx={{ borderRadius: '.5rem' }} label={type} color={colors[type]} size="small" />
-            <Chip sx={{ borderRadius: '.5rem', color: `#${issuer.colour}`, borderColor: `#${issuer.colour}` }} label={issuer.name} variant="outlined" size="small" />
+            { issuer ? (
+                <>
+                    <Chip sx={{ borderRadius: '.5rem' }} label={type} color={colors[type]} size="small" />
+                    <Chip sx={{ borderRadius: '.5rem', color: `#${issuer.colour}`, borderColor: `#${issuer.colour}` }} label={issuer.name} variant="outlined" size="small" />
+                </>
+            ) : (
+                <Chip sx={{ borderRadius: '.5rem' }} label="Cash + Credit" size="small" />
+            )}
             {name}
             {multiCurrency && <Fx />}
         </>
@@ -58,6 +69,13 @@ const AccountSelector = ({ handleChange, disabled, sx, accountFilter }) => {
                 onChange={handleChange}
                 disabled={disabled}
                 renderValue={(selectedId) => {
+                    if (selectedId === 0) {
+                        return (
+                            <div style={{ display: 'flex', gap: '.4rem' }}>
+                                <AccountEntry name="All Transactions" />
+                            </div>
+                        );
+                    }
                     const { name, type, issuerId, multiCurrency } = getVisibleAccounts().find((a) => a.id === selectedId);
                     return (
                         <div style={{ display: 'flex', gap: '.4rem' }}>
@@ -70,7 +88,7 @@ const AccountSelector = ({ handleChange, disabled, sx, accountFilter }) => {
                     <MenuItem key={id} value={id} sx={{ gap: '.4rem' }}>
                         <AccountEntry {...{ type, issuer: getIssuer(issuerId), name, multiCurrency }} />
                     </MenuItem>
-                )) }
+                ))}
             </Select>
         </FormControl>
     );
