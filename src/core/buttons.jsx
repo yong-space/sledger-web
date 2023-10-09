@@ -1,18 +1,36 @@
+import { useTheme } from '@mui/material/styles';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Button from '@mui/material/Button';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import IconButton from '@mui/material/IconButton';
 import PublishIcon from '@mui/icons-material/Publish';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-const ActionButton = (props) => (
-    <Button
-        variant="contained"
-        sx={{ height: '2.5rem' }}
-        {...props}
-    >
-        {props.label}
-    </Button>
-);
+const ActionButton = ({ color, startIcon, label, onClick, solo }) => {
+    const size = '2.5rem';
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+    return !solo && isMobile ? (
+        <IconButton
+            sx={{ width: size, height: size, backgroundColor: theme.palette[color].dark }}
+            onClick={onClick}
+        >
+            { startIcon }
+        </IconButton>
+    ) : (
+        <Button
+            variant="contained"
+            color={color}
+            startIcon={startIcon}
+            sx={{ height: size }}
+            onClick={onClick}
+        >
+            {label}
+        </Button>
+    );
+};
 
 export const AddButton = (props) => (
     <ActionButton

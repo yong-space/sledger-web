@@ -64,7 +64,7 @@ const TransactionsActionButtons = ({
 
     return (
         <Stack direction="row" spacing={1}>
-            <AddButton onClick={addTransaction} />
+            <AddButton onClick={addTransaction} solo={selectedLength === 0} />
             { selectedLength > 0 && <EditButton onClick={editTransaction} />}
             { selectedLength > 0 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
 
