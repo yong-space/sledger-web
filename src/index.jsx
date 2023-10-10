@@ -1,13 +1,15 @@
-import { Suspense } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { BrowserRouter } from 'react-router-dom';
+import { CircularLoader } from './core/loader';
+import { createRoot } from 'react-dom/client';
+import { RecoilRoot } from 'recoil';
+import { registerSW } from 'virtual:pwa-register';
+import { StyleSheetManager } from "styled-components";
+import { Suspense } from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import isPropValid from "@emotion/is-prop-valid";
 import Session from './core/session';
 import StatusBar from './core/statusbar';
-import { CircularLoader } from './core/loader';
-import { registerSW } from 'virtual:pwa-register';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -35,18 +37,25 @@ const darkTheme = createTheme({
 
 registerSW({ immediate: true });
 
+const shouldForwardProp = (propName, elementToBeRendered) =>
+    typeof elementToBeRendered === "string"
+        ? isPropValid(propName) && !["height", "width"].includes(propName)
+        : true;
+
 const Index = () => (
-  <RecoilRoot>
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <Suspense fallback={<CircularLoader />}>
-        <BrowserRouter>
-          <Session />
-        </BrowserRouter>
-        <StatusBar />
-      </Suspense>
-    </ThemeProvider>
-  </RecoilRoot>
+    <RecoilRoot>
+        <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+            <ThemeProvider theme={darkTheme}>
+                <CssBaseline />
+                <Suspense fallback={<CircularLoader />}>
+                    <BrowserRouter>
+                        <Session />
+                    </BrowserRouter>
+                    <StatusBar />
+                </Suspense>
+            </ThemeProvider>
+        </StyleSheetManager>
+    </RecoilRoot>
 );
 
 createRoot(document.querySelector('#root')).render(<Index />);
