@@ -2,12 +2,13 @@ import { BarChart } from '@mui/x-charts';
 import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
-import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
 import dayjs from 'dayjs';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import state from '../core/state';
 import styled from 'styled-components';
 import Switch from '@mui/material/Switch';
 import Tab from '@mui/material/Tab';
@@ -64,6 +65,8 @@ const Insights = () => {
 
     const AverageGrid = () => {
         const theme = useTheme();
+        const navigate = useNavigate();
+        const setFilterModel = state.useState(state.filterModel)[1];
         const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
         const maxGridSize = {
             maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
@@ -75,6 +78,22 @@ const Insights = () => {
             { flex: 1, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average' },
             { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
         ];
+        const handleDoubleClick = ({ row }) => {
+            const filter = {
+                items: [
+                    {
+                        field: breakdown ? 'subCategory' : 'category',
+                        id: 1,
+                        operator: "equals",
+                        value: breakdown ? row.subCategory : row.category,
+                    },
+                ],
+                logicOperator: "and"
+            };
+            setFilterModel(filter);
+            navigate('/tx/0');
+        };
+
         return (
             <GridBox isMobile={isMobile}>
                 <DataGrid
@@ -90,6 +109,7 @@ const Insights = () => {
                             sortModel: [{ field: 'average', sort: 'asc' }],
                         },
                     }}
+                    onRowDoubleClick={handleDoubleClick}
                 />
             </GridBox>
         );

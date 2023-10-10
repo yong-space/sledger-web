@@ -31,7 +31,10 @@ const AccountSelector = ({ handleChange, disabled, sx, accountFilter, showCashCr
     const getIssuer = (id) => issuers.find(i => i.id === id);
 
     useEffect(() => {
-        if (!selectedAccount || (selectedAccount.id > 0 && !getAccounts().find(({ id }) => id === selectedAccount.id))) {
+        if (
+            !selectedAccount ||
+            !getAccounts().find(({ id }) => id === selectedAccount.id)
+        ) {
             setSelectedAccount(getAccounts()[0]);
         } else {
             setLoading(false);
