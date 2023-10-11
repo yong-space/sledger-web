@@ -51,9 +51,10 @@ const AddTransactionDialog = ({
         medisaveAmount: transactionToEdit?.medisaveAmount || 0,
     });
     const [ loading, setLoading ] = state.useState(state.loading);
-    const selectedAccount = state.useState(state.selectedAccount)[0];
     const [ transactions, setTransactions ] = state.useState(state.transactions);
-    const setAccounts = state.useState(state.accounts)[1];
+    const [ accounts, setAccounts ] = state.useState(state.accounts);
+    const selectedAccount = !transactionToEdit ? state.useState(state.selectedAccount)[0]
+        : accounts.find(({ id }) => id === transactionToEdit.accountId);
     const [ categories, setCategories ] = state.useState(state.categories);
     const [ categoryOptions, setCategoryOptions ] = useState([]);
     const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
@@ -101,7 +102,7 @@ const AddTransactionDialog = ({
 
     useEffect(() => {
         if (selectedAccount?.type === 'Credit') {
-            if (date.get('date') < selectedAccount.billingCycle) {
+            if (date.get('date') < selectedAccount?.billingCycle) {
                 setMonth(date.subtract(1, 'month').startOf('month'));
             } else {
                 setMonth(date.startOf('month'));
@@ -113,22 +114,22 @@ const AddTransactionDialog = ({
         event.preventDefault();
         const tx = {
             date: date.toISOString(),
-            accountId: selectedAccount.id,
+            accountId: selectedAccount?.id,
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
         if (tx.remarks) {
             tx.remarks = tx.remarks.trim();
         }
-        if (selectedAccount.type !== 'Retirement') {
+        if (selectedAccount?.type !== 'Retirement') {
             tx.amount *= side;
         }
         if (tx.originalAmount) {
             tx.originalAmount *= side;
         }
-        tx['@type'] = (selectedAccount.multiCurrency ? 'fx-' : '') + selectedAccount.type.toLowerCase();
-        if (selectedAccount.type === 'Credit') {
+        tx['@type'] = (selectedAccount?.multiCurrency ? 'fx-' : '') + selectedAccount?.type.toLowerCase();
+        if (selectedAccount?.type === 'Credit') {
             tx.billingMonth = month.toISOString();
-        } else if (selectedAccount.type === 'Retirement') {
+        } else if (selectedAccount?.type === 'Retirement') {
             tx.code = tx.code.toUpperCase();
             if (code === 'CON') {
                 tx.forMonth = month.toISOString();
@@ -161,7 +162,7 @@ const AddTransactionDialog = ({
             } else if (minDate.isAfter(maxDate)) {
                 postProcess(response, [ ...transactions, ...response ]);
             } else {
-                listTransactions(selectedAccount.id, (allTx) => postProcess(response, allTx));
+                listTransactions(selectedAccount?.id, (allTx) => postProcess(response, allTx));
             }
             listAccounts((data) => setAccounts(data));
         });
@@ -185,9 +186,9 @@ const AddTransactionDialog = ({
         if (code === 'CON') {
             const value = isNaN(parseFloat(target.value)) ? 0 : target.value;
             setCpfAmounts({
-                ordinaryAmount: (value * parseFloat(selectedAccount.ordinaryRatio)).toFixed(2),
-                specialAmount: (value * parseFloat(selectedAccount.specialRatio)).toFixed(2),
-                medisaveAmount: (value * parseFloat(selectedAccount.medisaveRatio)).toFixed(2)
+                ordinaryAmount: (value * parseFloat(selectedAccount?.ordinaryRatio)).toFixed(2),
+                specialAmount: (value * parseFloat(selectedAccount?.specialRatio)).toFixed(2),
+                medisaveAmount: (value * parseFloat(selectedAccount?.medisaveRatio)).toFixed(2)
             });
         } else {
             setCpfAmounts({
@@ -253,12 +254,12 @@ const AddTransactionDialog = ({
                 key="month"
                 openTo="month"
                 views={[ 'year', 'month' ]}
-                label={`${selectedAccount.type === 'Credit' ? 'Billing' : 'For'} Month`}
+                label={`${selectedAccount?.type === 'Credit' ? 'Billing' : 'For'} Month`}
                 value={month}
                 format="YYYY MMM"
                 onChange={(newValue) => setMonth(newValue)}
                 slotProps={{ textField: { variant: 'outlined' } }}
-                sx={{ display: (selectedAccount.type === 'Credit' || code === 'CON') ? 'flex' : 'none' }}
+                sx={{ display: (selectedAccount?.type === 'Credit' || code === 'CON') ? 'flex' : 'none' }}
             />
         ),
         creditDebit: (
@@ -453,14 +454,14 @@ const AddTransactionDialog = ({
     ];
 
     const getFields = () => {
-        if (selectedAccount.type === 'Retirement') {
+        if (selectedAccount?.type === 'Retirement') {
             return cpfFields;
         }
         const result = [ ...cashFields ];
-        if (selectedAccount.multiCurrency) {
+        if (selectedAccount?.multiCurrency) {
             result.splice(3, 0, fields.fx);
         }
-        if (selectedAccount.type === 'Credit') {
+        if (selectedAccount?.type === 'Credit') {
             result.splice(1, 0, fields.month);
         }
         return result;
@@ -503,7 +504,7 @@ const AddTransactionDialog = ({
                 { transactionToEdit ? 'Edit' : 'Add' } Transaction
             </DialogTitle>
             <DialogContent>
-                { addTransactionForm }
+                { selectedAccount && addTransactionForm }
             </DialogContent>
         </Dialog>
     );

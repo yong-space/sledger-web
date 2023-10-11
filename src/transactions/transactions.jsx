@@ -51,7 +51,7 @@ const Transactions = () => {
                 setSelectedAccount(account);
                 return;
             }
-        } else if (selectedAccount && getVisibleAccounts().find(a => a.id === selectedAccount.id)) {
+        } else if (selectedAccount && (selectedAccount.id === 0 || getVisibleAccounts().find(a => a.id === selectedAccount.id))) {
             navigate(`/tx/${selectedAccount.id}`);
             return;
         }

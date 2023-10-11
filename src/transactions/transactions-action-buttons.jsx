@@ -62,13 +62,15 @@ const TransactionsActionButtons = ({
         }
     };
 
-    return (
+    const isMobile = useMediaQuery(theme.breakpoints.up('md'));
+
+    return (selectedAccount.id === 0 && selectedLength === 0) ? <></> : (
         <Stack direction="row" spacing={1}>
-            <AddButton onClick={addTransaction} solo={selectedLength === 0} />
+            { selectedAccount.id > 0 && <AddButton onClick={addTransaction} solo={selectedLength === 0} /> }
             { selectedLength > 0 && <EditButton onClick={editTransaction} />}
             { selectedLength > 0 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
 
-            { useMediaQuery(theme.breakpoints.up('md')) && canImport && (
+            { isMobile && canImport && (
                 <ImportButton onClick={() => setImportMode(true)} />
             )}
 
