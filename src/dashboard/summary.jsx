@@ -78,7 +78,7 @@ const Table = styled.table`
     th, td {
         padding: .8rem;
         text-align: left;
-        &:first-child {
+        &:is([data-issuer]) {
             --width: 6rem;
             width: var(--width);
             min-width: var(--width);
@@ -140,6 +140,7 @@ const Summary = () => {
                     }
                     props.rowSpan = 3;
                 }
+                props['data-issuer'] = issuer.name;
                 value = <IssuerChip label={issuer.name} color={issuer.colour} />;
                 break;
             case 'balance':
