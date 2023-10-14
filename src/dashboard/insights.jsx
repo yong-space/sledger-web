@@ -6,6 +6,7 @@ import { Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-r
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
+import Box from '@mui/system/Box';
 import dayjs from 'dayjs';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import state from '../core/state';
@@ -37,6 +38,17 @@ const TabRow = styled.div`
 const GridBox = styled.div`
     display: flex;
     flex: 1 1 1px;
+`;
+
+const FooterRoot = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: rgb(81, 81, 81) 1px solid;
+    min-height: 3.25rem;
+    .MuiTablePagination-root { overflow: hidden }
+    .MuiTablePagination-actions { margin-left: .5rem }
+    .MuiButtonBase-root { padding: .2rem }
 `;
 
 const Insights = () => {
@@ -95,10 +107,24 @@ const Insights = () => {
             navigate('/tx/0');
         };
 
+        const GridFooter = () => {
+            const rows = (breakdown ? insights.summary : categorySummary).length;
+            const noun = breakdown ? 'Sub-categor' : 'Categor';
+            const plural = (rows > 1) ? 'ies' : 'y';
+
+            return (
+                <FooterRoot>
+                    <Box sx={{ marginLeft: '1rem' }}>
+                        { rows } { noun }{plural}
+                        : { formatDecimal(categorySummary.reduce((a, b) => a + b.average, 0)) }
+                    </Box>
+                </FooterRoot>
+            );
+        };
+
         return (
             <GridBox isMobile={isMobile}>
                 <DataGrid
-                    hideFooter
                     disableColumnMenu
                     density="compact"
                     rows={breakdown ? insights.summary : categorySummary}
@@ -111,6 +137,7 @@ const Insights = () => {
                         },
                     }}
                     onRowDoubleClick={handleDoubleClick}
+                    slots={{ footer: GridFooter }}
                 />
             </GridBox>
         );
@@ -129,7 +156,7 @@ const Insights = () => {
 
     return (
         <Root spacing={3} pb={3}>
-            <Title mb={-1}>Insights</Title>
+            <Title mb={-1}>Past Year Insights</Title>
             { !insights ? <HorizontalLoader /> : (
                 <>
                     <TabRow>
