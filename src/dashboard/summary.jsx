@@ -247,7 +247,7 @@ const Summary = () => {
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
         <Root theme={theme}>
-            <Title mb={-1}>Summary</Title>
+            <Title>Summary</Title>
             <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
             <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
             <CpfSummaryGrid />

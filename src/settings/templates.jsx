@@ -33,6 +33,7 @@ const Templates = ({ isMobile }) => {
     const { listTemplates, addTemplates, editTemplates, deleteTemplate, showStatus, getCategories, suggestRemarks } = api();
 
     const maxGridSize = {
+        marginTop: '1rem',
         maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
         maxHeight: `calc(100vh - ${isMobile ? 8.1 : 9.5}rem)`,
     };
@@ -214,7 +215,7 @@ const Templates = ({ isMobile }) => {
 
     return (
         <GridBox isMobile={isMobile}>
-            <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Title>Templates</Title>
                 <Stack spacing={2} direction="row">
                     <Button

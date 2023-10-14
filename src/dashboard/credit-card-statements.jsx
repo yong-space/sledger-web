@@ -120,7 +120,7 @@ const CreditCardStatements = () => {
 
     return (
         <Root spacing={3} pb={3}>
-            <Title mb={-1}>Credit Card Statements</Title>
+            <Title>Credit Card Statements</Title>
             <AccountSelector
                 accountFilter={({ type }) => type === 'Credit' }
                 handleChange={({ target }) => navigate(`${uri}/${target.value}`)}

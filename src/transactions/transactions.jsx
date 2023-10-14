@@ -75,7 +75,7 @@ const Transactions = () => {
 
     return loading ? <HorizontalLoader /> : (
         <TransactionsRoot>
-            <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Title>Transactions { importMode && 'Import'}</Title>
                 { isMobile && <TransactionsActionButtons {...actionProps} />}
             </Stack>

@@ -1,7 +1,7 @@
 import Typography from '@mui/material/Typography';
 
 const Title = ({ mb, children }) => (
-    <Typography variant="h5" mb={mb || 2} mr={2}>
+    <Typography variant="h5" m={0} mb={mb}>
         {children}
     </Typography>
 );

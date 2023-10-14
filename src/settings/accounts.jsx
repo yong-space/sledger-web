@@ -14,7 +14,7 @@ const Accounts = ({ isMobile }) => {
 
     return (
         <>
-            <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Title>Accounts</Title>
                 <AccountsActionButtons {...{
                     issuers, accounts, setAccounts, accountToEdit, setAccountToEdit,

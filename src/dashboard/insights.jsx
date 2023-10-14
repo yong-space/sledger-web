@@ -156,7 +156,7 @@ const Insights = () => {
 
     return (
         <Root spacing={3} pb={3}>
-            <Title mb={-1}>Past Year Insights</Title>
+            <Title>Past Year Insights</Title>
             { !insights ? <HorizontalLoader /> : (
                 <>
                     <TabRow>
