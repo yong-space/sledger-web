@@ -79,13 +79,14 @@ const Insights = () => {
             { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
         ];
         const handleDoubleClick = ({ row }) => {
+            const value = breakdown ? row.subCategory : row.category;
             const filter = {
                 items: [
                     {
                         field: breakdown ? 'subCategory' : 'category',
                         id: 1,
-                        operator: "equals",
-                        value: breakdown ? row.subCategory : row.category,
+                        operator: value ? "equals" : "isEmpty",
+                        value: value || undefined,
                     },
                 ],
                 logicOperator: "and"
