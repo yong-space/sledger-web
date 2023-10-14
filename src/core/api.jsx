@@ -98,6 +98,7 @@ const api = () => {
         uploadImport: (payload, callback) => apiCall(POST, 'import', callback, payload),
         getInsights: (callback) => apiCall(GET, 'dash/insights', callback),
         getCreditCardStatements: (id, callback) => apiCall(GET, `dash/credit-card-statement/${id}`, callback),
+        challenge: (callback) => apiCall(GET, 'profile/challenge', callback),
     };
 };
 export default api;

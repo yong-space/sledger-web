@@ -11,7 +11,7 @@ const Session = () => {
     const location = useLocation();
     const [ loading, setLoading ] = useState(true);
     const [ session, setSession ] = state.useState(state.session);
-    const { parseJwt, refreshToken } = api();
+    const { parseJwt, refreshToken, challenge, showStatus } = api();
 
     const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;
 
@@ -20,7 +20,7 @@ const Session = () => {
             return;
         }
         const token = window.localStorage.getItem('token');
-        if (token === null) {
+        if (!token) {
             if (!isPublicEndpoint()) {
                 navigate('/login', { replace: true });
             }
@@ -35,10 +35,32 @@ const Session = () => {
                 navigate('/login', { replace: true });
             }
         } else {
-            setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
-
+            const biometrics = window.localStorage.getItem('biometrics');
+            if (!biometrics) {
+                setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
+                setLoading(false);
+                return;
+            }
+            challenge((response) => {
+                const publicKey = {
+                    challenge: Uint8Array.from(response.token, c => c.charCodeAt(0)).buffer,
+                    timeout: 50000
+                };
+                navigator.credentials.get({ publicKey }).then(
+                    () => {
+                        setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
+                        showStatus('success', 'Session unlocked');
+                        setLoading(false);
+                    },
+                    () => {
+                        window.localStorage.clear();
+                        setSession(undefined);
+                        navigate('/login', { replace: true });
+                        showStatus('error', 'Invalid biometric credentials');
+                    }
+                );
+            });
         }
-        setLoading(false);
     }, []);
 
     useEffect(() => {
