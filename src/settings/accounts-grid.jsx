@@ -45,10 +45,10 @@ const AccountsGrid = ({
 
     const getIssuer = (id) => issuers.find(i => i.id === id);
 
-    const updateVisibility = (event, id) => editAccountVisibility(id, event.target.checked, () => {
+    const updateVisibility = (event, id) => editAccountVisibility(id, event.target.checked, ({ visible }) => {
         showStatus('success', 'Updated visibility');
         setAccounts((accounts) => accounts.map(account =>
-            (account.id !== id) ? account : { ...account, visible: event.target.checked }));
+            (account.id !== id) ? account : { ...account, visible }));
     });
 
     const columns = [
@@ -61,7 +61,7 @@ const AccountsGrid = ({
         {
             field: 'visible',
             renderHeader: () => <VisibilityIcon sx={{ ml: '1rem' }} />,
-            renderCell: ({ id, row }) => <Switch defaultChecked={row.visible} onChange={(e) => updateVisibility(e, id)} />,
+            renderCell: ({ id, row }) => <Switch checked={row.visible} onChange={(e) => updateVisibility(e, id)} />,
             width: 70,
             sortable: false,
         },
