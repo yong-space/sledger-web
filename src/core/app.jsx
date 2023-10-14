@@ -1,18 +1,17 @@
-import { lazy, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import Admin from '../admin/admin';
 import api from './api';
 import Dashboard from '../dashboard/dashboard';
 import NavBar from '../nav-bar/main-menu';
+import NotFound from './not-found';
+import Profile from '../settings/profile';
 import Settings from '../settings/settings';
 import state from './state';
 import styled from 'styled-components';
 import Transactions from '../transactions/transactions';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
-const Profile = lazy(() => import('../settings/profile'));
-const Admin = lazy(() => import('../admin/admin'));
-const NotFound = lazy(() => import('./not-found'));
 
 const Root = styled.div`
     display: flex;

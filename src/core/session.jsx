@@ -1,10 +1,9 @@
-import { lazy, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from './api';
+import App from './app';
+import Public from '../public/public';
 import state from './state';
-
-const App = lazy(() => import('./app'));
-const Public = lazy(() => import('../public/public'));
 
 const Session = () => {
     let navigate = useNavigate();

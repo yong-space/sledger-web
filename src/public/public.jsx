@@ -1,12 +1,10 @@
-import { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Login from './login';
+import NotFound from '../core/not-found';
+import Register from './register';
 import styled from 'styled-components';
-
-const Register = lazy(() => import('./register'));
-const Login = lazy(() => import('./login'));
-const NotFound = lazy(() => import('../core/not-found'));
 
 const Root = styled(Container)`
     height: 100%;
