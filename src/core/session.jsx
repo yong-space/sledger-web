@@ -51,11 +51,13 @@ const Session = () => {
                         showStatus('success', 'Session unlocked');
                         setLoading(false);
                     },
-                    () => {
+                    (err) => {
+                        console.error(err);
                         window.localStorage.clear();
                         setSession(undefined);
                         navigate('/login', { replace: true });
                         showStatus('error', 'Invalid biometric credentials');
+                        setLoading(false);
                     }
                 );
             });
@@ -64,6 +66,7 @@ const Session = () => {
 
     useEffect(() => {
         if (!session) {
+            console.debug('UE2 session does not exist')
             return;
         }
         const milisecondsToExpiry = (parseJwt(session.token).exp * 1000) - (new Date()).getTime();
