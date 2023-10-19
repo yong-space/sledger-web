@@ -1055,9 +1055,9 @@
     "@babel/types" "^7.22.15"
 
 "@babel/traverse@^7.21.2", "@babel/traverse@^7.23.0":
-  version "7.23.0"
-  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.23.0.tgz#18196ddfbcf4ccea324b7f6d3ada00d8c5a99c53"
-  integrity sha512-t/QaEvyIoIkwzpiZ7aoSKK8kObQYeF7T2v+dazAYCb8SXtp58zEVkWW7zAnju8FNKNdr4ScAOEDmMItbyOmEYw==
+  version "7.23.2"
+  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.23.2.tgz#329c7a06735e144a506bdb2cad0268b7f46f4ad8"
+  integrity sha512-azpe59SQ48qG6nu2CzcMLbxUudtN+dOM9kDbUqGq3HXUJRlo7i8fvPoxQUzYgLZ4cMVmuZgm8vvBpNeRhd6XSw==
   dependencies:
     "@babel/code-frame" "^7.22.13"
     "@babel/generator" "^7.23.0"
@@ -1345,6 +1345,7 @@
     prop-types "^15.8.1"
 
 "@mui/styled-engine-sc@^5.14.12", "@mui/styled-engine@^5.14.12", "@mui/styled-engine@npm:@mui/styled-engine-sc@5.14.12":
+  name "@mui/styled-engine"
   version "5.14.12"
   resolved "https://registry.yarnpkg.com/@mui/styled-engine-sc/-/styled-engine-sc-5.14.12.tgz#c7dfd86e07920228388dc1b32c347c024e436989"
   integrity sha512-FQ5KDd17OkRurE0ljR4Pddekv1uPSoJxcBqXa9tdoOETGULVCefM5Gd9CRGzT+alNPDyHBoUeEYKulIkDN9ytA==
