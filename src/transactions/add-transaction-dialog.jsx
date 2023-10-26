@@ -158,7 +158,12 @@ const AddTransactionDialog = ({
         endpoint([ tx ], (response) => {
             const minDate = dayjs.min(response.map(t => dayjs.utc(t.date)));
             if (transactionToEdit) {
-                postProcess(response, transactions.map((t) => response.find((r) => r.id === t.id) || t));
+                const existing = transactions.find(({ id }) => id === tx.id);
+                if (existing.amount === tx.amount) {
+                    postProcess(response, transactions.map((t) => response.find((r) => r.id === t.id) || t));
+                } else {
+                    listTransactions(selectedAccount?.id, (allTx) => postProcess(response, allTx));
+                }
             } else if (minDate.isAfter(maxDate)) {
                 postProcess(response, [ ...transactions, ...response ]);
             } else {
