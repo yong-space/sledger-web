@@ -150,9 +150,13 @@ const Templates = ({ isMobile }) => {
     useEffect(() => {
         setCategoryOptions(prepareOptions(categories, 'category'));
         setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
-        setCategoryMap(
-            categories.reduce((o, c) => ({ ...o, [c.subCategory]: c.category }), {})
-        );
+        const tempMap = {};
+        categories.forEach(({ category, subCategory }) => {
+            if (!tempMap[subCategory]) {
+                tempMap[subCategory] = category;
+            }
+        });
+        setCategoryMap(tempMap);
     }, [ categories ]);
 
     const postProcess = (row, newRows, verb) => {
