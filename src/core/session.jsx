@@ -81,7 +81,7 @@ const Session = () => {
         }
         console.debug('UE2: Session exists');
         const milisecondsToExpiry = (parseJwt(session.token).exp * 1000) - (new Date()).getTime();
-        if (milisecondsToExpiry > 3600000) {
+        if (milisecondsToExpiry > 518400000) {
             console.debug('UE2: Session still fresh');
             return;
         }
