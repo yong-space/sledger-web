@@ -38,6 +38,7 @@ const Session = () => {
             if (!isPublicEndpoint()) {
                 navigate('/login', { replace: true });
             }
+            setLoading(false);
         } else {
             console.debug('UE1: Stored token still valid');
             const biometrics = window.localStorage.getItem('biometrics');
