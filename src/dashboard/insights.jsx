@@ -1,4 +1,5 @@
 import { BarChart } from '@mui/x-charts';
+import { cheerfulFiestaPalette } from '@mui/x-charts/colorPalettes';
 import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
@@ -151,6 +152,8 @@ const Insights = () => {
             xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
             sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
             margin={{ top: 10, right: 0 }}
+            colors={cheerfulFiestaPalette}
+            tooltip={{ trigger: 'item' }}
         />
     );
 
