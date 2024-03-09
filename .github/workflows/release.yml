@@ -56,7 +56,7 @@ jobs:
         kubectl set image deployment/${DEPLOYMENT} ${DEPLOYMENT}=${{ needs.build.outputs.tag }}
         kubectl rollout status deployment/${DEPLOYMENT}
 
-    - uses: smartsquaregmbh/delete-old-packages@v0.6.0
+    - uses: smartsquaregmbh/delete-old-packages@v0.8.0
       with:
         keep: 2
         type: container
