@@ -73,7 +73,12 @@ const Insights = () => {
             average: summary[category].average,
         }));
         setCategorySummary(summaryList);
-        setInsights(response);
+        const processedResponse = { ...response };
+        processedResponse.summary = processedResponse.summary.map((o) => {
+            const subCat = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
+            return { ...o, subCategory: subCat };
+        });
+        setInsights(processedResponse);
     }), []);
 
     const AverageGrid = () => {
@@ -96,9 +101,9 @@ const Insights = () => {
             const filter = {
                 items: [
                     {
-                        field: breakdown ? 'subCategory' : 'category',
+                        field: 'category',
                         id: 1,
-                        operator: value ? "equals" : "isEmpty",
+                        operator: value ? (breakdown ? 'equals' : 'startsWith') : 'isEmpty',
                         value: value || undefined,
                     },
                 ],
@@ -129,7 +134,7 @@ const Insights = () => {
                     disableColumnMenu
                     density="compact"
                     rows={breakdown ? insights.summary : categorySummary}
-                    columns={breakdown ? columns : columns.filter(({ field }) => field !== 'subCategory')}
+                    columns={columns.filter(({ field }) => field !== (breakdown ? 'category' : 'subCategory'))}
                     sx={maxGridSize}
                     getRowId={({ category, subCategory }) => category + subCategory }
                     initialState={{

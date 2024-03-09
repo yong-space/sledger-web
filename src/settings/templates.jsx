@@ -24,9 +24,6 @@ const Templates = ({ isMobile }) => {
     const apiRef = useGridApiRef();
     const [ originalData, setOriginalData ] = state.useState(state.templates);
     const [ categories, setCategories ] = state.useState(state.categories);
-    const [ categoryOptions, setCategoryOptions ] = useState([]);
-    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
-    const [ categoryMap, setCategoryMap ] = useState();
     const [ data, setData ] = useState();
     const [ selectedRows, setSelectedRows ] = useState([]);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
@@ -51,12 +48,6 @@ const Templates = ({ isMobile }) => {
 
         const handleChange = (e, v) => {
             apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
-            // TODO: Make universal endpoint
-            // const match = transactions.find((t) => t.remarks === v);
-            // if (match) {
-            //     apiRef.current.setEditCellValue({ id, field: 'category', value: match.category });
-            //     apiRef.current.setEditCellValue({ id, field: 'subCategory', value: match.subCategory });
-            // }
         };
 
         return (
@@ -92,32 +83,21 @@ const Templates = ({ isMobile }) => {
             apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
         };
 
-        const handleInputChange = (e, v) => {
-            if (!props.sub) {
-                return;
-            }
-            const lookupCategory = categoryMap[v];
-            if (lookupCategory) {
-                apiRef.current.setEditCellValue({ id, field: 'category', value: lookupCategory });
-            }
-        };
-
         return (
             <Autocomplete
                 freeSolo
-                options={props.sub ? subCategoryOptions : categoryOptions}
+                options={categories}
                 filterOptions={createFilterOptions({ limit: 5 })}
                 value={value || ""}
                 onChange={handleChange}
                 onBlur={(e) => handleChange(e, e.target.value)}
-                onInputChange={handleInputChange}
                 disableClearable
                 sx={{ flex: 1 }}
                 renderInput={(params) => (
                     <TextField
                         inputRef={ref}
-                        name={props.sub ? "subCategory" : "category"}
-                        label={props.sub ? "Sub-category" : "Category"}
+                        name="category"
+                        label="Category"
                         {...params}
                     />
                 )}
@@ -129,38 +109,39 @@ const Templates = ({ isMobile }) => {
         { editable: true, flex: 1, field: 'reference', headerName: 'Reference',  },
         { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks', renderEditCell: (p) => <RemarksEditor {...p} /> },
         { editable: true, flex: 1, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
-        { editable: true, flex: 1, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
     ];
-
-    const prepareOptions = (array, field) => ([
-        ...new Set(array.map((s) => s[field]))
-    ].map((o) => ({ label: o })));
 
     useEffect(() => {
         if (!originalData) {
-            listTemplates((response) => setOriginalData(response));
+            listTemplates((response) => {
+                const processedResponse = response.map((r) => ({
+                    ...r,
+                    category: r.subCategory && r.subCategory !== r.category
+                        ? `${r.category}: ${r.subCategory}`
+                        : r.category,
+                }))
+                setOriginalData(processedResponse);
+            });
         }
-        if (categories.length === 0) {
-            getCategories((response) => setCategories(response));
+        if (categories.length > 0) {
+            return;
         }
+        getCategories((response) => {
+            const processed = response.map(({ category, subCategory}) =>
+                subCategory && subCategory !== category ? `${category}: ${subCategory}` : category);
+            setCategories(processed);
+        });
     }, []);
 
     useEffect(() => setData(originalData), [ originalData ]);
 
-    useEffect(() => {
-        setCategoryOptions(prepareOptions(categories, 'category'));
-        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
-        const tempMap = {};
-        categories.forEach(({ category, subCategory }) => {
-            if (!tempMap[subCategory]) {
-                tempMap[subCategory] = category;
-            }
-        });
-        setCategoryMap(tempMap);
-    }, [ categories ]);
-
     const postProcess = (row, newRows, verb) => {
-        setOriginalData(data.map((o) => o.id !== row.id ? o : newRows[0]));
+        const newRow = newRows[0];
+        newRow.category = newRow.subCategory && newRow.subCategory !== newRow.category
+            ? `${newRow.category}: ${newRow.subCategory}`
+            : newRow.category,
+
+        setOriginalData(data.map((o) => o.id !== row.id ? o : newRow));
         showStatus('success', 'Template ' + verb);
     };
 
@@ -179,6 +160,10 @@ const Templates = ({ isMobile }) => {
         }
 
         delete row.owner;
+        const parts = row.category.split(':');
+        row.category = parts.shift().trim();
+        row.subCategory = parts.join(':').trim() || row.category;
+
         const existing = originalData.find(t => t.id === row.id);
         if (existing) {
             let match = true;

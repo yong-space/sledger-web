@@ -48,9 +48,6 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ importTransactions, setImportTransactions ] = useState();
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ categories, setCategories ] = state.useState(state.categories);
-    const [ categoryOptions, setCategoryOptions ] = useState([]);
-    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
-    const [ categoryMap, setCategoryMap ] = useState();
     const [ selectedRows, setSelectedRows ] = useState([]);
     const [ paginationModel, setPaginationModel ] = useState();
     const setParentSelectedRows = state.useState(state.selectedRows)[1];
@@ -58,26 +55,15 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const { uploadImport, addTransaction, showStatus, getCategories, suggestRemarks } = api();
 
     useEffect(() => {
-        if (categories.length === 0) {
-            getCategories((response) => setCategories(response));
+        if (categories.length > 0) {
+            return;
         }
-    }, []);
-
-    const prepareOptions = (array, field) => ([
-        ...new Set(array.map((s) => s[field]))
-    ].map((o) => ({ label: o })));
-
-    useEffect(() => {
-        setCategoryOptions(prepareOptions(categories, 'category'));
-        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
-        const tempMap = {};
-        categories.forEach(({ category, subCategory }) => {
-            if (!tempMap[subCategory]) {
-                tempMap[subCategory] = category;
-            }
+        getCategories((response) => {
+            const processed = response.map(({ category, subCategory }) =>
+                subCategory && subCategory !== category ? `${category}: ${subCategory}` : category);
+            setCategories(processed);
         });
-        setCategoryMap(tempMap);
-    }, [ categories ]);
+    }, []);
 
     const maxGridSize = {
         maxWidth: `calc(100vw - 1rem)`,
@@ -91,7 +77,13 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         setLoading(true);
 
         uploadImport(data, (response) => {
-            setImportTransactions(response);
+            const processedResponse = response.map((r) => ({
+                ...r,
+                category: r.subCategory && r.subCategory !== r.category
+                    ? `${r.category}: ${r.subCategory}`
+                    : r.category,
+            }))
+            setImportTransactions(processedResponse);
             setSelectedRows(response.map(({ id }) => id ));
             setLoading(false);
         });
@@ -99,7 +91,14 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
     const submitTransactions = () => {
         setLoading(true);
-        const selectedTransactions = importTransactions.filter(({ id }) => selectedRows.indexOf(id) > -1);
+        const selectedTransactions = importTransactions
+            .filter(({ id }) => selectedRows.indexOf(id) > -1)
+            .map((r) => {
+                const parts = r.category.split(':');
+                const category = parts.shift().trim();
+                const subCategory = parts.join(':').trim() || category;
+                return { ...r, category, subCategory };
+            });
 
         addTransaction(selectedTransactions, (response) => {
             const tx = [ ...transactions, ...response ].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -215,32 +214,21 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
         };
 
-        const handleInputChange = (e, v) => {
-            if (!props.sub) {
-                return;
-            }
-            const lookupCategory = categoryMap[v];
-            if (lookupCategory) {
-                apiRef.current.setEditCellValue({ id, field: 'category', value: lookupCategory });
-            }
-        };
-
         return (
             <Autocomplete
                 freeSolo
-                options={props.sub ? subCategoryOptions : categoryOptions}
+                options={categories}
                 filterOptions={createFilterOptions({ limit: 5 })}
                 value={value || ""}
                 onChange={handleChange}
                 onBlur={(e) => handleChange(e, e.target.value)}
-                onInputChange={handleInputChange}
                 disableClearable
                 sx={{ flex: 1 }}
                 renderInput={(params) => (
                     <TextField
                         inputRef={ref}
-                        name={props.sub ? "subCategory" : "category"}
-                        label={props.sub ? "Sub-category" : "Category"}
+                        name="category"
+                        label="Category"
                         {...params}
                     />
                 )}
@@ -256,16 +244,15 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
             originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimal },
             remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks', renderEditCell: (p) => <RemarksEditor {...p} /> },
-            category: { editable: true, width: 120, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
-            subCategory: { editable: true, width: 120, field: 'subCategory', headerName: 'Sub-category', renderEditCell: (p) => <CategoryEditor sub {...p} /> },
+            category: { editable: true, width: 200, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
             code: { editable: true, field: 'code', headerName: 'Code' },
             company: { editable: true, field: 'company', headerName: 'Company' },
             ordinaryAmount: { editable: true, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal },
             specialAmount: { editable: true, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatDecimal },
-            medisaveAmount: { editable: true, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatDecimal },
+            medisaveAmount: { editable: true, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', valueFormatter: formatDecimal },
         };
 
-        const cashFields = [ columns.date, columns.amount, columns.remarks, columns.category, columns.subCategory ];
+        const cashFields = [ columns.date, columns.amount, columns.remarks, columns.category ];
         const creditFields = [ ...cashFields ];
         creditFields.splice(1, 0, columns.billingMonth);
         const retirementFields = [ columns.selector, columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ];

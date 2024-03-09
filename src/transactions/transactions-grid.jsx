@@ -58,7 +58,11 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
             setPaginationModel(undefined);
             setSelectedRows([]);
             listTransactions(selectedAccount.id, (response) => {
-                setTransactions(response);
+                const processedResponse = response.map((o) => {
+                    const category = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
+                    return { ...o, category };
+                });
+                setTransactions(processedResponse);
                 setTansactionsAccountId(selectedAccount.id);
             });
         }
@@ -99,7 +103,6 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimalRaw },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
-        subCategory: { flex: 2, field: 'subCategory', headerName: 'Sub-category' },
         code: { flex: 2, field: 'code', headerName: 'Code' },
         company: { flex: 2, field: 'company', headerName: 'Company' },
         ordinaryAmount: { flex: 2, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal },
@@ -107,7 +110,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         medisaveAmount: { flex: 2, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', alueFormatter: formatDecimal },
     };
 
-    const cashFields = [ columns.date, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category, columns.subCategory ];
+    const cashFields = [ columns.date, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category ];
     const cpfFields = [ columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ];
 
     const getColumns = () => {

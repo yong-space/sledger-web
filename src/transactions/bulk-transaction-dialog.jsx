@@ -31,48 +31,44 @@ const BulkTransactionDialog = ({
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ month, setMonth ] = useState();
     const [ categories, setCategories ] = state.useState(state.categories);
-    const [ categoryOptions, setCategoryOptions ] = useState([]);
-    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
     const [ category, setCategory ] = useState('');
-    const [ categoryMap, setCategoryMap ] = useState();
 
     const {
         bulkEditTransactions, suggestRemarks, showStatus, getCategories,
     } = api();
 
     useEffect(() => {
-        if (categories.length === 0) {
-            getCategories((response) => setCategories(response));
+        if (categories.length > 0) {
+            return;
         }
-    }, []);
-
-    const prepareOptions = (array, field) => ([
-        ...new Set(array.map((s) => s[field]))
-    ].map((o) => ({ label: o })));
-
-    useEffect(() => {
-        setCategoryOptions(prepareOptions(categories, 'category'));
-        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
-        const tempMap = {};
-        categories.forEach(({ category, subCategory }) => {
-            if (!tempMap[subCategory]) {
-                tempMap[subCategory] = category;
-            }
+        getCategories((response) => {
+            const processed = response.map(({ category, subCategory}) =>
+                subCategory && subCategory !== category ? `${category}: ${subCategory}` : category);
+            setCategories(processed);
         });
-        setCategoryMap(tempMap);
-    }, [ categories ]);
+    }, []);
 
     const submit = (event) => {
         event.preventDefault();
-        const { category, subCategory, remarks } = Object.fromEntries(new FormData(event.target).entries());
+        const { category, remarks } = Object.fromEntries(new FormData(event.target).entries());
+
+        const parts = category.trim().length === 0 ? null : category.split(':');
+        const processedCategory = parts ? parts.shift().trim() : null;
+        const processedSubCategory = parts ? (parts.join(':').trim() || processedCategory) : null;
+
         const values = {
             ids: transactionToEdit,
-            category: category.trim().length === 0 ? null : category.trim(),
-            subCategory: subCategory.trim().length === 0 ? null : subCategory.trim(),
+            category: processedCategory,
+            subCategory: processedSubCategory,
             remarks: remarks.trim().length === 0 ? null : remarks.trim(),
         };
         if (selectedAccount?.type === 'Credit') {
             values.billingMonth = month?.utc().startOf('month').toISOString();
+        }
+
+        if (Object.values(values).filter(i => i).length === 1) {
+            showStatus('warning', 'Enter at least 1 value to edit');
+            return;
         }
         setLoading(true);
         bulkEditTransactions(values, () => {
@@ -122,7 +118,7 @@ const BulkTransactionDialog = ({
                     />
                     <Autocomplete
                         freeSolo
-                        options={categoryOptions}
+                        options={categories}
                         filterOptions={createFilterOptions({ limit: 5 })}
                         value={category}
                         onChange={(e, v) => setCategory(v)}
@@ -130,19 +126,6 @@ const BulkTransactionDialog = ({
                             <TextField
                                 name="category"
                                 label="Category"
-                                {...params}
-                            />
-                        )}
-                    />
-                    <Autocomplete
-                        freeSolo
-                        options={subCategoryOptions}
-                        filterOptions={createFilterOptions({ limit: 5 })}
-                        onInputChange={(e, value) => setCategory((old) => categoryMap[value] || old)}
-                        renderInput={(params) => (
-                            <TextField
-                                name="subCategory"
-                                label="Sub-category"
                                 {...params}
                             />
                         )}

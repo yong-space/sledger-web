@@ -56,11 +56,7 @@ const AddTransactionDialog = ({
     const selectedAccount = !transactionToEdit ? state.useState(state.selectedAccount)[0]
         : accounts.find(({ id }) => id === transactionToEdit.accountId);
     const [ categories, setCategories ] = state.useState(state.categories);
-    const [ categoryOptions, setCategoryOptions ] = useState([]);
-    const [ subCategoryOptions, setSubCategoryOptions ] = useState([]);
     const [ category, setCategory ] = useState('');
-    const [ subCategory, setSubCategory ] = useState('');
-    const [ categoryMap, setCategoryMap ] = useState({});
     const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const {
         listAccounts, addTransaction, editTransaction, listTransactions,
@@ -68,26 +64,15 @@ const AddTransactionDialog = ({
     } = api();
 
     useEffect(() => {
-        if (categories.length === 0) {
-            getCategories((response) => setCategories(response));
+        if (categories.length > 0) {
+            return;
         }
-    }, []);
-
-    const prepareOptions = (array, field) => ([
-        ...new Set(array.map((s) => s[field]))
-    ].map((o) => ({ label: o })));
-
-    useEffect(() => {
-        setCategoryOptions(prepareOptions(categories, 'category'));
-        setSubCategoryOptions(prepareOptions(categories, 'subCategory'));
-        const tempMap = {};
-        categories.forEach(({ category, subCategory }) => {
-            if (!tempMap[subCategory]) {
-                tempMap[subCategory] = category;
-            }
+        getCategories((response) => {
+            const processed = response.map(({ category, subCategory}) =>
+                subCategory && subCategory !== category ? `${category}: ${subCategory}` : category);
+            setCategories(processed);
         });
-        setCategoryMap(tempMap);
-    }, [ categories ]);
+    }, []);
 
     useEffect(() => {
         if (!transactionToEdit) {
@@ -100,8 +85,9 @@ const AddTransactionDialog = ({
         } else if (selectedAccount?.type === 'Retirement') {
             setMonth(dayjs.utc(transactionToEdit.forMonth));
         }
-        setCategory(transactionToEdit.category || '');
-        setSubCategory(transactionToEdit.subCategory || '');
+        if (transactionToEdit.category) {
+            setCategory(transactionToEdit.category);
+        }
     }, [ selectedAccount, transactionToEdit ]);
 
     useEffect(() => {
@@ -121,6 +107,11 @@ const AddTransactionDialog = ({
             accountId: selectedAccount?.id,
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
+
+        const parts = tx.category.split(':');
+        tx.category = parts.shift().trim();
+        tx.subCategory = parts.join(':').trim() || tx.category;
+
         if (tx.remarks) {
             tx.remarks = tx.remarks.trim();
         }
@@ -242,8 +233,7 @@ const AddTransactionDialog = ({
         }
         const match = transactions.find((t) => t.remarks === value);
         if (match) {
-            setCategory(match.category);
-            setSubCategory(match.subCategory);
+            setCategory(match.subCategory ? `${match.category}: ${match.subCategory}` : match.category);
         }
     };
 
@@ -349,7 +339,7 @@ const AddTransactionDialog = ({
             <Autocomplete
                 key="category"
                 freeSolo
-                options={categoryOptions}
+                options={categories}
                 filterOptions={createFilterOptions({ limit: 5 })}
                 value={category}
                 onChange={(e, v) => setCategory(v)}
@@ -359,25 +349,6 @@ const AddTransactionDialog = ({
                         inputProps={{ minLength: 2 }}
                         name="category"
                         label="Category"
-                        {...params}
-                    />
-                )}
-            />
-        ),
-        subCategory: (
-            <Autocomplete
-                key="subCategory"
-                freeSolo
-                defaultValue={transactionToEdit?.subCategory}
-                options={subCategoryOptions}
-                filterOptions={createFilterOptions({ limit: 5 })}
-                value={subCategory}
-                onChange={(e, v) => setSubCategory(v)}
-                onInputChange={(e, value) => setCategory((old) => categoryMap[value] || old)}
-                renderInput={(params) => (
-                    <TextField
-                        name="subCategory"
-                        label="Sub-category"
                         {...params}
                     />
                 )}
@@ -449,7 +420,6 @@ const AddTransactionDialog = ({
         fields.amount,
         fields.remarks,
         fields.category,
-        fields.subCategory,
     ];
     const cpfFields = [
         fields.date,
