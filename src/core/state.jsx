@@ -21,6 +21,7 @@ const state = () => ({
     categories: atom({ key: 'categories', default: [] }),
     date: atom({ key: 'date', default: dayjs.utc().startOf('day') }),
     visibleTransactionId: atom({ key: 'visibleTransactionId', default: undefined }),
+    currency: atom({ key: 'currency', default: 'SGD' }),
 });
 
 export default state();

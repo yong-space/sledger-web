@@ -40,8 +40,8 @@ const AddTransactionDialog = ({
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = state.useState(state.date);
     const [ month, setMonth ] = useState(dayjs.utc().startOf('day'));
-    const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || '');
-    const [ currency, setCurrency ] = useState(transactionToEdit?.currency || 'SGD');
+    const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || 'SGD');
+    const [ currency, setCurrency ] = state.useState(state.currency);
     const [ code, setCode ] = useState(transactionToEdit?.code || '');
     const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || 0);
     const [ originalAmount, setOriginalAmount ] = useState(Math.abs(transactionToEdit?.originalAmount) || 0);
@@ -87,6 +87,9 @@ const AddTransactionDialog = ({
         }
         if (transactionToEdit.category) {
             setCategory(transactionToEdit.category);
+        }
+        if (transactionToEdit.currency) {
+            setCurrency(transactionToEdit.currency);
         }
     }, [ selectedAccount, transactionToEdit ]);
 
