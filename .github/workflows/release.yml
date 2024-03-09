@@ -12,12 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-        cache: 'yarn'
+    - uses: oven-sh/setup-bun@v1
 
-    - run: yarn && yarn build
+    - run: bun i && bun run build
 
     - uses: docker/metadata-action@v5
       id: meta
