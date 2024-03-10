@@ -26,7 +26,7 @@ const GridBox = styled.div`
     margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
 `;
 
-const CreditCardStatements = () => {
+const CreditCardStatements = ({ setRoute }) => {
     const uri = '/dash/credit-card-statements';
     const location = useLocation();
     const navigate = useNavigate();
@@ -47,6 +47,7 @@ const CreditCardStatements = () => {
         if (match) {
             const account = getCreditAccounts().find(a => a.id === parseInt(match[0]));
             if (account) {
+                setRoute(`credit-card-statements/${match[0]}`);
                 setSelectedAccount(account);
                 return;
             }

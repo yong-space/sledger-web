@@ -52,7 +52,7 @@ const FooterRoot = styled.div`
     .MuiButtonBase-root { padding: .2rem }
 `;
 
-const Insights = () => {
+const Insights = ({ setRoute }) => {
     const location = useLocation();
     const { getInsights } = api();
     const [ tab, setTab ] = useState(location.pathname.endsWith('monthly') ? 1 : 0);
@@ -82,6 +82,7 @@ const Insights = () => {
     }), []);
 
     const AverageGrid = () => {
+        useEffect(() => setRoute('insights/average'), []);
         const theme = useTheme();
         const navigate = useNavigate();
         const setFilterModel = state.useState(state.filterModel)[1];
@@ -151,16 +152,19 @@ const Insights = () => {
 
     const formatAxis = ({ xaxis }) => xaxis.map((str) => dayjs.utc(str).format('MMM'));
 
-    const MonthlyChart = () => (
-        <BarChart
-            series={insights.series}
-            xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
-            sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
-            margin={{ top: 10, right: 0 }}
-            colors={cheerfulFiestaPalette}
-            tooltip={{ trigger: 'item' }}
-        />
-    );
+    const MonthlyChart = () => {
+        useEffect(() => setRoute('insights/monthly'), []);
+        return (
+            <BarChart
+                series={insights.series}
+                xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
+                sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
+                margin={{ top: 10, right: 0 }}
+                colors={cheerfulFiestaPalette}
+                tooltip={{ trigger: 'item' }}
+            />
+        );
+    };
 
     return (
         <Root spacing={3} pb={3}>

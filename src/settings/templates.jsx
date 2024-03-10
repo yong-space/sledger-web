@@ -20,7 +20,7 @@ const GridBox = styled.div`
     padding-bottom: ${props => props.isMobile ? '.5rem' : '1rem'};
 `;
 
-const Templates = ({ isMobile }) => {
+const Templates = ({ isMobile, setRoute }) => {
     const apiRef = useGridApiRef();
     const [ originalData, setOriginalData ] = state.useState(state.templates);
     const [ categories, setCategories ] = state.useState(state.categories);
@@ -112,6 +112,7 @@ const Templates = ({ isMobile }) => {
     ];
 
     useEffect(() => {
+        setRoute('templates');
         if (!originalData) {
             listTemplates((response) => {
                 const processedResponse = response.map((r) => ({

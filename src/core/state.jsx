@@ -6,6 +6,8 @@ dayjs.extend(utc);
 
 const state = () => ({
     useState: (atom) => useRecoilState(atom),
+    dashRoute: atom({ key: 'dashRoute', default: 'summary' }),
+    settingsRoute: atom({ key: 'settingsRoute', default: 'accounts' }),
     loading: atom({ key: 'loading', default: false }),
     status: atom({ key: 'status', default: { open: false }}),
     session: atom({ key: 'session', default: undefined }),

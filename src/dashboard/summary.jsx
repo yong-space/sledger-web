@@ -99,7 +99,7 @@ const Table = styled.table`
     }
 `;
 
-const Summary = () => {
+const Summary = ({ setRoute }) => {
     const theme = useTheme();
     let navigate = useNavigate();
     const accounts = state.useState(state.accounts)[0];
@@ -108,6 +108,8 @@ const Summary = () => {
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
 
     useEffect(() => {
+        setRoute('summary');
+
         if (!accounts) {
             return;
         }
