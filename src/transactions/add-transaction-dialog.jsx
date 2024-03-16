@@ -111,10 +111,11 @@ const AddTransactionDialog = ({
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
 
-        const parts = tx.category.split(':');
-        tx.category = parts.shift().trim();
-        tx.subCategory = parts.join(':').trim() || tx.category;
-
+        if (tx.category) {
+            const parts = tx.category.split(':');
+            tx.category = parts.shift().trim();
+            tx.subCategory = parts.join(':').trim() || tx.category;
+        }
         if (tx.remarks) {
             tx.remarks = tx.remarks.trim();
         }
@@ -144,7 +145,13 @@ const AddTransactionDialog = ({
         const endpoint = transactionToEdit ? editTransaction : addTransaction;
 
         const postProcess = (response, tx) => {
-            setTransactions(tx);
+            const processedTx = tx.map((o) => {
+                const category = o.category && o.category.indexOf(':') === -1 && o.subCategory && o.subCategory !== o.category
+                    ? `${o.category}: ${o.subCategory}`
+                    : o.category;
+                return { ...o, category };
+            });
+            setTransactions(processedTx);
             setSelectedRows(response.map(({ id }) => id));
             setShowAddDialog(false);
             showStatus('success', 'Transaction ' + (transactionToEdit ? 'edited' : 'added'));
@@ -230,13 +237,13 @@ const AddTransactionDialog = ({
         onInput: (e) => e.target.value = restrictFormat(e.target.value, true),
     };
 
-    const lookupCategory = (e, value) => {
+    const lookupCategory = (_, value) => {
         if (!value) {
             return;
         }
         const match = transactions.find((t) => t.remarks === value);
         if (match) {
-            setCategory(match.subCategory ? `${match.category}: ${match.subCategory}` : match.category);
+            setCategory(match.category);
         }
     };
 

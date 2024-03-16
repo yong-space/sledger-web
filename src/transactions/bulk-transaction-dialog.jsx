@@ -72,11 +72,16 @@ const BulkTransactionDialog = ({
         }
         setLoading(true);
         bulkEditTransactions(values, () => {
+            const category = values.category && values.category.indexOf(':') === -1
+                    && values.subCategory && values.subCategory !== values.category
+                ? `${values.category}: ${values.subCategory}`
+                : values.category;
+
             const revised = [ ...transactions ].map((t) =>
                 (transactionToEdit.indexOf(t.id) === -1) ? t : ({
                     ...t,
                     billingMonth: values.billingMonth || t.billingMonth,
-                    category: values.category || t.category,
+                    category: category || t.category,
                     subCategory: values.subCategory || t.subCategory,
                     remarks: values.remarks || t.remarks,
                 })
