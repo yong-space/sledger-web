@@ -60,7 +60,7 @@ const IssuerChip = styled(Chip)`
     border-radius: .5rem;
     height: fit-content;
     font-size: .875rem;
-    padding: ${props => props.colour ? '.2rem .5rem' : '.2rem'};
+    padding: ${props => props.colour ? '.2rem .5rem' : '.2rem 0'};
     color: ${props => props.colour};
     border-color: ${props => props.colour || 'transparent'};
     .MuiChip-label { padding: 0 }
@@ -135,8 +135,8 @@ const Insights = ({ setRoute }) => {
                     </div>
                 ),
             },
-            { flex: 1, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average', cellClassName: getColourClassForValue },
-            { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
+            { width: isMobile ? 110 : 200, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average', cellClassName: getColourClassForValue },
+            { width: isMobile ? 65 : 150, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: isMobile ? 'Tx' : 'Transactions' },
         ];
 
         const handleDoubleClick = ({ row }) => {
