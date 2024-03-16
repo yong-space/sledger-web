@@ -147,7 +147,7 @@ const Templates = ({ isMobile, setRoute }) => {
     };
 
     const editRow = (row) => {
-        const fields = [ 'reference', 'remarks', 'category', 'subCategory' ];
+        const fields = [ 'reference', 'remarks', 'category' ];
         let error = false;
         fields.forEach((field) => {
             if (!row[field] || row[field].length < 3) {
