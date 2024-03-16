@@ -3,6 +3,7 @@ import { cheerfulFiestaPalette } from '@mui/x-charts/colorPalettes';
 import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
+import { pink, lightGreen } from '@mui/material/colors';
 import { Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
@@ -39,6 +40,8 @@ const TabRow = styled.div`
 const GridBox = styled.div`
     display: flex;
     flex: 1 1 1px;
+    .red { color: ${pink[300]} }
+    .green { color: ${lightGreen[300]} }
 `;
 
 const FooterRoot = styled.div`
@@ -91,12 +94,14 @@ const Insights = ({ setRoute }) => {
             maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
             maxHeight: `calc(100vh - ${isMobile ? 11.9 : 12.6}rem)`,
         };
+        const getColourClassForValue = ({ value }) => !value ? '' : value > 0 ? 'green' : 'red';
         const columns = [
             { flex: 1, field: 'category', headerName: 'Category' },
             { flex: 1, field: 'subCategory', headerName: 'Sub-category' },
-            { flex: 1, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average' },
+            { flex: 1, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average', cellClassName: getColourClassForValue },
             { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
         ];
+
         const handleDoubleClick = ({ row }) => {
             const value = breakdown ? row.subCategory : row.category;
             const filter = {
@@ -122,7 +127,7 @@ const Insights = ({ setRoute }) => {
             return (
                 <FooterRoot>
                     <Box sx={{ marginLeft: '1rem' }}>
-                        { rows } { noun }{plural}
+                        { rows } { noun }{ plural }
                         : { formatDecimal(categorySummary.reduce((a, b) => a + b.average, 0)) }
                     </Box>
                 </FooterRoot>
@@ -181,7 +186,6 @@ const Insights = ({ setRoute }) => {
                         >
                             <Tab label="Average" component={Link} to="average" />
                             <Tab label="Monthly" component={Link} to="monthly" />
-
                         </Tabs>
                         { tab === 0 && (<FormControlLabel
                             label="Breakdown"
