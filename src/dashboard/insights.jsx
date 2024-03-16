@@ -1,5 +1,4 @@
 import { BarChart } from '@mui/x-charts';
-import { cheerfulFiestaPalette } from '@mui/x-charts/colorPalettes';
 import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
@@ -9,8 +8,10 @@ import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
 import Box from '@mui/system/Box';
+import Chip from '@mui/material/Chip';
 import dayjs from 'dayjs';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import randomColor from 'randomcolor';
 import state from '../core/state';
 import styled from 'styled-components';
 import Switch from '@mui/material/Switch';
@@ -55,6 +56,16 @@ const FooterRoot = styled.div`
     .MuiButtonBase-root { padding: .2rem }
 `;
 
+const IssuerChip = styled(Chip)`
+    border-radius: .5rem;
+    height: fit-content;
+    font-size: .875rem;
+    padding: ${props => props.colour ? '.2rem .5rem' : '.2rem'};
+    color: ${props => props.colour};
+    border-color: ${props => props.colour || 'transparent'};
+    .MuiChip-label { padding: 0 }
+`;
+
 const Insights = ({ setRoute }) => {
     const location = useLocation();
     const { getInsights } = api();
@@ -62,6 +73,8 @@ const Insights = ({ setRoute }) => {
     const [ insights, setInsights ] = useState();
     const [ categorySummary, setCategorySummary ] = useState();
     const [ breakdown, setBreakdown ] = useState(false);
+    const [ palette, setPalette ] = useState();
+    const [ paletteMap, setPaletteMap ] = useState();
 
     useEffect(() => getInsights((response) => {
         const keys = [ 'average', 'transactions' ];
@@ -76,11 +89,20 @@ const Insights = ({ setRoute }) => {
             average: summary[category].average,
         }));
         setCategorySummary(summaryList);
+
         const processedResponse = { ...response };
         processedResponse.summary = processedResponse.summary.map((o) => {
             const subCat = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
             return { ...o, subCategory: subCat };
         });
+
+        const workingPalette = randomColor({ luminosity: 'light', count: response.summary.length });
+        setPalette(workingPalette);
+
+        const workingPaletteMap = {};
+        Object.keys(summary).forEach((item, i) => workingPaletteMap[item] = workingPalette[i]);
+        setPaletteMap(workingPaletteMap);
+
         setInsights(processedResponse);
     }), []);
 
@@ -96,8 +118,23 @@ const Insights = ({ setRoute }) => {
         };
         const getColourClassForValue = ({ value }) => !value ? '' : value > 0 ? 'green' : 'red';
         const columns = [
-            { flex: 1, field: 'category', headerName: 'Category' },
-            { flex: 1, field: 'subCategory', headerName: 'Sub-category' },
+            {
+                flex: 1, field: 'category', headerName: 'Category',
+                renderCell: ({ value }) => (
+                    <div style={{ display: 'flex', gap: '.5rem' }}>
+                        <IssuerChip label={value} colour={paletteMap[value]} variant="outlined" />
+                    </div>
+                ),
+            },
+            {
+                flex: 1, field: 'subCategory', headerName: 'Sub-category',
+                renderCell: ({ row }) => (
+                    <div style={{ display: 'flex', gap: '.5rem' }}>
+                        <IssuerChip label={row.category} colour={paletteMap[row.category]} variant="outlined" />
+                        <IssuerChip label={row.subCategory.replace(row.category + ': ', '')} variant="outlined" />
+                    </div>
+                ),
+            },
             { flex: 1, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average', cellClassName: getColourClassForValue },
             { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
         ];
@@ -165,7 +202,7 @@ const Insights = ({ setRoute }) => {
                 xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
                 sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
                 margin={{ top: 10, right: 0 }}
-                colors={cheerfulFiestaPalette}
+                colors={palette}
                 tooltip={{ trigger: 'item' }}
             />
         );
