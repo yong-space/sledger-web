@@ -50,8 +50,15 @@ const Session = () => {
             }
             console.debug('UE1: Biometrics enabled');
             challenge((response) => {
+                const { id } = JSON.parse(biometrics);
+                let originalId = new Uint8Array(atob(id).split('').map((c) => c.charCodeAt(0)));
+
                 const publicKey = {
-                    challenge: Uint8Array.from(response.token, c => c.charCodeAt(0)).buffer,
+                    challenge: Uint8Array.from(response.token, c => c.charCodeAt(0)),
+                    allowCredentials: [{
+                        id: originalId.buffer,
+                        type: 'public-key',
+                    }],
                     timeout: 50000
                 };
                 navigator.credentials.get({ publicKey }).then(

@@ -1,13 +1,14 @@
+import { BiometricButton } from '../core/buttons';
 import api from '../core/api';
+import CBOR from 'cbor-js';
+import Grid from '@mui/material/Grid';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import Title from '../core/title';
 import Tooltip from '@mui/material/Tooltip';
-import Stack from '@mui/material/Stack';
-import { BiometricButton } from '../core/buttons';
 
 const Profile = () => {
     const { parseJwt, showStatus, updateProfile, challenge } = api();
@@ -65,14 +66,15 @@ const Profile = () => {
             const publicKey = {
                 rp: {
                     name: 'Sledger',
-                    icon: 'https://beta.sledger.tech/192.png'
+                    id: window.location.hostname,
+                    icon: '/192.png'
                 },
                 user: {
                     id: stringToArrayBuffer(session.email),
                     name: session.email,
                     displayName: session.name,
                 },
-                pubKeyCredParams: [{ type, alg: -7 }, { type, alg: -257 }],
+                pubKeyCredParams: [{ type, alg: -7 }],
                 authenticatorSelection: {
                     requireResidentKey: true,
                     userVerification: 'required',
@@ -83,13 +85,20 @@ const Profile = () => {
                 excludeCredentials: [],
                 attestation: 'none',
             };
-            return navigator.credentials.create({ publicKey }).then((rawAttestation) => {
+            return navigator.credentials.create({ publicKey }).then((credential) => {
+                const { authData } = CBOR.decode(credential.response.attestationObject);
+                const dataView = new DataView(new ArrayBuffer(2));
+                const idLenBytes = authData.slice(53, 55);
+                idLenBytes.forEach((value, index) => dataView.setUint8(index, value));
+                const credentialId = authData.slice(55, 55 + dataView.getUint16());
+                const credentialIdBase64 = btoa(String.fromCharCode.apply(null, credentialId));
+
                 const attestation = {
-                    id: base64encode(rawAttestation.rawId),
-                    clientDataJSON: arrayBufferToString(rawAttestation.response.clientDataJSON),
-                    attestationObject: base64encode(rawAttestation.response.attestationObject)
+                    id: credentialIdBase64,
+                    clientDataJSON: arrayBufferToString(credential.response.clientDataJSON),
+                    attestationObject: base64encode(credential.response.attestationObject)
                 };
-                localStorage.setItem("biometrics", JSON.stringify(attestation));
+                localStorage.setItem('biometrics', JSON.stringify(attestation));
                 showStatus('success', 'Biometrics registered successfully')
             });
         });
