@@ -40,7 +40,7 @@ const AccountsGrid = ({
 
     const maxGridSize = {
         maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 8.7 : 10}rem)`,
+        maxHeight: `calc(100vh - ${isMobile ? 1 : 9.4}rem)`,
     };
 
     const getIssuer = (id) => issuers.find(i => i.id === id);
@@ -74,13 +74,13 @@ const AccountsGrid = ({
         {
             field: 'issuer',
             headerName: 'Issuer',
-            valueGetter: ({ row }) => getIssuer(row.issuerId),
+            valueGetter: (_, row) => getIssuer(row.issuerId),
             renderCell: ({ value }) => <IssuerChip colour={value.colour} label={value.name} variant="outlined" />
         },
         {
             field: 'typeAndIssuer',
             headerName: 'Type + Issuer',
-            valueGetter: ({ row }) => ({ type: row.type, issuer: getIssuer(row.issuerId) }),
+            valueGetter: (_, row) => ({ type: row.type, issuer: getIssuer(row.issuerId) }),
             renderCell: ({ value }) => (
                 <div style={{ display: 'flex', gap: '.5rem' }}>
                     <Chip sx={{ borderRadius: '.5rem' }} label={value.type} color={colors[value.type]} />
@@ -104,7 +104,7 @@ const AccountsGrid = ({
             headerName: 'Transactions',
             type: 'number',
             width: '103',
-            valueGetter: ({ row }) => row.transactions || 0,
+            valueGetter: (_, row) => row.transactions || 0,
             sortable: false,
         },
     ];

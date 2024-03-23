@@ -60,6 +60,8 @@ const IssuerChip = styled(Chip)`
     border-radius: .5rem;
     height: fit-content;
     font-size: .875rem;
+    line-height: initial;
+    margin: .3rem 0;
     padding: ${props => props.colour ? '.2rem .5rem' : '.2rem 0'};
     color: ${props => props.colour};
     border-color: ${props => props.colour || 'transparent'};
@@ -114,7 +116,7 @@ const Insights = ({ setRoute }) => {
         const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
         const maxGridSize = {
             maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-            maxHeight: `calc(100vh - ${isMobile ? 11.9 : 12.6}rem)`,
+            maxHeight: `calc(100vh - ${isMobile ? 11.9 : 13.4}rem)`,
         };
         const getColourClassForValue = ({ value }) => !value ? '' : value > 0 ? 'green' : 'red';
         const columns = [

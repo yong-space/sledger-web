@@ -4,6 +4,9 @@ import {
     useGridApiRef,
     gridFilteredSortedRowEntriesSelector,
     gridPaginatedVisibleSortedGridRowIdsSelector,
+    gridPageSelector,
+    gridPageCountSelector,
+    gridPageSizeSelector,
 } from '@mui/x-data-grid';
 import {
     formatNumber, formatDecimal, formatDecimalRaw, formatDecimalAbs, formatDate, formatMonth,
@@ -22,7 +25,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 const GridBox = styled.div`
     display: flex;
     flex: 1 1 1px;
-    margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
     .red { color: ${pink[300]} }
     .green { color: ${lightGreen[300]} }
 `;
@@ -40,6 +42,7 @@ const FooterRoot = styled.div`
 
 const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) => {
     const theme = useTheme();
+    const isSmallHeight = useMediaQuery('(max-height:600px)');
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { listTransactions } = api();
     const selectedAccount = state.useState(state.selectedAccount)[0];
@@ -47,20 +50,25 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
-    const [ paginationModel, setPaginationModel ] = state.useState(state.paginationModel);
+    const [ parentPaginationModel, setParentPaginationModel ] = state.useState(state.paginationModel);
+    const [ paginationModel, setPaginationModel ] = useState();
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState(state.visibleTransactionId);
 
     useEffect(() => {
         if (!selectedAccount) {
+            console.debug('No selected account')
             return;
         }
         if (selectedAccount.id !== transactionsAccountId) {
+            console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
             apiRef.current = {};
             setTransactions(undefined);
+            setParentPaginationModel(undefined);
             setPaginationModel(undefined);
             setSelectedRows([]);
             listTransactions(selectedAccount.id, (response) => {
+                console.debug(`Loaded transactions for ${selectedAccount.id}`)
                 const processedResponse = response.map((o) => {
                     const category = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
                     return { ...o, category };
@@ -78,20 +86,20 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
             ordinaryAmount: false, specialAmount: false, medisaveAmount: false, subCategory: false,
         };
         setVisibleColumns(vColumns);
-    }, [ isMobile ]);
+    }, [ isMobile, isSmallHeight ]);
 
-    const getAmount = ({ field, row }) => (field === 'credit') ?
+    const getAmount = (_, row, column) => (column.field === 'credit') ?
         (row.amount > 0 ? row.amount : 0) :
         (row.amount < 0 ? -row.amount : 0);
 
-    const getFx = ({ row }) => {
+    const getFx = (_, row) => {
         if (row.currency === 'SGD') {
             return '';
         }
         return row.currency + ' @ ' + Math.abs(row.amount / row.originalAmount).toFixed(5);
     };
 
-    const getAccountName = ({ row }) => accounts.find(({ id }) => id === row.accountId).name;
+    const getAccountName = (_, row) => accounts.find(({ id }) => id === row.accountId).name;
 
     const getColourClassForValue = ({ value }) => !value ? '' : value > 0 ? 'green' : 'red';
 
@@ -147,13 +155,22 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         setSelectedRows([]);
     };
 
-    const handlePagination = (n) => setPaginationModel(
-        paginationModel ? n : { ...n, page: Math.floor(transactions.length / n.pageSize) }
-    );
+    const handlePagination = (n) => {
+        const pages = gridPageCountSelector(apiRef);
+        setPaginationModel((old) => {
+            if (!old && parentPaginationModel) {
+                return parentPaginationModel;
+            }
+            if (old && old.page !== pages) {
+                setParentPaginationModel(n);
+            }
+            return old ? n : { ...n, page: pages };
+        });
+    };
 
     const maxGridSize = {
-        maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 12.8 : 14}rem)`,
+        maxWidth: `calc(100vw - ${isMobile || isSmallHeight ? 1 : 3}rem)`,
+        maxHeight: `calc(100vh - ${isSmallHeight ? 5.5 : isMobile ? 12.1 : 13}rem)`,
     };
 
     const apiRef = useGridApiRef();
@@ -168,14 +185,16 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         if (!visibleTransactionId) {
             return;
         }
+        console.debug(`Visible transaction ID is ${visibleTransactionId}`);
         const visibleRows = gridPaginatedVisibleSortedGridRowIdsSelector(apiRef);
         if (visibleRows.indexOf(visibleTransactionId) === -1) {
             const index = gridFilteredSortedRowEntriesSelector(apiRef)
                 .map(({ id }) => id)
                 .indexOf(visibleTransactionId) + 1;
-            setTimeout(() => setPaginationModel((old) => ({ ...old, page: Math.floor(index / old.pageSize) })), 100);
-            setVisibleTransactionId(undefined);
+            const pageSize = gridPageSizeSelector(apiRef);
+            setTimeout(() => api.current.setPage(Math.floor(index / pageSize)), 100);
         }
+        setVisibleTransactionId(undefined);
     }, [ visibleTransactionId ]);
 
     const Summary = () => {
@@ -194,8 +213,9 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
     };
 
     const PageLabel = () => {
-        const totalPages = Math.ceil(gridFilteredSortedRowEntriesSelector(apiRef)?.length/paginationModel?.pageSize);
-        return <>Page {paginationModel?.page+1}{!isMobile && ` / ${totalPages}`}</>;
+        const page = gridPageSelector(apiRef) + 1;
+        const pages = gridPageCountSelector(apiRef);
+        return <>Page {page}{!isMobile && ` / ${pages}`}</>;
     };
 
     const TransactionsGridFooter = () => {
@@ -223,12 +243,12 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         toolbar: {
             showQuickFilter: true,
             printOptions: { disableToolbarButton: true },
-            csvOptions: { disableToolbarButton: isMobile },
+            csvOptions: { disableToolbarButton: isMobile || isSmallHeight },
         },
     };
 
     return !transactions ? <HorizontalLoader /> : (
-        <GridBox isMobile={isMobile}>
+        <GridBox isMobile={isMobile || isSmallHeight}>
             <DataGrid
                 autoPageSize
                 checkboxSelection

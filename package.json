@@ -9,15 +9,15 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^5.0.12",
-    "@mui/icons-material": "^5.15.12",
-    "@mui/lab": "5.0.0-alpha.167",
-    "@mui/material": "^5.15.12",
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.0.0-alpha.17",
-    "@mui/styled-engine-sc": "6.0.0-alpha.17",
-    "@mui/system": "^5.15.12",
-    "@mui/x-charts": "6.19.5",
-    "@mui/x-data-grid": "^6.19.6",
-    "@mui/x-date-pickers": "^6.19.6",
+    "@mui/icons-material": "^5.15.14",
+    "@mui/lab": "5.0.0-alpha.169",
+    "@mui/material": "^5.15.14",
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.0.0-alpha.18",
+    "@mui/styled-engine-sc": "6.0.0-alpha.18",
+    "@mui/system": "^5.15.14",
+    "@mui/x-charts": "7.0.0",
+    "@mui/x-data-grid": "^7.0.0",
+    "@mui/x-date-pickers": "^7.0.0",
     "dayjs": "^1.11.10",
     "randomcolor": "^0.6.2",
     "react": "^18.2.0",
@@ -31,13 +31,13 @@
     "workbox-window": "^7.0.0"
   },
   "resolutions": {
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.0.0-alpha.17"
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.0.0-alpha.18"
   },
   "devDependencies": {
-    "@types/react": "^18.2.64",
-    "@types/react-dom": "^18.2.21",
+    "@types/react": "^18.2.69",
+    "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.1.5",
-    "vite-plugin-pwa": "^0.19.2"
+    "vite": "^5.2.3",
+    "vite-plugin-pwa": "^0.19.7"
   }
 }

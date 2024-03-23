@@ -33,6 +33,7 @@ const Transactions = () => {
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ importMode, setImportMode ] = useState(false);
     const theme = useTheme();
+    const isSmallHeight = useMediaQuery('(max-height:600px)');
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const location = useLocation();
     const navigate = useNavigate();
@@ -75,19 +76,23 @@ const Transactions = () => {
 
     return loading ? <HorizontalLoader /> : (
         <TransactionsRoot>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Title>Transactions { importMode && 'Import'}</Title>
-                { isMobile && <TransactionsActionButtons {...actionProps} />}
-            </Stack>
-            <Stack direction="row" spacing={1} justifyContent="space-between">
-                <AccountSelector
-                    sx={{ flex: 4 }}
-                    disabled={importMode}
-                    handleChange={({ target }) => navigate(`/tx/${target.value}`)}
-                    showCashCredit
-                />
-                { !isMobile && !importMode && <TransactionsActionButtons {...actionProps} /> }
-            </Stack>
+            { !isSmallHeight && (
+                <>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Title>Transactions { importMode && 'Import'}</Title>
+                        { isMobile && <TransactionsActionButtons {...actionProps} />}
+                    </Stack>
+                    <Stack direction="row" spacing={1} justifyContent="space-between">
+                        <AccountSelector
+                            sx={{ flex: 4 }}
+                            disabled={importMode}
+                            handleChange={({ target }) => navigate(`/tx/${target.value}`)}
+                            showCashCredit
+                        />
+                        { !isMobile && !importMode && <TransactionsActionButtons {...actionProps} /> }
+                    </Stack>
+                </>
+            )}
             { importMode ?
                 <TransactionsImport {...{ setImportMode, selectedAccount }} /> :
                 <TransactionsGrid {...{ accounts, setShowAddDialog, setTransactionToEdit }} />

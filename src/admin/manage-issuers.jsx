@@ -50,7 +50,7 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
             headerName: 'Name',
             renderCell: ({ row }) => <Chip sx={{ color: `#${row.colour}`, borderColor: `#${row.colour}`, borderRadius: '.5rem' }} label={row.name} variant="outlined" />
         },
-        { field: 'types', headerName: 'Types', valueGetter: (params) => params.row.types?.join(', ') },
+        { field: 'types', headerName: 'Types', valueGetter: (_, row) => row.types?.join(', ') },
         {
             field: 'delete', headerName: 'Delete',
             sortable: false,
