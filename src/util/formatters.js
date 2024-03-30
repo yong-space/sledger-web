@@ -28,6 +28,6 @@ export const formatDecimal = (value) => processFormatDecimal(value, 0, 2);
 export const formatFx = (value) => formatDecimal(value, 1, 5);
 export const formatDecimalAbs = (value) => formatDecimal(Math.abs(value), null);
 export const formatDecimalRaw = (number) => formatDecimal(number, null);
-export const formatNumber = (number) => formatDecimal(number, 0, 0);
+export const formatNumber = (number) => processFormatDecimal(number, 0, 0);
 export const formatDate = (value) => !value ? '' : dayjs.utc(value).format('YYYY-MM-DD');
 export const formatMonth = (value) => !value ? '' : dayjs.utc(value).format('YYYY MMM');

@@ -13,11 +13,24 @@ const GridBox = styled.div`
     margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
 `;
 
-const IssuerChip = styled(Chip)`
+const ChipInternal = styled(Chip)`
     border-radius: .5rem;
+    height: fit-content;
+    font-size: .875rem;
+    line-height: initial;
+    margin: .6rem 0;
+    padding: .4rem 0;
     color: #${props => props.colour};
     border-color: #${props => props.colour};
 `;
+
+const IssuerChip = ({ issuer }) => (
+    <ChipInternal
+        colour={issuer.colour}
+        label={issuer.name}
+        variant="outlined"
+    />
+);
 
 const FxRoot = styled.sup`
     font-size: .8rem;
@@ -72,19 +85,18 @@ const AccountsGrid = ({
             renderCell: ({ value }) => <Chip sx={{ borderRadius: '.5rem' }} label={value} color={colors[value]} />
         },
         {
-            field: 'issuer',
+            field: 'issuerId',
             headerName: 'Issuer',
-            valueGetter: (_, row) => getIssuer(row.issuerId),
-            renderCell: ({ value }) => <IssuerChip colour={value.colour} label={value.name} variant="outlined" />
+            renderCell: ({ value }) => <IssuerChip issuer={getIssuer(value)} />,
         },
         {
             field: 'typeAndIssuer',
             headerName: 'Type + Issuer',
-            valueGetter: (_, row) => ({ type: row.type, issuer: getIssuer(row.issuerId) }),
-            renderCell: ({ value }) => (
+            valueGetter: (_, row) => row.type + row.issuerId,
+            renderCell: ({ row }) => (
                 <div style={{ display: 'flex', gap: '.5rem' }}>
-                    <Chip sx={{ borderRadius: '.5rem' }} label={value.type} color={colors[value.type]} />
-                    <IssuerChip colour={value.issuer.colour} label={value.issuer.name} variant="outlined" />
+                    <ChipInternal label={row.type} color={colors[row.type]} />
+                    <IssuerChip issuer={getIssuer(row.issuerId)} />
                 </div>
             ),
             width: 165,
@@ -92,6 +104,8 @@ const AccountsGrid = ({
         {
             field: 'name',
             headerName: 'Name',
+            width: isMobile ? 0 : '150',
+            flex: isMobile ? 1 : 0,
             renderCell: ({ row }) => (
                 <>
                     {row.name}
@@ -101,16 +115,16 @@ const AccountsGrid = ({
         },
         {
             field: 'transactions',
-            headerName: 'Transactions',
+            headerName: isMobile ? 'Tx' : 'Transactions',
             type: 'number',
-            width: '103',
+            width: isMobile ? 60 : 110,
             valueGetter: (_, row) => row.transactions || 0,
             sortable: false,
         },
     ];
 
     useEffect(() => {
-        const vColumns = isMobile ? { id: false, type: false, issuer: false } :
+        const vColumns = isMobile ? { id: false, type: false, issuerId: false } :
             { typeAndIssuer: false };
         setVisibleColumns(vColumns);
     }, [ isMobile ]);

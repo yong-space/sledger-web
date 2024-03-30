@@ -137,8 +137,21 @@ const Insights = ({ setRoute }) => {
                     </div>
                 ),
             },
-            { width: isMobile ? 110 : 200, field: 'average', type: 'number', valueFormatter: formatDecimal, headerName: 'Average', cellClassName: getColourClassForValue },
-            { width: isMobile ? 65 : 150, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: isMobile ? 'Tx' : 'Transactions' },
+            {
+                width: isMobile ? 110 : 200,
+                field: 'average',
+                type: 'number',
+                valueFormatter: formatDecimal,
+                headerName: 'Average',
+                cellClassName: getColourClassForValue,
+            },
+            {
+                width: isMobile ? 65 : 150,
+                field: 'transactions',
+                type: 'number',
+                valueFormatter: formatNumber,
+                headerName: isMobile ? 'Tx' : 'Transactions',
+            },
         ];
 
         const handleDoubleClick = ({ row }) => {
