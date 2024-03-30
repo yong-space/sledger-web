@@ -89,12 +89,13 @@ const AccountsGrid = ({
         {
             field: 'issuerId',
             headerName: 'Issuer',
-            renderCell: ({ value }) => <IssuerChip issuer={getIssuer(value)} />,
+            valueGetter: (value) => getIssuer(value).name,
+            renderCell: ({ row }) => <IssuerChip issuer={getIssuer(row.issuerId)} />,
         },
         {
             field: 'typeAndIssuer',
             headerName: 'Type + Issuer',
-            valueGetter: (_, row) => row.type + row.issuerId,
+            valueGetter: (_, row) => row.type + getIssuer(row.issuerId).name,
             renderCell: ({ row }) => (
                 <div style={{ display: 'flex', gap: '.5rem' }}>
                     <ChipInternal label={row.type} color={colors[row.type]} />
