@@ -11,6 +11,7 @@ const GridBox = styled.div`
     display: flex;
     flex: 1 1 1px;
     margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
+    .no-ellipsis { text-overflow: clip }
 `;
 
 const ChipInternal = styled(Chip)`
@@ -77,6 +78,7 @@ const AccountsGrid = ({
             renderCell: ({ id, row }) => <Switch checked={row.visible} onChange={(e) => updateVisibility(e, id)} />,
             width: 70,
             sortable: false,
+            cellClassName: 'no-ellipsis',
         },
         {
             field: 'type',
