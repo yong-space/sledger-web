@@ -233,7 +233,7 @@ const Templates = ({ isMobile, setRoute }) => {
                 <DataGrid
                     apiRef={apiRef}
                     autoPageSize
-                    density="compact"
+                    initialState={{ density: 'compact' }}
                     rows={data}
                     columns={columns}
                     editMode="row"

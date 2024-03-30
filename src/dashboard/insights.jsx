@@ -190,12 +190,12 @@ const Insights = ({ setRoute }) => {
             <GridBox isMobile={isMobile}>
                 <DataGrid
                     disableColumnMenu
-                    density="compact"
                     rows={breakdown ? insights.summary : categorySummary}
                     columns={columns.filter(({ field }) => field !== (breakdown ? 'category' : 'subCategory'))}
                     sx={maxGridSize}
                     getRowId={({ category, subCategory }) => category + subCategory }
                     initialState={{
+                        density: 'compact',
                         sorting: {
                             sortModel: [{ field: 'average', sort: 'asc' }],
                         },

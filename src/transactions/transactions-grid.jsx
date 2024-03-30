@@ -255,7 +255,6 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
                 disableColumnSelector
                 disableDensitySelector
                 disableColumnMenu
-                density="compact"
                 apiRef={apiRef}
                 rows={transactions}
                 columns={getColumns()}
@@ -271,6 +270,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
                 slots={slots}
                 slotProps={slotProps}
                 initialState={{
+                    density: 'compact',
                     sorting: {
                         sortModel: [{ field: 'date', sort: 'asc' }],
                     },

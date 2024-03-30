@@ -106,7 +106,7 @@ const CreditCardBills = ({ setRoute }) => {
                     autoPageSize
                     disableColumnMenu
                     hideFooterSelectedRowCount
-                    density="compact"
+                    initialState={{ density: 'compact' }}
                     rows={bills}
                     columns={columns}
                     paginationModel={paginationModel}

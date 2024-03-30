@@ -1,7 +1,7 @@
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { CircularLoader } from '../core/loader';
 import { createFilterOptions } from '@mui/material/Autocomplete';
-import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, useGridApiRef, useGridApiContext } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { formatDate, formatMonth, formatDecimal } from '../util/formatters';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -43,13 +43,34 @@ const ImportZone = styled.div`
     border-color: ${props => props.isDragAccept ? green[400] : props.isDragReject ? red[400] : props.isFocused ? blue[400] : grey[400] };
 `;
 
+const CompactTextField = styled(TextField)`
+    .MuiInputBase-input { padding: .4rem .7rem; font-size: 14px; }
+`;
+
+const CompactDatePicker = styled(DatePicker)`
+    .MuiInputBase-input { padding: .4rem .7rem; font-size: 14px; }
+`;
+
+const CompactAutoFill = styled(AutoFill)`
+    .MuiAutocomplete-inputRoot {
+        padding: 0 .4rem; font-size: 14px;
+        input.MuiAutocomplete-input { padding: .4rem }
+    }
+`;
+
+const CompactAutocomplete = styled(Autocomplete)`
+    .MuiAutocomplete-inputRoot {
+        padding: 0 .4rem; font-size: 14px;
+        input.MuiAutocomplete-input { padding: .4rem }
+    }
+`;
+
 const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ loading, setLoading ] = state.useState(state.loading);
     const [ importTransactions, setImportTransactions ] = useState();
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ categories, setCategories ] = state.useState(state.categories);
     const [ selectedRows, setSelectedRows ] = useState([]);
-    const [ paginationModel, setPaginationModel ] = useState();
     const setParentSelectedRows = state.useState(state.selectedRows)[1];
     const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const { uploadImport, addTransaction, showStatus, getCategories, suggestRemarks } = api();
@@ -89,10 +110,11 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         });
     };
 
+    const apiRef = useGridApiRef();
+
     const submitTransactions = () => {
         setLoading(true);
-        const selectedTransactions = importTransactions
-            .filter(({ id }) => selectedRows.indexOf(id) > -1)
+        const selectedTransactions = Array.from(apiRef.current.getSelectedRows().values())
             .map((r) => {
                 const parts = r.category.split(':');
                 const category = parts.shift().trim();
@@ -129,17 +151,30 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         </Dropzone>
     );
 
+    const NumberEditor = (props) => {
+        const { id, value, field } = props;
+        const apiRef = useGridApiContext();
+
+        return (
+            <CompactTextField
+                size="small"
+                type="number"
+                defaultValue={value}
+                onChange={({ target }) => apiRef.current.setEditCellValue({ id, field, value: target.value })}
+            />
+        );
+    };
+
     const DateEditor = (props) => {
         const { id, value, field } = props;
         const apiRef = useGridApiContext();
 
         return (
-            <DatePicker
-                label="Date"
+            <CompactDatePicker
                 value={dayjs.utc(value)}
                 format="YYYY-MM-DD"
                 onChange={(v) => apiRef.current.setEditCellValue({ id, field, value: v.toISOString() })}
-                slotProps={{ textField: { variant: 'outlined' } }}
+                slotProps={{ textField: { size: 'small' } }}
             />
         );
     };
@@ -149,14 +184,13 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         const apiRef = useGridApiContext();
 
         return (
-            <DatePicker
+            <CompactDatePicker
                 openTo="month"
                 views={[ 'year', 'month' ]}
-                label={`${selectedAccount.type === 'Credit' ? 'Billing' : 'For'} Month`}
                 value={dayjs.utc(value)}
                 format="YYYY MMM"
                 onChange={(v) => apiRef.current.setEditCellValue({ id, field, value: v.toISOString() })}
-                slotProps={{ textField: { variant: 'outlined' } }}
+                slotProps={{ textField: { size: 'small' } }}
             />
         );
     };
@@ -182,7 +216,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         };
 
         return (
-            <AutoFill
+            <CompactAutoFill
                 promise={suggestRemarks}
                 initValue={value || ""}
                 onChange={handleChange}
@@ -193,7 +227,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                     inputRef: ref,
                     inputProps: { minLength: 2 },
                     name: 'remarks',
-                    label: 'Remarks'
+                    size: 'small',
                 }}
             />
         );
@@ -215,7 +249,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         };
 
         return (
-            <Autocomplete
+            <CompactAutocomplete
                 freeSolo
                 options={categories}
                 filterOptions={createFilterOptions({ limit: 5 })}
@@ -228,7 +262,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                     <TextField
                         inputRef={ref}
                         name="category"
-                        label="Category"
+                        size="small"
                         {...params}
                     />
                 )}
@@ -238,10 +272,10 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
     const ImportGrid = () => {
         const columns = {
-            date: { editable: true, width: 100, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate, renderEditCell: (p) => <DateEditor {...p} /> },
-            billingMonth: { editable: true, width: 100, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth, renderEditCell: (p) => <MonthEditor {...p} /> },
+            date: { editable: true, width: 150, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate, renderEditCell: (p) => <DateEditor {...p} /> },
+            billingMonth: { editable: true, width: 150, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth, renderEditCell: (p) => <MonthEditor {...p} /> },
             forMonth: { editable: true, field: 'forMonth', headerName: 'Month' },
-            amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal },
+            amount: { editable: true, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal, renderEditCell: (p) => <NumberEditor {...p} /> },
             originalAmount: { editable: true, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimal },
             remarks: { editable: true, flex: 1, field: 'remarks', headerName: 'Remarks', renderEditCell: (p) => <RemarksEditor {...p} /> },
             category: { editable: true, width: 200, field: 'category', headerName: 'Category', renderEditCell: (p) => <CategoryEditor {...p} /> },
@@ -283,12 +317,13 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             <ImportGridRoot>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DataGrid
+                        apiRef={apiRef}
                         checkboxSelection
                         disableRowSelectionOnClick
                         autoPageSize
                         disableColumnMenu
                         showColumnRightBorder
-                        density="compact"
+                        initialState={{ density: 'compact' }}
                         rows={importTransactions}
                         columns={columnMap[selectedAccount.type]}
                         editMode="row"
@@ -296,8 +331,6 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                         rowSelectionModel={selectedRows}
                         onRowSelectionModelChange={(m) => setSelectedRows(m)}
                         onRowClick={handleRowClick}
-                        paginationModel={paginationModel}
-                        onPaginationModelChange={(n) => setPaginationModel(n)}
                         sx={maxGridSize}
                     />
                 </LocalizationProvider>
