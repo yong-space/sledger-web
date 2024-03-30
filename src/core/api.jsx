@@ -97,7 +97,8 @@ const api = () => {
         deleteTemplate: (id, callback) => apiCall(DELETE, `template/${id}`, callback),
         uploadImport: (payload, callback) => apiCall(POST, 'import', callback, payload),
         getInsights: (callback) => apiCall(GET, 'dash/insights', callback),
-        getCreditCardStatements: (id, callback) => apiCall(GET, `dash/credit-card-statement/${id}`, callback),
+        getCreditCardBills: (id, callback) => apiCall(GET, `dash/credit-card-bills/${id}`, callback),
+        getBalanceHistory: (callback) => apiCall(GET, 'dash/balance-history', callback),
         challenge: (callback) => apiCall(GET, 'profile/challenge', callback),
     };
 };

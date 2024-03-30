@@ -26,13 +26,13 @@ const GridBox = styled.div`
     margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
 `;
 
-const CreditCardStatements = ({ setRoute }) => {
-    const uri = '/dash/credit-card-statements';
+const CreditCardBills = ({ setRoute }) => {
+    const uri = '/dash/credit-card-bills';
     const location = useLocation();
     const navigate = useNavigate();
     const accounts = state.useState(state.accounts)[0];
-    const { getCreditCardStatements } = api();
-    const [ statements, setStatements ] = useState();
+    const { getCreditCardBills } = api();
+    const [ bills, setBills ] = useState();
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
     const setFilterModel = state.useState(state.filterModel)[1];
 
@@ -47,7 +47,7 @@ const CreditCardStatements = ({ setRoute }) => {
         if (match) {
             const account = getCreditAccounts().find(a => a.id === parseInt(match[0]));
             if (account) {
-                setRoute(`credit-card-statements/${match[0]}`);
+                setRoute(`credit-card-bills/${match[0]}`);
                 setSelectedAccount(account);
                 return;
             }
@@ -60,11 +60,11 @@ const CreditCardStatements = ({ setRoute }) => {
 
     useEffect(() => {
         if (selectedAccount && getCreditAccounts().find(({ id }) => id === selectedAccount.id)) {
-            getCreditCardStatements(selectedAccount.id, (response) => setStatements(response));
+            getCreditCardBills(selectedAccount.id, (response) => setBills(response));
         }
     }, [ selectedAccount ]);
 
-    const StatementGrid = () => {
+    const BillGrid = () => {
         const theme = useTheme();
         const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
         const [ paginationModel, setPaginationModel ] = useState();
@@ -81,7 +81,7 @@ const CreditCardStatements = ({ setRoute }) => {
         ];
 
         const handlePagination = (n) => setPaginationModel(
-            paginationModel ? n : { ...n, page: Math.floor(statements.length / n.pageSize) }
+            paginationModel ? n : { ...n, page: Math.floor(bills.length / n.pageSize) }
         );
 
         const handleDoubleClick = ({ row }) => {
@@ -107,7 +107,7 @@ const CreditCardStatements = ({ setRoute }) => {
                     disableColumnMenu
                     hideFooterSelectedRowCount
                     density="compact"
-                    rows={statements}
+                    rows={bills}
                     columns={columns}
                     paginationModel={paginationModel}
                     onPaginationModelChange={handlePagination}
@@ -121,13 +121,13 @@ const CreditCardStatements = ({ setRoute }) => {
 
     return (
         <Root spacing={3} pb={3}>
-            <Title>Credit Card Statements</Title>
+            <Title>Credit Card Bills</Title>
             <AccountSelector
                 accountFilter={({ type }) => type === 'Credit' }
                 handleChange={({ target }) => navigate(`${uri}/${target.value}`)}
             />
-            { !statements ? <HorizontalLoader /> : <StatementGrid /> }
+            { !bills ? <HorizontalLoader /> : <BillGrid /> }
         </Root>
     );
 };
-export default CreditCardStatements;
+export default CreditCardBills;

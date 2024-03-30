@@ -47,8 +47,9 @@ const NavBar = () => {
             link: '/dash',
             children: [
                 { label: 'Summary', link: '/dash/summary' },
+                { label: 'Balance History', link: '/dash/balance-history' },
                 { label: 'Past Year Insights', link: '/dash/insights' },
-                { label: 'Credit Card Statements', link: '/dash/credit-card-statements' },
+                { label: 'Credit Card Bills', link: '/dash/credit-card-bills' },
             ],
         },
         {
