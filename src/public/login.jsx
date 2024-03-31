@@ -42,8 +42,8 @@ const Login = () => {
         <form onSubmit={submit} autoComplete="off">
             <Stack spacing={2}>
                 <Title>Login</Title>
-                <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />
-                <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8 }} />
+                <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7, autoComplete: 'username' }} />
+                <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8, autoComplete: 'password' }} />
                 <LoadingButton
                     type="submit"
                     endIcon={<LoginIcon />}

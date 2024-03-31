@@ -74,7 +74,7 @@ const Profile = () => {
                     name: session.email,
                     displayName: session.name,
                 },
-                pubKeyCredParams: [{ type, alg: -7 }],
+                pubKeyCredParams: [{ type, alg: -7 }, { type, alg: -257 }],
                 authenticatorSelection: {
                     requireResidentKey: true,
                     userVerification: 'required',
@@ -96,7 +96,8 @@ const Profile = () => {
                 const attestation = {
                     id: credentialIdBase64,
                     clientDataJSON: arrayBufferToString(credential.response.clientDataJSON),
-                    attestationObject: base64encode(credential.response.attestationObject)
+                    attestationObject: base64encode(credential.response.attestationObject),
+                    expiry: new Date().toISOString(),
                 };
                 localStorage.setItem('biometrics', JSON.stringify(attestation));
                 showStatus('success', 'Biometrics registered successfully')
@@ -115,8 +116,8 @@ const Profile = () => {
                         color={localStorage.getItem("biometrics") ? 'success' : 'info'}
                     />
                 </Stack>
-                <TextField required name="displayName" label="Name" inputProps={{ minLength: 3 }} defaultValue={session.name} />
-                <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} defaultValue={session.email} />
+                <TextField required name="displayName" label="Name" inputProps={{ minLength: 3, autoComplete: 'off' }} defaultValue={session.name} />
+                <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7, autoComplete: 'off' }} defaultValue={session.email} />
                 <Tooltip title="Enter only if you wish to change your password">
                     <TextField name="password" type="password" label="Current Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
                 </Tooltip>

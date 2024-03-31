@@ -15,14 +15,9 @@ const Session = () => {
     const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;
 
     useEffect(() => {
-        if (session !== undefined) {
-            console.debug('UE1: Session exists');
-            return;
-        }
-        console.debug('UE1: Session does not exist');
         const token = window.localStorage.getItem('token');
         if (!token) {
-            console.debug('UE1: No stored token');
+            console.debug('UE1: No stored token exists');
             if (!isPublicEndpoint()) {
                 navigate('/login', { replace: true });
             }
@@ -30,7 +25,7 @@ const Session = () => {
             return;
         }
         let jwt = parseJwt(token);
-        console.debug('UE1: Stored token', jwt);
+        console.debug('UE1: Stored token exists:', jwt);
         if (new Date().getTime() >= (jwt.exp * 1000)) {
             console.debug('UE1: Stored token has expired');
             window.localStorage.clear();
@@ -41,17 +36,24 @@ const Session = () => {
             setLoading(false);
         } else {
             console.debug('UE1: Stored token still valid');
-            const biometrics = window.localStorage.getItem('biometrics');
+            const biometrics = JSON.parse(window.localStorage.getItem('biometrics'));
+
             if (!biometrics) {
-                console.debug('UE1: Biometrics not enabled');
+                console.debug('UE1: Biometrics is not enabled');
                 setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
                 setLoading(false);
                 return;
             }
-            console.debug('UE1: Biometrics enabled');
+            console.debug('UE1: Biometrics is enabled');
+            if (new Date() < new Date(biometrics?.expiry)) {
+                console.debug('UE1: Biometrics not expired yet, skip challenge');
+                setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
+                setLoading(false);
+                return;
+            }
+            console.debug('UE1: Biometrics expired, initiating challenge');
             challenge((response) => {
-                const { id } = JSON.parse(biometrics);
-                let originalId = new Uint8Array(atob(id).split('').map((c) => c.charCodeAt(0)));
+                let originalId = new Uint8Array(atob(biometrics.id).split('').map((c) => c.charCodeAt(0)));
 
                 const publicKey = {
                     challenge: Uint8Array.from(response.token, c => c.charCodeAt(0)),
@@ -63,10 +65,14 @@ const Session = () => {
                 };
                 navigator.credentials.get({ publicKey }).then(
                     () => {
-                        console.debug('UE1: Biometrics challenge successful');
+                        console.debug('UE1: Biometrics challenge successful, unlocking session');
                         setSession({ token, name: jwt.name, email: jwt.sub, admin: jwt.admin });
                         showStatus('success', 'Session unlocked');
                         setLoading(false);
+                        window.localStorage.setItem('biometrics', JSON.stringify({
+                            ...biometrics,
+                            expiry: new Date((new Date()).getTime() + (5 * 60 * 1000)).toISOString(),
+                        }));
                     },
                     (err) => {
                         console.debug('UE1: Biometrics challenge failed');
@@ -76,6 +82,7 @@ const Session = () => {
                         navigate('/login', { replace: true });
                         showStatus('error', 'Invalid biometric credentials');
                         setLoading(false);
+                        console.debug('UE1: Biometrics challenge failed, logging');
                     }
                 );
             });
@@ -84,7 +91,6 @@ const Session = () => {
 
     useEffect(() => {
         if (!session) {
-            console.debug('UE2: No session exists');
             return;
         }
         console.debug('UE2: Session exists');
@@ -93,7 +99,7 @@ const Session = () => {
             console.debug('UE2: Session still fresh');
             return;
         }
-        console.debug('UE2: Session not fresh');
+        console.debug('UE2: Session near expiry, initiating refresh');
         refreshToken(({ token }) => {
             console.debug(`UE2: Obtained new token: ${token}`);
             window.localStorage.setItem('token', token);
