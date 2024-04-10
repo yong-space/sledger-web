@@ -156,15 +156,16 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
 
     const handlePagination = (n) => {
         const pages = gridPageCountSelector(apiRef);
-        setPaginationModel((old) => {
-            if (!old && parentPaginationModel) {
-                return parentPaginationModel;
-            }
-            if (old && old.page !== pages) {
-                setParentPaginationModel(n);
-            }
-            return old ? n : { ...n, page: pages };
-        });
+        if (pages === 0) {
+            return n;
+        }
+        if (paginationModel) {
+            setPaginationModel(n);
+            return n;
+        }
+        const config = { page: pages - 1, pageSize: n.pageSize };
+        setPaginationModel(config);
+        return config;
     };
 
     const maxGridSize = {

@@ -153,7 +153,7 @@ const AddTransactionDialog = ({
             });
 
             processedTx
-                .filter((row) => !apiRef.current.getRow(row.id) || row.balance !== apiRef.current.getRow(row.id).balance)
+                .filter((row) => response.map(({ id }) => id).indexOf(row.id) > -1 || !apiRef.current.getRow(row.id) || row.balance !== apiRef.current.getRow(row.id).balance)
                 .forEach((row) => apiRef.current.updateRows([ row ]));
 
             setSelectedRows(response.map(({ id }) => id));
