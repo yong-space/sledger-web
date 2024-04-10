@@ -21,7 +21,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
 
 const BulkTransactionDialog = ({
-    setShowBulkDialog, transactionToEdit, setTransactionToEdit,
+    setShowBulkDialog, transactionToEdit, setTransactionToEdit, apiRef,
  }) => {
     dayjs.extend(utc);
     const theme = useTheme();
@@ -77,16 +77,14 @@ const BulkTransactionDialog = ({
                 ? `${values.category}: ${values.subCategory}`
                 : values.category;
 
-            const revised = [ ...transactions ].map((t) =>
-                (transactionToEdit.indexOf(t.id) === -1) ? t : ({
-                    ...t,
-                    billingMonth: values.billingMonth || t.billingMonth,
-                    category: category || t.category,
-                    subCategory: values.subCategory || t.subCategory,
-                    remarks: values.remarks || t.remarks,
-                })
-            );
-            setTransactions(revised);
+            const changes = {};
+            if (category) { changes.category = category; }
+            if (values.billingMonth) { changes.billingMonth = values.billingMonth; }
+            if (values.subCategory) { changes.subCategory = values.subCategory; }
+            if (values.remarks) { changes.remarks = values.remarks; }
+
+            transactionToEdit.forEach((id) => apiRef.current.updateRows([{ id, ...changes }]));
+
             setShowBulkDialog(false);
             showStatus('success', 'Transactions edited');
             setTransactionToEdit(undefined);

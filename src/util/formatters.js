@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-const processFormatDecimal = (value, hideValue = 0, decimal = 2) => {
+const processFormatDecimal = (value, hideValue = null, decimal = 2) => {
     const numberStyle = {
         style: 'decimal',
         minimumFractionDigits: decimal,
@@ -24,10 +24,10 @@ const processFormatDecimal = (value, hideValue = 0, decimal = 2) => {
     return numberFomat.format(value);
 };
 
-export const formatDecimal = (value) => processFormatDecimal(value, 0, 2);
-export const formatFx = (value) => formatDecimal(value, 1, 5);
-export const formatDecimalAbs = (value) => formatDecimal(Math.abs(value), null);
-export const formatDecimalRaw = (number) => formatDecimal(number, null);
-export const formatNumber = (number) => processFormatDecimal(number, 0, 0);
+export const formatDecimal = (value) => processFormatDecimal(value);
+export const formatDecimalHideZero = (value) => processFormatDecimal(value, 0);
+export const formatFx = (value) => processFormatDecimal(value, 1, 5);
+export const formatDecimalAbs = (value) => processFormatDecimal(Math.abs(value));
+export const formatNumber = (value) => processFormatDecimal(value, 0, 0);
 export const formatDate = (value) => !value ? '' : dayjs.utc(value).format('YYYY-MM-DD');
 export const formatMonth = (value) => !value ? '' : dayjs.utc(value).format('YYYY MMM');

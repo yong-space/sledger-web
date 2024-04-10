@@ -1,4 +1,4 @@
-import { formatDecimal, formatDecimalRaw } from '../util/formatters';
+import { formatDecimal } from '../util/formatters';
 import { HorizontalLoader } from '../core/loader';
 import { useEffect, useState, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -146,7 +146,7 @@ const Summary = ({ setRoute }) => {
                 value = <IssuerChip label={issuer.name} color={issuer.colour} />;
                 break;
             case 'balance':
-                value = formatDecimalRaw(row[column.field]);
+                value = formatDecimal(row.balance);
                 break;
             case 'name':
                 if (row.multiCurrency) {
@@ -230,7 +230,7 @@ const Summary = ({ setRoute }) => {
                 <tfoot>
                     <tr>
                         <td colSpan={2}>Total Net Worth</td>
-                        <td>{ formatDecimalRaw(netWorth) }</td>
+                        <td>{ formatDecimal(netWorth) }</td>
                     </tr>
                 </tfoot>
             </Table>

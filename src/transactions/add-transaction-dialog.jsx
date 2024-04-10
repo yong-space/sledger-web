@@ -31,7 +31,7 @@ const ForeignCurrencyBar = styled.div`
 `;
 
 const AddTransactionDialog = ({
-    setShowAddDialog, transactionToEdit, setTransactionToEdit, setSelectedRows,
+    setShowAddDialog, transactionToEdit, setTransactionToEdit, setSelectedRows, apiRef,
  }) => {
     dayjs.extend(utc);
     dayjs.extend(minMax);
@@ -51,7 +51,7 @@ const AddTransactionDialog = ({
         medisaveAmount: transactionToEdit?.medisaveAmount || 0,
     });
     const [ loading, setLoading ] = state.useState(state.loading);
-    const [ transactions, setTransactions ] = state.useState(state.transactions);
+    const [ transactions ] = state.useState(state.transactions);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const selectedAccount = !transactionToEdit ? state.useState(state.selectedAccount)[0]
         : accounts.find(({ id }) => id === transactionToEdit.accountId);
@@ -151,7 +151,11 @@ const AddTransactionDialog = ({
                     : o.category;
                 return { ...o, category };
             });
-            setTransactions(processedTx);
+
+            processedTx
+                .filter((row) => !apiRef.current.getRow(row.id) || row.balance !== apiRef.current.getRow(row.id).balance)
+                .forEach((row) => apiRef.current.updateRows([ row ]));
+
             setSelectedRows(response.map(({ id }) => id));
             setShowAddDialog(false);
             showStatus('success', 'Transaction ' + (transactionToEdit ? 'edited' : 'added'));

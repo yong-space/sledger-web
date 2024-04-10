@@ -11,8 +11,8 @@ import state from '../core/state';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const TransactionsActionButtons = ({
-    transactions, setTransactions, setAccounts, showAddDialog, setShowAddDialog,
-    transactionToEdit, setTransactionToEdit, setImportMode, canImport,
+    transactions, setAccounts, showAddDialog, setShowAddDialog,
+    transactionToEdit, setTransactionToEdit, setImportMode, canImport, apiRef,
 }) => {
     const theme = useTheme();
     const setLoading = state.useState(state.loading)[1];
@@ -31,13 +31,16 @@ const TransactionsActionButtons = ({
         deleteTransaction(selectedRows, () => {
             const plural = selectedLength > 1 ? 's' : '';
             if (selectedLength === 1 && txDate.isSame(maxDate)) {
-                setTransactions((t) => t.filter((r) => r.id !== selectedRows[0]));
+                apiRef.current.updateRows([{ id: selectedRows[0], _action: 'delete' }]);
                 showStatus('success', selectedLength + ` transaction${plural} deleted`);
                 setLoading(false);
                 setShowConfirmDelete(false);
             } else {
                 listTransactions(selectedAccount.id, (response) => {
-                    setTransactions(response);
+                    selectedRows.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
+                    response
+                        .filter((updatedRow) => updatedRow.balance !== apiRef.current.getRow(updatedRow.id).balance)
+                        .forEach((updatedRow) => apiRef.current.updateRows([{ id: updatedRow.id, balance: updatedRow.balance }]));
                     showStatus('success', selectedLength + ` transaction${plural} deleted`);
                     setLoading(false);
                     setShowConfirmDelete(false);
@@ -80,6 +83,7 @@ const TransactionsActionButtons = ({
                     transactionToEdit,
                     setTransactionToEdit,
                     setSelectedRows,
+                    apiRef,
                 }} />
             )}
 
@@ -88,6 +92,7 @@ const TransactionsActionButtons = ({
                     setShowBulkDialog,
                     transactionToEdit,
                     setTransactionToEdit,
+                    apiRef,
                 }} />
             )}
 

@@ -1,7 +1,6 @@
 import {
     DataGrid,
     GridToolbar,
-    useGridApiRef,
     gridFilteredSortedRowEntriesSelector,
     gridPaginatedVisibleSortedGridRowIdsSelector,
     gridPageSelector,
@@ -9,7 +8,7 @@ import {
     gridPageSizeSelector,
 } from '@mui/x-data-grid';
 import {
-    formatNumber, formatDecimal, formatDecimalRaw, formatDecimalAbs, formatDate, formatMonth,
+    formatNumber, formatDecimal, formatDecimalHideZero, formatDecimalAbs, formatDate, formatMonth,
 } from '../util/formatters';
 import { GridPagination } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
@@ -40,7 +39,7 @@ const FooterRoot = styled.div`
     .MuiButtonBase-root { padding: .2rem }
 `;
 
-const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) => {
+const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, apiRef }) => {
     const theme = useTheme();
     const isSmallHeight = useMediaQuery('(max-height:600px)');
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -63,7 +62,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         if (selectedAccount.id !== transactionsAccountId) {
             console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
             apiRef.current = {};
-            setTransactions(undefined);
+            setTransactions([]);
             setParentPaginationModel(undefined);
             setPaginationModel(undefined);
             setSelectedRows([]);
@@ -108,12 +107,12 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
         billingMonth: { flex: 2, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth },
         forMonth: { flex: 2, field: 'forMonth', headerName: 'Month', type: 'date', valueFormatter: formatMonth },
-        credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal, cellClassName: 'green' },
-        debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimal, cellClassName: 'red' },
+        credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimalHideZero, cellClassName: 'green' },
+        debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimalHideZero, cellClassName: 'red' },
         amount: { flex: 2.5, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal, cellClassName: getColourClassForValue },
         originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimalAbs },
         fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: getFx },
-        balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimalRaw },
+        balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimal },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
         code: { flex: 2, field: 'code', headerName: 'Code' },
@@ -173,14 +172,6 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
         maxHeight: `calc(100vh - ${isSmallHeight ? 5.5 : isMobile ? 12.1 : 13}rem)`,
     };
 
-    const apiRef = useGridApiRef();
-    useEffect(() => {
-        // Weird MUI-X bug
-        if (apiRef.current === null) {
-            apiRef.current = {};
-        }
-    }, [ apiRef.current ]);
-
     useEffect(() => {
         if (!visibleTransactionId) {
             return;
@@ -192,7 +183,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
                 .map(({ id }) => id)
                 .indexOf(visibleTransactionId) + 1;
             const pageSize = gridPageSizeSelector(apiRef);
-            setTimeout(() => api.current.setPage(Math.floor(index / pageSize)), 100);
+            setTimeout(() => api.current?.setPage(Math.floor(index / pageSize)), 100);
         }
         setVisibleTransactionId(undefined);
     }, [ visibleTransactionId ]);
@@ -203,11 +194,11 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit }) 
             gridFilteredSortedRowEntriesSelector(apiRef).map(({ model }) => model);
         const length = data.length;
         const plural = length > 1 ? 's' : '';
-        const amountSum = { value: data.reduce((acc, obj) => acc + obj.amount, 0) };
+        const amountSum = data.reduce((acc, obj) => acc + obj.amount, 0);
 
         return (
             <Box sx={{ marginLeft: '1rem' }}>
-                {formatNumber(length, false)} row{plural}: {formatDecimalRaw(amountSum)}
+                {formatNumber(length, false)} row{plural}: {formatDecimal(amountSum)}
             </Box>
         );
     };

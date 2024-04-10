@@ -13,6 +13,7 @@ import Title from '../core/title';
 import TransactionsGrid from './transactions-grid';
 import TransactionsImport from './transactions-import';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useGridApiRef } from '@mui/x-data-grid';
 
 const TransactionsRoot = styled.div`
     display: flex;
@@ -38,6 +39,7 @@ const Transactions = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
+    const apiRef = useGridApiRef();
 
     useEffect(() => {
         if (getVisibleAccounts().length === 0) {
@@ -69,6 +71,13 @@ const Transactions = () => {
         setCanImport(issuers.find(({ id }) => id === selectedAccount?.issuerId)?.canImport);
     }, [ accounts, selectedAccount ]);
 
+    useEffect(() => {
+        // Weird MUI-X bug
+        if (apiRef.current === null) {
+            apiRef.current = {};
+        }
+    }, [ apiRef ]);
+
     const actionProps = {
         transactions, setTransactions, setAccounts, showAddDialog, setShowAddDialog,
         transactionToEdit, setTransactionToEdit, setImportMode, canImport,
@@ -80,7 +89,7 @@ const Transactions = () => {
                 <>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                         <Title>Transactions { importMode && 'Import'}</Title>
-                        { isMobile && <TransactionsActionButtons {...actionProps} />}
+                        { isMobile && <TransactionsActionButtons {...actionProps} apiRef={apiRef} />}
                     </Stack>
                     <Stack direction="row" spacing={1} justifyContent="space-between">
                         <AccountSelector
@@ -89,13 +98,23 @@ const Transactions = () => {
                             handleChange={({ target }) => navigate(`/tx/${target.value}`)}
                             showCashCredit
                         />
-                        { !isMobile && !importMode && <TransactionsActionButtons {...actionProps} /> }
+                        { !isMobile && !importMode && <TransactionsActionButtons {...actionProps} apiRef={apiRef} /> }
                     </Stack>
                 </>
             )}
-            { importMode ?
-                <TransactionsImport {...{ setImportMode, selectedAccount }} /> :
-                <TransactionsGrid {...{ accounts, setShowAddDialog, setTransactionToEdit }} />
+            { importMode ? (
+                    <TransactionsImport
+                        setImportMode={setImportMode}
+                        selectedAccount={selectedAccount}
+                    />
+                ) : (
+                    <TransactionsGrid
+                        accounts={accounts}
+                        setShowAddDialog={setShowAddDialog}
+                        setTransactionToEdit={setTransactionToEdit}
+                        apiRef={apiRef}
+                    />
+                )
             }
         </TransactionsRoot>
     )
