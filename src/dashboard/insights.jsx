@@ -77,6 +77,7 @@ const Insights = ({ setRoute }) => {
     const [ breakdown, setBreakdown ] = useState(false);
     const [ palette, setPalette ] = useState();
     const [ paletteMap, setPaletteMap ] = useState();
+    const [ sortModel, setSortModel ] = useState([{ field: 'average', sort: 'asc' }]);
 
     useEffect(() => getInsights((response) => {
         const keys = [ 'average', 'transactions' ];
@@ -194,14 +195,11 @@ const Insights = ({ setRoute }) => {
                     columns={columns.filter(({ field }) => field !== (breakdown ? 'category' : 'subCategory'))}
                     sx={maxGridSize}
                     getRowId={({ category, subCategory }) => category + subCategory }
-                    initialState={{
-                        density: 'compact',
-                        sorting: {
-                            sortModel: [{ field: 'average', sort: 'asc' }],
-                        },
-                    }}
+                    initialState={{ density: 'compact' }}
                     onRowDoubleClick={handleDoubleClick}
                     slots={{ footer: GridFooter }}
+                    sortModel={sortModel}
+                    onSortModelChange={(newSortModel) => setSortModel(newSortModel)}
                 />
             </GridBox>
         );
@@ -221,6 +219,17 @@ const Insights = ({ setRoute }) => {
                 tooltip={{ trigger: 'item' }}
             />
         );
+    };
+
+    const toggleBreakdown = (value) => {
+        if (sortModel[0]) {
+            if (value && sortModel[0].field === 'category') {
+                setSortModel((old) => [{ field: 'subCategory', sort: old[0].sort }])
+            } else if (!value && sortModel[0].field === 'subCategory') {
+                setSortModel((old) => [{ field: 'category', sort: old[0].sort }])
+            }
+        }
+        setBreakdown(value);
     };
 
     return (
@@ -243,7 +252,7 @@ const Insights = ({ setRoute }) => {
                             label="Breakdown"
                             control={<Switch
                                 checked={breakdown}
-                                onChange={({ target }) => setBreakdown(target.checked)}
+                                onChange={({ target }) => toggleBreakdown(target.checked)}
                             />}
                         />) }
                     </TabRow>
