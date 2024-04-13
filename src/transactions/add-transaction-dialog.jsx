@@ -1,5 +1,6 @@
 import 'dayjs/locale/en-sg';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { cpfCodes } from '../util/cpf-codes';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -60,7 +61,7 @@ const AddTransactionDialog = ({
     const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const {
         listAccounts, addTransaction, editTransaction, listTransactions,
-        showStatus, suggestRemarks, suggestCode, suggestCompany, getCategories,
+        showStatus, suggestRemarks, suggestCompany, getCategories,
     } = api();
 
     useEffect(() => {
@@ -100,6 +101,8 @@ const AddTransactionDialog = ({
             } else {
                 setMonth(date.startOf('month'));
             }
+        } else if (selectedAccount?.type === 'Retirement') {
+            setMonth(date.subtract(1, 'month').startOf('month'));
         }
     }, [ date ]);
 
@@ -124,6 +127,9 @@ const AddTransactionDialog = ({
         }
         if (tx.originalAmount) {
             tx.originalAmount *= side;
+        }
+        if (tx.code && tx.code.indexOf(':') > -1) {
+            tx.code = tx.code.split(':').shift();
         }
         tx['@type'] = (selectedAccount?.multiCurrency ? 'fx-' : '') + selectedAccount?.type.toLowerCase();
         if (selectedAccount?.type === 'Credit') {
@@ -356,7 +362,7 @@ const AddTransactionDialog = ({
                 options={categories}
                 filterOptions={createFilterOptions({ limit: 5 })}
                 value={category}
-                onChange={(e, v) => setCategory(v)}
+                onChange={(_, v) => setCategory(v)}
                 renderInput={(params) => (
                     <TextField
                         required
@@ -369,17 +375,24 @@ const AddTransactionDialog = ({
             />
         ),
         code: (
-            <AutoFill
+            <Autocomplete
                 key="code"
-                promise={suggestCode}
+                freeSolo
+                autoComplete
+                options={cpfCodes.map((c) => c.code)}
+                filterOptions={createFilterOptions({ limit: 5 })}
+                getOptionLabel={(o) => cpfCodes.find(({ code }) => code === o) ? (o + ': ' + cpfCodes.find(({ code }) => code === o).description) : o}
+                renderInput={(params) => (
+                    <TextField
+                        required
+                        inputProps={{ minLength: 3, maxLength: 3 }}
+                        name="code"
+                        label="Code"
+                        {...params}
+                    />
+                )}
                 value={code}
-                onChange={(e, v) => setCode(v.toUpperCase())}
-                fieldProps={{
-                    required: true,
-                    inputProps: { minLength: 2 },
-                    name: 'code',
-                    label: 'Code'
-                }}
+                onChange={(_, v) => setCode(v?.toUpperCase() || '')}
             />
         ),
         company: (
@@ -391,6 +404,7 @@ const AddTransactionDialog = ({
                     name: 'company',
                     label: 'Company'
                 }}
+                sx={{ display: (code === 'CON') ? 'flex' : 'none' }}
             />
         ),
         ordinaryAmount: (

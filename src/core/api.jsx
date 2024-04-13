@@ -88,7 +88,6 @@ const api = () => {
         bulkEditTransactions: (payload, callback) => apiCall(PUT, 'transaction/bulk', callback, payload),
         deleteTransaction: (id, callback) => apiCall(DELETE, `transaction/${id}`, callback),
         suggestRemarks: (input, callback) => apiCall(GET, `suggest/remarks?q=${clean(input)}`, callback),
-        suggestCode: (input, callback) => apiCall(GET, `suggest/code?q=${clean(input)}`, callback),
         suggestCompany: (input, callback) => apiCall(GET, `suggest/company?q=${clean(input)}`, callback),
         getCategories: (callback) => apiCall(GET, 'suggest/categories', callback),
         listTemplates: (callback) => apiCall(GET, 'template', callback),

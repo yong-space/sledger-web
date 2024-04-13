@@ -10,6 +10,7 @@ import {
 import {
     formatNumber, formatDecimal, formatDecimalHideZero, formatDecimalAbs, formatDate, formatMonth,
 } from '../util/formatters';
+import { cpfCodes } from '../util/cpf-codes';
 import { GridPagination } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/loader';
 import { pink, lightGreen } from '@mui/material/colors';
@@ -19,6 +20,7 @@ import api from '../core/api';
 import Box from '@mui/system/Box';
 import state from '../core/state';
 import styled from 'styled-components';
+import Tooltip from '@mui/material/Tooltip';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const GridBox = styled.div`
@@ -102,6 +104,11 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
 
     const getColourClassForValue = ({ value }) => !value ? '' : value > 0 ? 'green' : 'red';
 
+    const CpfCode = ({ value }) => {
+        const title = cpfCodes.find((c) => c.code === value)?.description || 'No description available';
+        return <Tooltip title={title}><span>{value}</span></Tooltip>;
+    };
+
     const columns = {
         account: { flex : 2, field: 'accountId', headerName: 'Account', valueGetter: getAccountName },
         date: { flex: 2.5, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate },
@@ -115,7 +122,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimal },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
-        code: { flex: 2, field: 'code', headerName: 'Code' },
+        code: { flex: 2, field: 'code', headerName: 'Code', renderCell: CpfCode },
         company: { flex: 2, field: 'company', headerName: 'Company' },
         ordinaryAmount: { flex: 2, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal, cellClassName: getColourClassForValue },
         specialAmount: { flex: 2, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatDecimal, cellClassName: getColourClassForValue },

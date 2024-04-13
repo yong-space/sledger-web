@@ -13,7 +13,7 @@ const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
         promise(request, callback), 200), []);
 
     useEffect(() => {
-        if (inputValue.length < 3) {
+        if (inputValue.length < 1) {
             return;
         }
         setOptions([]);

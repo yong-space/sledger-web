@@ -8,7 +8,7 @@ const CpfSlider = ({ cpfRatio, setCpfRatio, cpfAllocationInvalid }) => {
         (parseFloat(cpfRatio.ordinaryRatio) + parseFloat(cpfRatio.specialRatio))
     ];
 
-    const updateCpfSlider = (event, newValue) => setCpfRatio({
+    const updateCpfSlider = (_, newValue) => setCpfRatio({
         ordinaryRatio: newValue[0],
         specialRatio: parseFloat((newValue[1] - newValue[0]).toFixed(4)),
         medisaveRatio: parseFloat((1 - newValue[1]).toFixed(4)),
