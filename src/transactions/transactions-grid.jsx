@@ -65,7 +65,6 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
             console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
             apiRef.current = {};
             setTransactions([]);
-            setParentPaginationModel(undefined);
             setPaginationModel(undefined);
             setSelectedRows([]);
             listTransactions(selectedAccount.id, (response) => {
@@ -86,6 +85,9 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
             fx: false, originalAmount: false, company: false, forMonth: false, billingMonth: false,
             ordinaryAmount: false, specialAmount: false, medisaveAmount: false, subCategory: false,
         };
+        if (selectedAccount.type === 'Retirement' && !isMobile) {
+            delete vColumns.amount;
+        }
         setVisibleColumns(vColumns);
     }, [ isMobile, isSmallHeight ]);
 
@@ -124,9 +126,9 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         category: { flex: 2, field: 'category', headerName: 'Category' },
         code: { flex: 2, field: 'code', headerName: 'Code', renderCell: CpfCode },
         company: { flex: 2, field: 'company', headerName: 'Company' },
-        ordinaryAmount: { flex: 2, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimal, cellClassName: getColourClassForValue },
-        specialAmount: { flex: 2, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatDecimal, cellClassName: getColourClassForValue },
-        medisaveAmount: { flex: 2, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', valueFormatter: formatDecimal, cellClassName: getColourClassForValue },
+        ordinaryAmount: { flex: 2, field: 'ordinaryAmount', headerName: 'Ordinary', type: 'number', valueFormatter: formatDecimalHideZero, cellClassName: getColourClassForValue },
+        specialAmount: { flex: 2, field: 'specialAmount', headerName: 'Special', type: 'number', valueFormatter: formatDecimalHideZero, cellClassName: getColourClassForValue },
+        medisaveAmount: { flex: 2, field: 'medisaveAmount', headerName: 'Medisave', type: 'number', valueFormatter: formatDecimalHideZero, cellClassName: getColourClassForValue },
     };
 
     const cashFields = [ columns.date, columns.credit, columns.debit, columns.amount, columns.balance, columns.remarks, columns.category ];
