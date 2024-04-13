@@ -51,7 +51,6 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
-    const [ parentPaginationModel, setParentPaginationModel ] = state.useState(state.paginationModel);
     const [ paginationModel, setPaginationModel ] = useState();
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState(state.visibleTransactionId);

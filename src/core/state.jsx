@@ -18,7 +18,6 @@ const state = () => ({
     templates: atom({ key: 'templates', default: undefined }),
     transactionsAccountId: atom({ key: 'transactionsAccountId', default: undefined }),
     selectedRows: atom({ key: 'selectedRows', default: [] }),
-    paginationModel: atom({ key: 'paginationModel', default: undefined }),
     filterModel: atom({ key: 'filterModel', default: undefined }),
     categories: atom({ key: 'categories', default: [] }),
     date: atom({ key: 'date', default: dayjs.utc().startOf('day') }),
