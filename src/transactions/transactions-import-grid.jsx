@@ -8,6 +8,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import api from '../core/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import AutoFill from './auto-fill';
+import ContextMenu from './context-menu';
 import dayjs from 'dayjs';
 import state from '../core/state';
 import styled from 'styled-components';
@@ -207,6 +208,15 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
 
     const [ selectionModel, setSelectionModel ] = useState(transactions.map(({ id }) => id ));
 
+    const [ contextMenuPosition, setContextMenuPosition ] = useState(null);
+
+    const handleContextMenu = (event) => {
+        event.preventDefault();
+        setContextMenuPosition((old) => old === null ? { left: event.clientX - 2, top: event.clientY - 4 } : null);
+    };
+
+    const selectedRowSize = apiRef.current?.getSelectedRows ? apiRef.current.getSelectedRows().size : 0;
+
     return (
         <ImportGridRoot>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -223,6 +233,18 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
                     sx={maxGridSize}
                     rowSelectionModel={selectionModel}
                     onRowSelectionModelChange={(n) => setSelectionModel(n)}
+                    slotProps={{
+                        row: {
+                            onContextMenu: handleContextMenu,
+                            style: { cursor: 'context-menu' },
+                        },
+                    }}
+                />
+                <ContextMenu
+                    contextMenuPosition={contextMenuPosition}
+                    setContextMenuPosition={setContextMenuPosition}
+                    selectedRowSize={selectedRowSize}
+                    apiRef={apiRef}
                 />
             </LocalizationProvider>
         </ImportGridRoot>

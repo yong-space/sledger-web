@@ -67,7 +67,10 @@ const TransactionsActionButtons = ({
 
     const isMobile = useMediaQuery(theme.breakpoints.up('md'));
 
-    return (selectedAccount.id === 0 && selectedLength === 0) ? <></> : (
+    if (selectedAccount.id === 0 && selectedLength === 0) {
+        return <></>;
+    }
+    return (
         <Stack direction="row" spacing={1}>
             { selectedAccount.id > 0 && <AddButton onClick={addTransaction} solo={selectedLength === 0} /> }
             { selectedLength > 0 && <EditButton onClick={editTransaction} />}

@@ -16,6 +16,7 @@ const ActionButton = ({ color, startIcon, label, onClick, solo, disabled }) => {
     return !solo && isMobile ? (
         <IconButton
             sx={{ width: size, height: size, backgroundColor: theme.palette[color].dark }}
+            disableRipple
             onClick={onClick}
         >
             { startIcon }
