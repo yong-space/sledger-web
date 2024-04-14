@@ -52,7 +52,6 @@ const AddTransactionDialog = ({
         medisaveAmount: transactionToEdit?.medisaveAmount || 0,
     });
     const [ loading, setLoading ] = state.useState(state.loading);
-    const [ transactions ] = state.useState(state.transactions);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const selectedAccount = !transactionToEdit ? state.useState(state.selectedAccount)[0]
         : accounts.find(({ id }) => id === transactionToEdit.accountId);
@@ -145,7 +144,8 @@ const AddTransactionDialog = ({
         if (transactionToEdit) {
             tx.id = transactionToEdit.id;
         }
-        const maxDate = dayjs.max(transactions.map(t => dayjs.utc(t.date)));
+        const currentTransactions = Array.from(apiRef.current.getRowModels().values());
+        const maxDate = dayjs.max(currentTransactions.map(({ date }) => dayjs.utc(date)));
 
         setLoading(true);
         const endpoint = transactionToEdit ? editTransaction : addTransaction;
@@ -173,14 +173,14 @@ const AddTransactionDialog = ({
         endpoint([ tx ], (response) => {
             const minDate = dayjs.min(response.map(t => dayjs.utc(t.date)));
             if (transactionToEdit) {
-                const existing = transactions.find(({ id }) => id === tx.id);
+                const existing = apiRef.current.getRow(tx.id);
                 if (existing.amount === tx.amount) {
-                    postProcess(response, transactions.map((t) => response.find((r) => r.id === t.id) || t));
+                    postProcess(response, currentTransactions.map((t) => response.find((r) => r.id === t.id) || t));
                 } else {
                     listTransactions(selectedAccount?.id, (allTx) => postProcess(response, allTx));
                 }
             } else if (minDate.isAfter(maxDate)) {
-                postProcess(response, [ ...transactions, ...response ]);
+                postProcess(response, [ ...currentTransactions, ...response ]);
             } else {
                 listTransactions(selectedAccount?.id, (allTx) => postProcess(response, allTx));
             }
@@ -251,7 +251,8 @@ const AddTransactionDialog = ({
         if (!value) {
             return;
         }
-        const match = transactions.find((t) => t.remarks === value);
+        const currentTransactions = Array.from(apiRef.current.getRowModels().values());
+        const match = currentTransactions.find((t) => t.remarks === value);
         if (match) {
             setCategory(match.category);
         }

@@ -62,7 +62,6 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         }
         if (selectedAccount.id !== transactionsAccountId) {
             console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
-            apiRef.current = {};
             setTransactions([]);
             setPaginationModel(undefined);
             setSelectedRows([]);
@@ -198,12 +197,13 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     }, [ visibleTransactionId ]);
 
     const Summary = () => {
-        const data = (selectedRows.length > 0) ?
-            transactions.filter(({ id }) => selectedRows.indexOf(id) > -1) :
+        const realSelectedRows = Array.from(apiRef.current.getSelectedRows().values());
+        const data = (realSelectedRows.length > 0) ?
+            realSelectedRows :
             gridFilteredSortedRowEntriesSelector(apiRef).map(({ model }) => model);
         const length = data.length;
         const plural = length > 1 ? 's' : '';
-        const amountSum = data.reduce((acc, obj) => acc + obj.amount, 0);
+        const amountSum = data.reduce((acc, obj) => acc + obj?.amount || 0, 0);
 
         return (
             <Box sx={{ marginLeft: '1rem' }}>

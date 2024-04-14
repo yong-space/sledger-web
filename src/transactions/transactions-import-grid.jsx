@@ -15,7 +15,7 @@ import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
 
 const ImportGridRoot = styled.div`
-    height: calc(100vh - 17rem);
+    height: calc(100vh - 16rem);
 `;
 
 const CompactTextField = styled(TextField)`

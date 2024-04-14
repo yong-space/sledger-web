@@ -20,7 +20,7 @@ const ImportRoot = styled.div`
 const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const [ loading, setLoading ] = state.useState(state.loading);
     const [ importTransactions, setImportTransactions ] = useState();
-    const [ transactions, setTransactions ] = state.useState(state.transactions);
+    const setTransactions = state.useState(state.transactions)[1];
     const setParentSelectedRows = state.useState(state.selectedRows)[1];
     const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const { addTransaction, showStatus, listTransactions } = api();
@@ -56,7 +56,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                 setLoading(false);
                 setImportMode(false);
                 showStatus('success', selectedTransactions.length + ' Transactions imported');
-            })
+            });
         });
     };
 

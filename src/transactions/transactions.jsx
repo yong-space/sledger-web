@@ -76,7 +76,7 @@ const Transactions = () => {
         if (apiRef.current === null) {
             apiRef.current = {};
         }
-    }, [ apiRef ]);
+    }, [ apiRef, importMode ]);
 
     const actionProps = {
         transactions, setTransactions, setAccounts, showAddDialog, setShowAddDialog,
