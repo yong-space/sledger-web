@@ -13,7 +13,18 @@ const ContextMenu = ({ contextMenuPosition, setContextMenuPosition,selectedRowSi
     const handleMergeTransaction = () => {
         setContextMenuPosition(null);
         const tx = Array.from(apiRef.current.getSelectedRows().values());
-        console.log(tx);
+
+        const mainTx = tx[0];
+        for (let i=1; i<tx.length; i++) {
+            const subTx = tx[i];
+            mainTx.amount += subTx.amount;
+            if (mainTx.remarks && mainTx.remarks !== subTx.remarks) {
+                mainTx.remarks += " " + subTx.remarks;
+            };
+        };
+        tx.splice(1)
+            .map(({ id }) => ({ id, _action: 'delete' }))
+            .forEach((r) => apiRef.current.updateRows([ r ]));
     };
 
     return (
@@ -40,7 +51,7 @@ const ContextMenu = ({ contextMenuPosition, setContextMenuPosition,selectedRowSi
             </MenuItem>
             <MenuItem
                 onClick={handleMergeTransaction}
-                disabled={selectedRowSize < 2 || selectedRowSize > 3}
+                disabled={selectedRowSize < 2 || selectedRowSize > 5}
             >
                 <CallMergeIcon sx={{ marginRight: '.7rem' }} />
                 Merge Transactions
