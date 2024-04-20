@@ -67,7 +67,7 @@ const NavBar = () => {
     ];
     const props = { pages, currentPath: location.pathname };
 
-    return (
+    return location.pathname !== '/no-connectivity' && (
         <AppBar theme={theme}>
             <Group>
                 <MobileMenu {...props} />

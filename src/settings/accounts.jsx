@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AccountsGrid from './accounts-grid';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 import AccountsActionButtons from './accounts-action-buttons';
 
 const Accounts = ({ isMobile, setRoute }) => {

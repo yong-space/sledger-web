@@ -1,6 +1,6 @@
 import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber, formatMonth } from '../util/formatters';
-import { HorizontalLoader } from '../core/loader';
+import { HorizontalLoader } from '../core/utils';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
@@ -9,7 +9,7 @@ import api from '../core/api';
 import dayjs from 'dayjs';
 import state from '../core/state';
 import styled from 'styled-components';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Root = styled.div`

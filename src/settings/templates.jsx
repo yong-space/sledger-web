@@ -1,6 +1,6 @@
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DataGrid, useGridApiRef, useGridApiContext, gridPageCountSelector } from '@mui/x-data-grid';
-import { HorizontalLoader } from '../core/loader';
+import { HorizontalLoader } from '../core/utils';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import api from '../core/api';
@@ -13,7 +13,7 @@ import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 
 const GridBox = styled.div`
     flex: 1 1 1px;

@@ -71,7 +71,7 @@ const IssuersGrid = ({ issuers, setIssuers }) => {
         setShowConfirm(false);
     });
 
-    const IssuersDataGrid = () => issuers.length === 0 ?
+    const IssuersDataGrid = () => !issuers || issuers.length === 0 ?
         <Alert severity="info" variant="outlined">No issuers added yet</Alert> :
         (
             <>

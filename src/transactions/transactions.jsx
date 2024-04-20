@@ -1,4 +1,4 @@
-import { HorizontalLoader } from '../core/loader';
+import { HorizontalLoader } from '../core/utils';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
@@ -9,7 +9,7 @@ import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 import TransactionsGrid from './transactions-grid';
 import TransactionsImport from './transactions-import';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -38,10 +38,13 @@ const Transactions = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const location = useLocation();
     const navigate = useNavigate();
-    const getVisibleAccounts = () => accounts.filter((a) => a.visible);
+    const getVisibleAccounts = () => accounts?.filter((a) => a.visible);
     const apiRef = useGridApiRef();
 
     useEffect(() => {
+        if (!accounts) {
+            return;
+        }
         if (getVisibleAccounts().length === 0) {
             navigate('/settings/accounts');
             return;

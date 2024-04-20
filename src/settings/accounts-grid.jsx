@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip';
 import styled from 'styled-components';
 import Switch from '@mui/material/Switch';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { HorizontalLoader } from '../core/utils';
 
 const GridBox = styled.div`
     display: flex;
@@ -160,6 +161,10 @@ const AccountsGrid = ({
         const selection = (id === selectedAccount[0]) ? [] : [ id ];
         setSelectedAccount(selection);
     };
+
+    if (!accounts) {
+        return <HorizontalLoader />;
+    }
 
     return accounts.length === 0 ? <Empty /> : (
         <GridBox isMobile={isMobile}>

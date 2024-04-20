@@ -2,7 +2,7 @@ import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 import styled from 'styled-components';
 import ManageIssuers from './manage-issuers';
 import ManageUsers from './manage-users';

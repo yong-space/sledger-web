@@ -1,4 +1,4 @@
-import { CircularLoader } from '../core/loader';
+import { CircularLoader } from '../core/utils';
 import { useGridApiRef } from '@mui/x-data-grid';
 import { useState } from 'react';
 import api from '../core/api';

@@ -1,5 +1,5 @@
 import { formatDecimal } from '../util/formatters';
-import { HorizontalLoader } from '../core/loader';
+import { HorizontalLoader } from '../core/utils';
 import { useEffect, useState, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
@@ -7,8 +7,8 @@ import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import state from '../core/state';
 import styled from 'styled-components';
-import SubTitle from '../core/sub-title';
-import Title from '../core/title';
+import { SubTitle } from '../core/utils';
+import { Title } from '../core/utils';
 
 const Wrapper = styled.div`
     display: flex;
@@ -246,6 +246,10 @@ const Summary = ({ setRoute }) => {
             No accounts added yet. Click here to add your first account.
         </Alert>
     );
+
+    if (!accounts) {
+        return <HorizontalLoader />;
+    }
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
         <Root theme={theme}>

@@ -1,7 +1,7 @@
 import { BarChart } from '@mui/x-charts';
 import { DataGrid } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
-import { HorizontalLoader } from '../core/loader';
+import { HorizontalLoader } from '../core/utils';
 import { pink, lightGreen } from '@mui/material/colors';
 import { Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ import styled from 'styled-components';
 import Switch from '@mui/material/Switch';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Root = styled.div`

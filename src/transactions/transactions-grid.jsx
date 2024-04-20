@@ -12,7 +12,7 @@ import {
 } from '../util/formatters';
 import { cpfCodes } from '../util/cpf-codes';
 import { GridPagination } from '@mui/x-data-grid';
-import { HorizontalLoader } from '../core/loader';
+import { HorizontalLoader } from '../core/utils';
 import { pink, lightGreen } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';

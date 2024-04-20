@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { NoConnectivity, NotFound } from './utils';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Admin from '../admin/admin';
 import api from './api';
 import Dashboard from '../dashboard/dashboard';
 import NavBar from '../nav-bar/main-menu';
-import NotFound from './not-found';
 import Profile from '../settings/profile';
 import Settings from '../settings/settings';
 import state from './state';
@@ -46,7 +46,7 @@ const App = () => {
         }
     }, []);
 
-    return issuers && accounts && (
+    return (
         <Root>
             <NavBar />
             <Content isMobile={isMobile}>
@@ -56,6 +56,7 @@ const App = () => {
                     <Route path="admin/*" element={<Admin /> } />
                     <Route path="settings/*" element={<Settings /> } />
                     <Route path="profile" element={<Profile /> } />
+                    <Route path="no-connectivity" element={<NoConnectivity />} />
                     <Route path="/" element={<Navigate to="/dash" />} />
                     <Route path="register" element={<Navigate to="/dash" /> } />
                     <Route path="login" element={<Navigate to="/dash" /> } />

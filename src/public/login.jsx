@@ -7,7 +7,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import TextField from '@mui/material/TextField';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 
 const Login = () => {
     let navigate = useNavigate();

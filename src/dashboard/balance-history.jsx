@@ -1,9 +1,9 @@
 import { BarChart } from '@mui/x-charts';
-import { HorizontalLoader } from '../core/loader';
+import { HorizontalLoader } from '../core/utils';
 import { useEffect, useState } from 'react';
 import api from '../core/api';
 import dayjs from 'dayjs';
-import Title from '../core/title';
+import { Title } from '../core/utils';
 
 const BalanceHistory = ({ setRoute }) => {
     const [ balanceHistory, setBalanceHistory ] = useState();

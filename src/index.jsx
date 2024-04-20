@@ -1,6 +1,6 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter } from 'react-router-dom';
-import { CircularLoader } from './core/loader';
+import { CircularLoader } from './core/utils';
 import { createRoot } from 'react-dom/client';
 import { RecoilRoot } from 'recoil';
 import { registerSW } from 'virtual:pwa-register';

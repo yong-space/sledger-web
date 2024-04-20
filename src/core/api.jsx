@@ -41,9 +41,11 @@ const api = () => {
 
     const handleError = ({ message }) => {
         setLoading(false);
-        const msg = message.startsWith('NetworkError') || message.startsWith('Failed to fetch')
-            ? 'Unable to establish connectivity' : message;
-        showStatus('error', msg);
+        if (message.startsWith('NetworkError') || message.startsWith('Failed to fetch')) {
+            navigate('no-connectivity');
+        } else {
+            showStatus('error', message);
+        }
     };
 
     const apiCall = (method, uri, callback, body) => {
