@@ -4,6 +4,7 @@ import { cpfCodes } from '../util/cpf-codes';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { numericProps, numericPropsNegative } from '../util/formatters';
 import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
@@ -223,28 +224,6 @@ const AddTransactionDialog = ({
         const newCpfAmounts = { ...cpfAmounts, [target.name]: target.value };
         setCpfAmounts(newCpfAmounts);
         setAmountValue(Object.values(newCpfAmounts).reduce((a, i) => a + (parseFloat(i) || 0), 0).toFixed(2));
-    };
-
-    const restrictFormat = (value, allowNegative) => {
-        const pattern = allowNegative ? /[^0-9.\-]/g : /[^0-9.]/g;
-        value = value.replace(pattern, '');
-        const dotIndex = value.indexOf('.');
-        if (dotIndex >= 0) {
-            value = value.slice(0, dotIndex + 3);
-        }
-        return value;
-    };
-
-    const numericProps = {
-        inputMode: 'numeric',
-        pattern: '\-?[0-9]+\.?[0-9]{0,2}',
-        onInput: (e) => e.target.value = restrictFormat(e.target.value, false),
-    };
-
-    const numericPropsNegative = {
-        inputMode: 'numeric',
-        pattern: '\-?[0-9]+\.?[0-9]{0,2}',
-        onInput: (e) => e.target.value = restrictFormat(e.target.value, true),
     };
 
     const lookupCategory = (_, value) => {

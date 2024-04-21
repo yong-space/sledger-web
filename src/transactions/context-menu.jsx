@@ -3,11 +3,10 @@ import CallSplitIcon from '@mui/icons-material/CallSplit';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-const ContextMenu = ({ contextMenuPosition, setContextMenuPosition,selectedRowSize, apiRef }) => {
+const ContextMenu = ({ contextMenuPosition, setContextMenuPosition,selectedRowSize, setTxToSplit, apiRef }) => {
     const handleSplitTransaction = () => {
         setContextMenuPosition(null);
-        const tx = apiRef.current.getSelectedRows().values().next().value;
-        console.log(tx);
+        setTxToSplit(apiRef.current.getSelectedRows().values().next().value);
     };
 
     const handleMergeTransaction = () => {

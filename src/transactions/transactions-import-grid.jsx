@@ -4,12 +4,19 @@ import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { formatDate, formatMonth, formatDecimal } from '../util/formatters';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { numericProps } from '../util/formatters';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import api from '../core/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import AutoFill from './auto-fill';
+import Button from '@mui/material/Button';
 import ContextMenu from './context-menu';
 import dayjs from 'dayjs';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Slider from '@mui/material/Slider';
+import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
@@ -93,6 +100,7 @@ const RemarksEditor = (props) => {
 
     useLayoutEffect(() => {
       if (hasFocus) {
+        // @ts-ignore
         ref.current.focus();
       }
     }, [ hasFocus ]);
@@ -144,11 +152,12 @@ const CategoryEditor = (props) => {
 
     useLayoutEffect(() => {
       if (hasFocus) {
+        // @ts-ignore
         ref.current.focus();
       }
     }, [ hasFocus ]);
 
-    const handleChange = (e, v) => {
+    const handleChange = (_, v) => {
         apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
     };
 
@@ -159,6 +168,7 @@ const CategoryEditor = (props) => {
             filterOptions={createFilterOptions({ limit: 5 })}
             value={value || ""}
             onChange={handleChange}
+            // @ts-ignore
             onBlur={(e) => handleChange(e, e.target.value)}
             disableClearable
             sx={{ flex: 1 }}
@@ -171,6 +181,77 @@ const CategoryEditor = (props) => {
                 />
             )}
         />
+    );
+};
+
+const SplitTransactionDialog = ({ tx, setTx, apiRef, setSelectionModel }) => {
+    const round = (val) => Number(Number(val).toFixed(2));
+
+    const [ value1, setValue1 ] = useState((Math.abs(tx.amount) - 0.01).toFixed(2));
+    const value2 = round(Math.abs(tx.amount) - Number(value1));
+    const splits = [ round(value1) ];
+
+    const processSplit = () => {
+        const multiplier = tx.amount > 0 ? 1 : -1;
+        const newTx = { ...tx };
+        newTx.amount = (Math.abs(tx.amount) - splits[0]) * multiplier;
+        newTx.id = Math.max(...[ ...apiRef.current.getRowModels().values() ].map(({ id }) => id)) + 1;
+        tx.amount = splits[0] * multiplier;
+        apiRef.current.updateRows([ newTx ]);
+        setTx(undefined);
+        setSelectionModel([ tx.id, newTx.id ]);
+    };
+
+    return (
+        <Dialog
+            open
+            fullWidth
+            aria-labelledby="split-transaction-dialog-title"
+            aria-describedby="split-transaction-dialog-description"
+        >
+            <DialogTitle id="split-transaction-dialog-title">
+                Split Transaction
+            </DialogTitle>
+            <DialogContent>
+                <Slider
+                    value={splits}
+                    onChange={(_, value) => setValue1(value[0].toFixed(2))}
+                    color="info"
+                    min={0.01}
+                    max={Math.abs(tx.amount) - 0.01}
+                    step={0.01}
+                    sx={{ margin: '.6rem 0' }}
+                />
+
+                <Stack direction="row" justifyContent="space-between" pb={2}>
+                    <TextField
+                        required
+                        value={value1}
+                        onChange={({ target }) => setValue1(target.value)}
+                        // @ts-ignore
+                        inputProps={numericProps}
+                    />
+                    <TextField
+                        disabled
+                        value={value2 === Math.abs(tx.amount) || value2 < 0.01 ? 'INVALID' : value2}
+                    />
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between">
+                    <Button
+                        variant="contained"
+                        color="info"
+                        onClick={processSplit}
+                        disabled={value1 === '' || Number(value1) < 0.01 || Number(value1) >= Math.abs(tx.amount)}
+                    >
+                        Split Transaction
+                    </Button>
+                    <Button variant="contained" onClick={() => setTx(undefined)} autoFocus>
+                        Cancel
+                    </Button>
+                </Stack>
+            </DialogContent>
+        </Dialog>
     );
 };
 
@@ -206,6 +287,8 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
         maxHeight: `calc(100vh - 14rem)`,
     };
 
+    const [ txToSplit, setTxToSplit ] = useState();
+
     const [ selectionModel, setSelectionModel ] = useState(transactions.map(({ id }) => id ));
 
     const [ contextMenuPosition, setContextMenuPosition ] = useState(null);
@@ -226,7 +309,6 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
                     disableRowSelectionOnClick
                     autoPageSize
                     disableColumnMenu
-                    initialState={{ density: 'compact' }}
                     rows={transactions}
                     columns={columnMap[accountType]}
                     editMode="row"
@@ -239,13 +321,28 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
                             style: { cursor: 'context-menu' },
                         },
                     }}
+                    initialState={{
+                        density: 'compact',
+                        sorting: {
+                            sortModel: [{ field: 'date', sort: 'asc' }],
+                        },
+                    }}
                 />
                 <ContextMenu
                     contextMenuPosition={contextMenuPosition}
                     setContextMenuPosition={setContextMenuPosition}
                     selectedRowSize={selectedRowSize}
+                    setTxToSplit={setTxToSplit}
                     apiRef={apiRef}
                 />
+                { txToSplit && (
+                    <SplitTransactionDialog
+                        tx={txToSplit}
+                        setTx={setTxToSplit}
+                        apiRef={apiRef}
+                        setSelectionModel={setSelectionModel}
+                    />
+                )}
             </LocalizationProvider>
         </ImportGridRoot>
     );
