@@ -329,6 +329,7 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
                     }}
                 />
                 <ContextMenu
+                    mode="import"
                     contextMenuPosition={contextMenuPosition}
                     setContextMenuPosition={setContextMenuPosition}
                     selectedRowSize={selectedRowSize}

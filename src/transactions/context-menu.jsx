@@ -2,8 +2,11 @@ import CallMergeIcon from '@mui/icons-material/CallMerge';
 import CallSplitIcon from '@mui/icons-material/CallSplit';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import api from '../core/api';
 
-const ContextMenu = ({ contextMenuPosition, setContextMenuPosition,selectedRowSize, setTxToSplit, apiRef }) => {
+const ContextMenu = ({ mode, contextMenuPosition, setContextMenuPosition,selectedRowSize, setTxToSplit, apiRef }) => {
+    const { editTransaction, deleteTransaction, listTransactions, showStatus } = api();
+
     const handleSplitTransaction = () => {
         setContextMenuPosition(null);
         setTxToSplit(apiRef.current.getSelectedRows().values().next().value);
@@ -12,8 +15,7 @@ const ContextMenu = ({ contextMenuPosition, setContextMenuPosition,selectedRowSi
     const handleMergeTransaction = () => {
         setContextMenuPosition(null);
         const tx = Array.from(apiRef.current.getSelectedRows().values());
-
-        const mainTx = tx[0];
+        const mainTx = (mode === 'import') ? tx[0] : { ...tx[0] };
         for (let i=1; i<tx.length; i++) {
             const subTx = tx[i];
             mainTx.amount += subTx.amount;
@@ -21,9 +23,28 @@ const ContextMenu = ({ contextMenuPosition, setContextMenuPosition,selectedRowSi
                 mainTx.remarks += " " + subTx.remarks;
             };
         };
-        tx.splice(1)
-            .map(({ id }) => ({ id, _action: 'delete' }))
-            .forEach((r) => apiRef.current.updateRows([ r ]));
+        const idsToDelete = tx.splice(1).map(({ id }) => id);
+        if (mode === 'import') {
+            idsToDelete.map(({ id }) => ({ id, _action: 'delete' }))
+                .forEach((r) => apiRef.current.updateRows([ r ]));
+        } else {
+            editTransaction([ mainTx ], () => {
+                deleteTransaction(idsToDelete, () => {
+                    idsToDelete.map((id) => ({ id, _action: 'delete' }))
+                        .forEach((r) => apiRef.current.updateRows([ r ]));
+
+                    listTransactions(mainTx.accountId, (allTx) => {
+                        for (const row of apiRef.current.getRowModels().values()) {
+                            const newRow = allTx.find(({ id }) => id === row.id);
+                            if (row.balance !== newRow.balance) {
+                                apiRef.current.updateRows([ newRow ]);
+                            }
+                        }
+                        showStatus('success', 'Transactions merged');
+                    });
+                });
+            });
+        }
     };
 
     return (

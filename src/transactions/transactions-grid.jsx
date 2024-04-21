@@ -22,6 +22,7 @@ import state from '../core/state';
 import styled from 'styled-components';
 import Tooltip from '@mui/material/Tooltip';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import ContextMenu from './context-menu';
 
 const GridBox = styled.div`
     display: flex;
@@ -54,6 +55,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     const [ paginationModel, setPaginationModel ] = useState();
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState(state.visibleTransactionId);
+    const [ txToSplit, setTxToSplit ] = useState();
 
     useEffect(() => {
         if (!selectedAccount) {
@@ -239,16 +241,29 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         footer: TransactionsGridFooter,
     };
 
+    const [ contextMenuPosition, setContextMenuPosition ] = useState(null);
+
+    const handleContextMenu = (event) => {
+        event.preventDefault();
+        setContextMenuPosition((old) => old === null ? { left: event.clientX - 2, top: event.clientY - 4 } : null);
+    };
+
     const slotProps = {
         toolbar: {
             showQuickFilter: true,
             printOptions: { disableToolbarButton: true },
             csvOptions: { disableToolbarButton: isMobile || isSmallHeight },
         },
+        row: {
+            onContextMenu: handleContextMenu,
+            style: { cursor: 'context-menu' },
+        },
     };
 
+    const selectedRowSize = apiRef.current?.getSelectedRows ? apiRef.current.getSelectedRows().size : 0;
+
     return !transactions ? <HorizontalLoader /> : (
-        <GridBox isMobile={isMobile || isSmallHeight}>
+        <GridBox>
             <DataGrid
                 autoPageSize
                 checkboxSelection
@@ -275,6 +290,14 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
                         sortModel: [{ field: 'date', sort: 'asc' }],
                     },
                 }}
+            />
+            <ContextMenu
+                mode="main"
+                contextMenuPosition={contextMenuPosition}
+                setContextMenuPosition={setContextMenuPosition}
+                selectedRowSize={selectedRowSize}
+                setTxToSplit={setTxToSplit}
+                apiRef={apiRef}
             />
         </GridBox>
     );
