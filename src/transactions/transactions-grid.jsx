@@ -52,7 +52,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
-    const [ paginationModel, setPaginationModel ] = useState();
+    const [ scrolledToEnd, setScrolledToEnd ] = useState(false);
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState(state.visibleTransactionId);
     const [ txToSplit, setTxToSplit ] = useState();
@@ -64,9 +64,9 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         }
         if (selectedAccount.id !== transactionsAccountId) {
             console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
-            setTransactions([]);
-            setPaginationModel(undefined);
             setSelectedRows([]);
+            setScrolledToEnd(false);
+            setTransactions([]);
             listTransactions(selectedAccount.id, (response) => {
                 console.debug(`Loaded transactions for ${selectedAccount.id}`)
                 const processedResponse = response.map((o) => {
@@ -165,16 +165,10 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
 
     const handlePagination = (n) => {
         const pages = gridPageCountSelector(apiRef);
-        if (pages === 0) {
-            return n;
+        if (!scrolledToEnd && pages > 0) {
+            apiRef.current?.setPage(pages - 1);
+            setScrolledToEnd(true);
         }
-        if (paginationModel) {
-            setPaginationModel(n);
-            return n;
-        }
-        const config = { page: pages - 1, pageSize: n.pageSize };
-        setPaginationModel(config);
-        return config;
     };
 
     const maxGridSize = {
@@ -193,6 +187,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
                 .map(({ id }) => id)
                 .indexOf(visibleTransactionId) + 1;
             const pageSize = gridPageSizeSelector(apiRef);
+            // @ts-ignore
             setTimeout(() => api.current?.setPage(Math.floor(index / pageSize)), 100);
         }
         setVisibleTransactionId(undefined);
@@ -209,7 +204,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
 
         return (
             <Box sx={{ marginLeft: '1rem' }}>
-                {formatNumber(length, false)} row{plural}: {formatDecimal(amountSum)}
+                {formatNumber(length)} row{plural}: {formatDecimal(amountSum)}
             </Box>
         );
     };
@@ -276,7 +271,6 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
                 columnVisibilityModel={visibleColumns}
                 rowSelectionModel={selectedRows}
                 onRowSelectionModelChange={(m) => setSelectedRows(m)}
-                paginationModel={paginationModel}
                 onPaginationModelChange={handlePagination}
                 onRowDoubleClick={handleDoubleClick}
                 filterModel={filterModel}
