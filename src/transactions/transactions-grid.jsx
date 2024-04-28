@@ -1,28 +1,34 @@
+import Tooltip from '@mui/material/Tooltip';
+import { lightGreen, pink } from '@mui/material/colors';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import Box from '@mui/system/Box';
 import {
     DataGrid,
+    GridPagination,
     GridToolbar,
     gridFilteredSortedRowEntriesSelector,
-    gridPaginatedVisibleSortedGridRowIdsSelector,
-    gridPageSelector,
     gridPageCountSelector,
+    gridPageSelector,
     gridPageSizeSelector,
+    gridPaginatedVisibleSortedGridRowIdsSelector,
 } from '@mui/x-data-grid';
-import {
-    formatNumber, formatDecimal, formatDecimalHideZero, formatDecimalAbs, formatDate, formatMonth,
-} from '../util/formatters';
-import { cpfCodes } from '../util/cpf-codes';
-import { GridPagination } from '@mui/x-data-grid';
-import { HorizontalLoader } from '../core/utils';
-import { pink, lightGreen } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
-import { useTheme } from '@mui/material/styles';
-import api from '../core/api';
-import Box from '@mui/system/Box';
-import state from '../core/state';
 import styled from 'styled-components';
-import Tooltip from '@mui/material/Tooltip';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import api from '../core/api';
+import state from '../core/state';
+import { HorizontalLoader } from '../core/utils';
+import { cpfCodes } from '../util/cpf-codes';
+import {
+    formatDate,
+    formatDecimal,
+    formatDecimalAbs,
+    formatDecimalHideZero,
+    formatMonth,
+    formatNumber,
+} from '../util/formatters';
 import ContextMenu from './context-menu';
+import SplitTransactionDialog from './split-transaction-dialog';
 
 const GridBox = styled.div`
     display: flex;
@@ -236,10 +242,13 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         footer: TransactionsGridFooter,
     };
 
+    const [ contextRow, setContextRow ] = useState(null);
     const [ contextMenuPosition, setContextMenuPosition ] = useState(null);
 
     const handleContextMenu = (event) => {
         event.preventDefault();
+        const rowId = Number(event.currentTarget.getAttribute('data-id'));
+        setContextRow(apiRef.current.getRow(rowId));
         setContextMenuPosition((old) => old === null ? { left: event.clientX - 2, top: event.clientY - 4 } : null);
     };
 
@@ -287,12 +296,23 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
             />
             <ContextMenu
                 mode="main"
+                contextRow={contextRow}
                 contextMenuPosition={contextMenuPosition}
                 setContextMenuPosition={setContextMenuPosition}
                 selectedRowSize={selectedRowSize}
                 setTxToSplit={setTxToSplit}
                 apiRef={apiRef}
             />
+            { txToSplit && (
+                <SplitTransactionDialog
+                    mode="main"
+                    tx={txToSplit}
+                    setTx={setTxToSplit}
+                    apiRef={apiRef}
+                    selectionModel={selectedRows}
+                    setSelectionModel={setSelectedRows}
+                />
+            )}
         </GridBox>
     );
 };

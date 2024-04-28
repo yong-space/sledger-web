@@ -4,12 +4,14 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import api from '../core/api';
 
-const ContextMenu = ({ mode, contextMenuPosition, setContextMenuPosition,selectedRowSize, setTxToSplit, apiRef }) => {
+const ContextMenu = ({
+    mode, contextRow, contextMenuPosition, setContextMenuPosition,selectedRowSize, setTxToSplit, apiRef
+}) => {
     const { editTransaction, deleteTransaction, listTransactions, showStatus } = api();
 
     const handleSplitTransaction = () => {
         setContextMenuPosition(null);
-        setTxToSplit(apiRef.current.getSelectedRows().values().next().value);
+        setTxToSplit(contextRow);
     };
 
     const handleMergeTransaction = () => {
@@ -62,10 +64,7 @@ const ContextMenu = ({ mode, contextMenuPosition, setContextMenuPosition,selecte
                 },
             }}
         >
-            <MenuItem
-                onClick={handleSplitTransaction}
-                disabled={selectedRowSize !== 1}
-            >
+            <MenuItem onClick={handleSplitTransaction}>
                 <CallSplitIcon sx={{ marginRight: '.7rem' }} />
                 Split Transaction
             </MenuItem>
