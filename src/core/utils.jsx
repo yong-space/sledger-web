@@ -33,8 +33,8 @@ const HorizontalLoader = () => (
   </Box>
 );
 
-const Title = ({ mb, children }) => (
-  <Typography variant="h5" m={0} mb={mb}>
+const Title = ({ children }) => (
+  <Typography variant="h5" m={0}>
       {children}
   </Typography>
 );

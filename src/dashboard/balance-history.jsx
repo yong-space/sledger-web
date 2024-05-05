@@ -1,12 +1,14 @@
-import { BarChart } from '@mui/x-charts';
-import { HorizontalLoader } from '../core/utils';
+import {
+    BarPlot, ChartsGrid, ChartsTooltip, ChartsXAxis, ChartsYAxis, LinePlot,
+    MarkPlot, ResponsiveChartContainer, lineElementClasses, markElementClasses,
+} from '@mui/x-charts';
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import api from '../core/api';
-import dayjs from 'dayjs';
-import { Title } from '../core/utils';
+import { HorizontalLoader, Title } from '../core/utils';
 
 const BalanceHistory = ({ setRoute }) => {
-    const [ balanceHistory, setBalanceHistory ] = useState();
+    const [ balanceHistory, setBalanceHistory ] = useState(null);
     const { getBalanceHistory } = api();
 
     useEffect(() => {
@@ -15,16 +17,27 @@ const BalanceHistory = ({ setRoute }) => {
     }, []);
 
     const BalanceChart = () => (
-        <BarChart
+        <ResponsiveChartContainer
             series={balanceHistory.series}
             xAxis={[{
                 data: balanceHistory.xaxis.map((str) => dayjs.utc(str).format('MMM YY')),
                 scaleType: 'band',
             }]}
-            sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
             margin={{ top: 10, left: 53, right: 0, bottom: 40 }}
-            tooltip={{ trigger: 'item' }}
-        />
+            sx={{
+                [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
+                  strokeWidth: 4,
+                },
+            }}
+        >
+            <ChartsGrid horizontal vertical />
+            <ChartsXAxis />
+            <ChartsYAxis />
+            <BarPlot />
+            <LinePlot />
+            <MarkPlot />
+            <ChartsTooltip trigger="item" />
+        </ResponsiveChartContainer>
     );
 
     return (
