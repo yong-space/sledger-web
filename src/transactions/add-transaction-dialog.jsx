@@ -109,7 +109,7 @@ const AddTransactionDialog = ({
     const submit = (event) => {
         event.preventDefault();
         const tx = {
-            date: date.toISOString(),
+            date: (transactionToEdit ? date : date.second(0)).toISOString(),
             accountId: selectedAccount?.id,
             ...Object.fromEntries(new FormData(event.target).entries()),
         };
