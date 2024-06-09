@@ -12,7 +12,7 @@ const Session = () => {
     const [ session, setSession ] = state.useState(state.session);
     const { parseJwt, refreshToken, challenge, showStatus } = api();
 
-    const isPublicEndpoint = () => [ '/login', '/register' ].indexOf(location.pathname) > -1;
+    const isPublicEndpoint = () => [ '/login', '/register', '/no-connectivity' ].indexOf(location.pathname) > -1;
 
     useEffect(() => {
         const token = window.localStorage.getItem('token');

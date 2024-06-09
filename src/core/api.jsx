@@ -42,7 +42,7 @@ const api = () => {
     const handleError = ({ message }) => {
         setLoading(false);
         if (message.startsWith('NetworkError') || message.startsWith('Failed to fetch')) {
-            navigate('no-connectivity');
+            navigate('/no-connectivity');
         } else {
             showStatus('error', message);
         }
