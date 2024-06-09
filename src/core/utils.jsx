@@ -1,4 +1,4 @@
-import { Divider, Typography } from '@mui/material';
+import { Button, Divider, Grid, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -55,6 +55,11 @@ const Error = ({ title, message }) => (
       <Typography m={3}>
         {message}
       </Typography>
+      <Grid p={3}>
+        <Button variant="contained" onClick={() => window.location.href = '/'}>
+          Back to Home
+        </Button>
+      </Grid>
     </Card>
   </Root>
 );
