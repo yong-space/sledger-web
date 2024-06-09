@@ -25,29 +25,20 @@ const TransactionsActionButtons = ({
 
     const submitDelete = () => {
         setLoading(true);
-        const maxDate = dayjs.max(transactions.map(t => dayjs.utc(t.date)));
-        const txDate = dayjs.utc(transactions.filter((t) => t.id === selectedRows[0])[0].date);
 
-        deleteTransaction(selectedRows, () => {
-            const plural = selectedLength > 1 ? 's' : '';
-            if (selectedLength === 1 && txDate.isSame(maxDate)) {
-                apiRef.current.updateRows([{ id: selectedRows[0], _action: 'delete' }]);
+        deleteTransaction(selectedRows, () =>
+            listTransactions(selectedAccount.id, (response) => {
+                selectedRows.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
+                response
+                    .filter((updatedRow) => updatedRow.balance !== apiRef.current.getRow(updatedRow.id).balance)
+                    .forEach((updatedRow) => apiRef.current.updateRows([{ id: updatedRow.id, balance: updatedRow.balance }]));
+                const plural = selectedLength > 1 ? 's' : '';
                 showStatus('success', selectedLength + ` transaction${plural} deleted`);
                 setLoading(false);
                 setShowConfirmDelete(false);
-            } else {
-                listTransactions(selectedAccount.id, (response) => {
-                    selectedRows.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
-                    response
-                        .filter((updatedRow) => updatedRow.balance !== apiRef.current.getRow(updatedRow.id).balance)
-                        .forEach((updatedRow) => apiRef.current.updateRows([{ id: updatedRow.id, balance: updatedRow.balance }]));
-                    showStatus('success', selectedLength + ` transaction${plural} deleted`);
-                    setLoading(false);
-                    setShowConfirmDelete(false);
-                });
-            }
-            listAccounts((data) => setAccounts(data));
-        });
+                listAccounts((data) => setAccounts(data));
+            })
+        );
     };
 
     const addTransaction = () => {
