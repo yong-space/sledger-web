@@ -23,11 +23,11 @@ const ContextMenu = ({
             mainTx.amount += subTx.amount;
             if (mainTx.remarks && mainTx.remarks !== subTx.remarks) {
                 mainTx.remarks += " " + subTx.remarks;
-            };
+            }
         };
-        const idsToDelete = tx.splice(1).map(({ id }) => id);
+        const idsToDelete = tx.slice(1).map(({ id }) => id);
         if (mode === 'import') {
-            idsToDelete.map(({ id }) => ({ id, _action: 'delete' }))
+            idsToDelete.map((id) => ({ id, _action: 'delete' }))
                 .forEach((r) => apiRef.current.updateRows([ r ]));
         } else {
             editTransaction([ mainTx ], () => {
