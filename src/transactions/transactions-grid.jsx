@@ -175,8 +175,10 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     };
 
     const handlePagination = (n) => {
+        console.debug('Pagination model changed', n);
         const pages = gridPageCountSelector(apiRef);
-        if (!scrolledToEnd && pages > 0) {
+        if (!scrolledToEnd && n.page === 0 && pages > 0) {
+            console.debug('Flipping to last page');
             apiRef.current?.setPage(pages - 1);
             setScrolledToEnd(true);
         }
@@ -191,15 +193,16 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         if (!visibleTransactionId) {
             return;
         }
-        console.debug(`Visible transaction ID is ${visibleTransactionId}`);
+
         const visibleRows = gridPaginatedVisibleSortedGridRowIdsSelector(apiRef);
         if (visibleRows.indexOf(visibleTransactionId) === -1) {
             const index = gridFilteredSortedRowEntriesSelector(apiRef)
                 .map(({ id }) => id)
                 .indexOf(visibleTransactionId) + 1;
             const pageSize = gridPageSizeSelector(apiRef);
-            // @ts-ignore
-            setTimeout(() => api.current?.setPage(Math.floor(index / pageSize)), 100);
+            const targetPage = Math.floor(index / pageSize);
+
+            setTimeout(() => apiRef.current?.setPage(targetPage), 100);
         }
         setVisibleTransactionId(undefined);
     }, [ visibleTransactionId ]);
