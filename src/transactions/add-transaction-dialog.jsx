@@ -203,6 +203,8 @@ const AddTransactionDialog = ({
         }
     };
 
+    const handleFocus = ({ target }) => target.select();
+
     const updateCpfAmounts = ({ target }) => {
         if (code === 'CON') {
             const value = isNaN(parseFloat(target.value)) ? 0 : target.value;
@@ -288,6 +290,7 @@ const AddTransactionDialog = ({
                 value={amountValue}
                 onChange={handleAmountChange}
                 inputProps={numericProps}
+                onFocus={handleFocus}
             />
         ),
         fx: (
@@ -318,6 +321,7 @@ const AddTransactionDialog = ({
                     value={originalAmount}
                     onChange={(e, v) => setOriginalAmount(v)}
                     inputProps={numericProps}
+                    onFocus={handleFocus}
                 />
             </ForeignCurrencyBar>
         ),
@@ -396,6 +400,7 @@ const AddTransactionDialog = ({
                 value={cpfAmounts.ordinaryAmount}
                 onChange={updateAmount}
                 inputProps={numericPropsNegative}
+                onFocus={handleFocus}
             />
         ),
         specialAmount: (
@@ -407,6 +412,7 @@ const AddTransactionDialog = ({
                 value={cpfAmounts.specialAmount}
                 onChange={updateAmount}
                 inputProps={numericPropsNegative}
+                onFocus={handleFocus}
             />
         ),
         medisaveAmount: (
@@ -418,6 +424,7 @@ const AddTransactionDialog = ({
                 value={cpfAmounts.medisaveAmount}
                 onChange={updateAmount}
                 inputProps={numericPropsNegative}
+                onFocus={handleFocus}
             />
         ),
     };
