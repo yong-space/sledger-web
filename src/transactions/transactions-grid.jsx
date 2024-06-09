@@ -54,6 +54,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { listTransactions } = api();
     const selectedAccount = state.useState(state.selectedAccount)[0];
+    const [ loading, setLoading ] = useState(true);
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
@@ -72,6 +73,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
             console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
             setSelectedRows([]);
             setScrolledToEnd(false);
+            setLoading(true);
             setTransactions([]);
             listTransactions(selectedAccount.id, (response) => {
                 console.debug(`Loaded transactions for ${selectedAccount.id}`)
@@ -81,7 +83,10 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
                 });
                 setTransactions(processedResponse);
                 setTansactionsAccountId(selectedAccount.id);
+                setLoading(false);
             });
+        } else {
+            setLoading(false);
         }
     }, [ selectedAccount ]);
 
@@ -275,6 +280,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
                 disableDensitySelector
                 disableColumnMenu
                 apiRef={apiRef}
+                loading={loading}
                 rows={transactions}
                 columns={getColumns()}
                 columnVisibilityModel={visibleColumns}
