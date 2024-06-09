@@ -319,7 +319,7 @@ const AddTransactionDialog = ({
                     name="originalAmount"
                     label="Original Amount"
                     value={originalAmount}
-                    onChange={(e, v) => setOriginalAmount(v)}
+                    onChange={({ target }) => setOriginalAmount(target.value)}
                     inputProps={numericProps}
                     onFocus={handleFocus}
                 />
