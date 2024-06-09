@@ -1,30 +1,45 @@
-import 'dayjs/locale/en-sg';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { cpfCodes } from '../util/cpf-codes';
-import { createFilterOptions } from '@mui/material/Autocomplete';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { numericProps, numericPropsNegative } from '../util/formatters';
-import { useState, useEffect } from 'react';
-import { useTheme } from '@mui/material/styles';
-import api from '../core/api';
-import Autocomplete from '@mui/material/Autocomplete';
-import AutoFill from './auto-fill';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
-import dayjs from 'dayjs';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
-import minMax from 'dayjs/plugin/minMax';
+import IconButton from '@mui/material/IconButton/IconButton';
 import Stack from '@mui/material/Stack';
-import state from '../core/state';
-import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en-sg';
+import minMax from 'dayjs/plugin/minMax';
 import utc from 'dayjs/plugin/utc';
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import api from '../core/api';
+import state from '../core/state';
+import { cpfCodes } from '../util/cpf-codes';
+import { numericProps, numericPropsNegative } from '../util/formatters';
+import AutoFill from './auto-fill';
+
+const DateBar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    gap: .7rem;
+`;
+
+const DateButton = styled(IconButton)`
+    height: fit-content;
+    align-self: center;
+`
 
 const ForeignCurrencyBar = styled.div`
     display: flex;
@@ -239,16 +254,32 @@ const AddTransactionDialog = ({
         }
     };
 
+    const shiftDate = (amount, unit) => setDate(date.add(amount, unit).startOf('day'));
+
     const fields = {
         date: (
-            <DatePicker
-                key="date"
-                label="Date"
-                value={date}
-                format="YYYY-MM-DD"
-                onChange={(newValue) => setDate(newValue)}
-                slotProps={{ textField: { variant: 'outlined' } }}
-            />
+            <DateBar key="date">
+                <DateButton onClick={() => shiftDate(-1, 'month')}>
+                    <KeyboardDoubleArrowLeftIcon />
+                </DateButton>
+                <DateButton onClick={() => shiftDate(-1, 'day')}>
+                    <KeyboardArrowLeftIcon />
+                </DateButton>
+                <DatePicker
+                    label="Date"
+                    value={date}
+                    format="YYYY-MM-DD"
+                    onChange={(newValue) => setDate(newValue)}
+                    slotProps={{ textField: { variant: 'outlined' } }}
+                    sx={{ flexGrow: 1 }}
+                />
+                <DateButton onClick={() => shiftDate(1, 'day')}>
+                    <KeyboardArrowRightIcon />
+                </DateButton>
+                <DateButton onClick={() => shiftDate(1, 'month')}>
+                    <KeyboardDoubleArrowRightIcon />
+                </DateButton>
+            </DateBar>
         ),
         month: (
             <DatePicker
