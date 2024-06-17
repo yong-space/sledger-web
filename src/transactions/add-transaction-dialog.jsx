@@ -301,7 +301,7 @@ const AddTransactionDialog = ({
                 value={side}
                 exclusive
                 fullWidth
-                onChange={(event, s) => setSide(s)}
+                onChange={(_, s) => s && setSide(s)}
             >
                 <ToggleButton value={1} aria-label="Credit">
                     Credit
