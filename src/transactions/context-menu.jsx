@@ -17,6 +17,7 @@ const ContextMenu = ({
     const handleMergeTransaction = () => {
         setContextMenuPosition(null);
         const tx = Array.from(apiRef.current.getSelectedRows().values());
+
         const mainTx = (mode === 'import') ? tx[0] : { ...tx[0] };
         for (let i=1; i<tx.length; i++) {
             const subTx = tx[i];
@@ -38,7 +39,7 @@ const ContextMenu = ({
                     listTransactions(mainTx.accountId, (allTx) => {
                         for (const row of apiRef.current.getRowModels().values()) {
                             const newRow = allTx.find(({ id }) => id === row.id);
-                            if (row.balance !== newRow.balance) {
+                            if (row.amount !== newRow.amount || row.balance !== newRow.balance) {
                                 apiRef.current.updateRows([ newRow ]);
                             }
                         }
