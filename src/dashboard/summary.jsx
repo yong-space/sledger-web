@@ -129,7 +129,6 @@ const Summary = ({ setRoute }) => {
 
     const getValue = (column, row, rowIndex) => {
         const props = {
-            key: column.field,
             onClick: () => navigate(`/tx/${row.id}`),
         };
         let value = undefined;
@@ -156,7 +155,7 @@ const Summary = ({ setRoute }) => {
             default: value = row[column.field];
         }
         return !value ? <Fragment key={column.field} /> : (
-            <td {...props}>
+            <td key={column.field} {...props}>
                 {value}
             </td>
         );
@@ -173,7 +172,7 @@ const Summary = ({ setRoute }) => {
 
     const SummaryGrid = ({ label, data }) => data.length > 0 && (
         <Wrapper>
-            <SubTitle mb={5}>{label}</SubTitle>
+            <SubTitle>{label}</SubTitle>
             <Table>
                 <thead>
                     <tr>
@@ -191,7 +190,7 @@ const Summary = ({ setRoute }) => {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colSpan="2">Sub-Total</td>
+                        <td colSpan={2}>Sub-Total</td>
                         <td>{ getSubtotal(data) }</td>
                     </tr>
                 </tfoot>
@@ -201,7 +200,7 @@ const Summary = ({ setRoute }) => {
 
     const CpfSummaryGrid = () => {
         const cpfAccount = getAccounts('Retirement');
-        const [ cpfAccounts, setCpfAccounts ] = useState();
+        const [ cpfAccounts, setCpfAccounts ] = useState(null);
 
         useEffect(() => {
             if (cpfAccount.length === 0) {

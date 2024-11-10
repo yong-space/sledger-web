@@ -8,37 +8,37 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@fontsource/roboto": "^5.0.12",
-    "@mui/icons-material": "^5.15.15",
-    "@mui/lab": "5.0.0-alpha.170",
-    "@mui/material": "^5.15.15",
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.0.0-alpha.18",
-    "@mui/styled-engine-sc": "6.0.0-alpha.18",
-    "@mui/system": "^5.15.15",
-    "@mui/x-charts": "7.2.0",
-    "@mui/x-data-grid": "^7.2.0",
-    "@mui/x-date-pickers": "^7.2.0",
+    "@fontsource/roboto": "^5.1.0",
+    "@mui/icons-material": "^6.1.6",
+    "@mui/lab": "6.0.0-beta.14",
+    "@mui/material": "^6.1.6",
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.1.6",
+    "@mui/styled-engine-sc": "6.1.6",
+    "@mui/system": "^6.1.6",
+    "@mui/x-charts": "7.22.2",
+    "@mui/x-data-grid": "^7.22.2",
+    "@mui/x-date-pickers": "^7.22.2",
     "cbor-js": "^0.1.0",
-    "dayjs": "^1.11.10",
+    "dayjs": "^1.11.13",
     "randomcolor": "^0.6.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-dropzone": "^14.2.3",
-    "react-is": "^18.2.0",
-    "react-router-dom": "^6.22.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.5",
+    "react-is": "^18.3.1",
+    "react-router-dom": "^6.28.0",
     "recoil": "^0.7.7",
-    "styled-components": "^6.1.8",
-    "workbox-build": "^7.0.0",
-    "workbox-window": "^7.0.0"
+    "styled-components": "^6.1.13",
+    "workbox-build": "^7.3.0",
+    "workbox-window": "^7.3.0"
   },
   "resolutions": {
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.0.0-alpha.18"
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.1.6"
   },
   "devDependencies": {
-    "@types/react": "^18.2.78",
-    "@types/react-dom": "^18.2.25",
-    "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.2.8",
-    "vite-plugin-pwa": "^0.19.8"
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "vite": "^5.4.10",
+    "vite-plugin-pwa": "^0.20.5"
   }
 }
