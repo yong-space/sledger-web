@@ -74,13 +74,6 @@ const Transactions = () => {
         setCanImport(issuers.find(({ id }) => id === selectedAccount?.issuerId)?.canImport);
     }, [ accounts, selectedAccount ]);
 
-    useEffect(() => {
-        // Weird MUI-X bug
-        if (apiRef.current === null) {
-            apiRef.current = {};
-        }
-    }, [ apiRef, importMode ]);
-
     const actionProps = {
         transactions, setTransactions, setAccounts, showAddDialog, setShowAddDialog,
         transactionToEdit, setTransactionToEdit, setImportMode, canImport,

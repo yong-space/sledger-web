@@ -63,6 +63,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState(state.visibleTransactionId);
     const [ txToSplit, setTxToSplit ] = useState();
+    const [ paginationModel, setPaginationModel ] = useState(null);
 
     useEffect(() => {
         if (!selectedAccount) {
@@ -75,6 +76,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
             setScrolledToEnd(false);
             setLoading(true);
             setTransactions([]);
+            setPaginationModel(null);
             listTransactions(selectedAccount.id, (response) => {
                 console.debug(`Loaded transactions for ${selectedAccount.id}`)
                 const processedResponse = response.map((o) => {
@@ -175,13 +177,13 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
     };
 
     const handlePagination = (n) => {
-        console.debug('Pagination model changed', n);
-        const pages = gridPageCountSelector(apiRef);
-        if (!scrolledToEnd && n.page === 0 && pages > 0) {
-            console.debug('Flipping to last page');
-            apiRef.current?.setPage(pages - 1);
-            setScrolledToEnd(true);
+        if (transactions.length === 0 || scrolledToEnd) {
+            setPaginationModel(n);
+            return;
         }
+        const lastPage = Math.floor(transactions.length / n.pageSize);
+        setPaginationModel({ pageSize: n.pageSize, page: lastPage });
+        setScrolledToEnd(true);
     };
 
     const maxGridSize = {
@@ -289,6 +291,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
                 columnVisibilityModel={visibleColumns}
                 rowSelectionModel={selectedRows}
                 onRowSelectionModelChange={(m) => setSelectedRows(m)}
+                paginationModel={paginationModel}
                 onPaginationModelChange={handlePagination}
                 onRowDoubleClick={handleDoubleClick}
                 filterModel={filterModel}
