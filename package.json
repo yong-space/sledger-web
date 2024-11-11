@@ -8,12 +8,12 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@fontsource/roboto": "^5.1.0",
     "@mui/icons-material": "^6.1.6",
     "@mui/lab": "6.0.0-beta.14",
     "@mui/material": "^6.1.6",
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.1.6",
-    "@mui/styled-engine-sc": "6.1.6",
     "@mui/system": "^6.1.6",
     "@mui/x-charts": "7.22.2",
     "@mui/x-data-grid": "^7.22.2",
@@ -30,9 +30,6 @@
     "styled-components": "^6.1.13",
     "workbox-build": "^7.3.0",
     "workbox-window": "^7.3.0"
-  },
-  "resolutions": {
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@6.1.6"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
