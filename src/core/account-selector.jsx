@@ -26,7 +26,13 @@ const AccountSelector = ({ handleChange, disabled, sx, accountFilter, showCashCr
         if (showCashCredit) {
             allAccounts.push({ id: 0, name: 'All Transactions', type: 'Aggregated' });
         }
-        return allAccounts.sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+        return allAccounts
+            .sort((a, b) =>
+                a.type.localeCompare(b.type) ||
+                a.sortOrder - b.sortOrder ||
+                getIssuer(a.issuerId).name.localeCompare(getIssuer(b.issuerId).name) ||
+                a.name.localeCompare(b.name)
+            );
     };
     const getIssuer = (id) => issuers.find(i => i.id === id);
 
