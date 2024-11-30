@@ -79,6 +79,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
         if (!accountToEdit) {
             addAccount(newAccount, postProcess);
         } else {
+            newAccount.sortOrder = accountToEdit.sortOrder;
             editAccount(accountToEdit.id, newAccount, postProcess);
         }
     };

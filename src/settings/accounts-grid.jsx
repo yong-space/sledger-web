@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import Switch from '@mui/material/Switch';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { HorizontalLoader } from '../core/utils';
+import Button from '@mui/material/Button/Button';
 
 const GridBox = styled.div`
     display: flex;
@@ -46,7 +47,7 @@ const AccountsGrid = ({
     issuers, accounts, setAccounts, isMobile, selectedAccount, setSelectedAccount, setAccountToEdit, setShowAddDialog,
 }) => {
     const [ visibleColumns, setVisibleColumns ] = useState({});
-    const { editAccountVisibility, showStatus } = api();
+    const { editAccountVisibility, showStatus, editAccountSort } = api();
     const colors = {
         'Cash': 'success',
         'Credit': 'warning',
@@ -125,6 +126,47 @@ const AccountsGrid = ({
             valueGetter: (_, row) => row.transactions || 0,
             sortable: false,
         },
+        {
+            field: "sortOrder",
+            headerName: "Sort",
+            width: 200,
+            sortable: false,
+            renderCell: (params) => {
+                const reviseSort = (e, direction) => {
+                    e.stopPropagation();
+                    editAccountSort(params.row.id, direction, (newSortOrder) =>
+                        setAccounts((accounts) => accounts
+                            .map(account => ({ ...account, sortOrder: newSortOrder[account.id] ?? account.sortOrder}))
+                            .sort((a, b) =>
+                                a.type.localeCompare(b.type) ||
+                                a.sortOrder - b.sortOrder ||
+                                getIssuer(a.issuerId).name.localeCompare(getIssuer(b.issuerId).name) ||
+                                a.name.localeCompare(b.name)
+                            )
+                    ));
+                };
+                return (
+                    <>
+                        <Button
+                            variant="contained"
+                            onClick={(e) => reviseSort(e, 'up')}
+                            sx={{ margin: 'auto .8rem auto 0' }}
+                            disabled={params.row.sortOrder === 0}
+                        >
+                            Up
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={(e) => reviseSort(e, 'down')}
+                            sx={{ margin: 'auto 0' }}
+                            disabled={accounts.filter(a => a.type === params.row.type).slice(-1)[0].id === params.row.id}
+                        >
+                            Down
+                        </Button>
+                    </>
+                );
+            }
+        }
     ];
 
     useEffect(() => {
