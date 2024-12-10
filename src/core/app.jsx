@@ -46,6 +46,10 @@ const App = () => {
         }
     }, []);
 
+    if (!issuers || !accounts) {
+        return '...';
+    }
+
     return (
         <Root>
             <NavBar />

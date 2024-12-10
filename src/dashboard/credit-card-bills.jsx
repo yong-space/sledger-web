@@ -78,6 +78,8 @@ const CreditCardBills = ({ setRoute }) => {
             { flex: 1, field: 'month', valueFormatter: formatMonth, headerName: 'Month' },
             { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
             { flex: 1, field: 'amount', type: 'number', valueFormatter: formatDecimal, headerName: 'Amount' },
+            { flex: 1, field: 'net', type: 'number', valueFormatter: formatDecimal, headerName: 'Net' },
+            { flex: 1, field: 'balance', type: 'number', valueFormatter: formatDecimal, headerName: 'Balance' },
         ];
 
         const handlePagination = (n) => setPaginationModel(
