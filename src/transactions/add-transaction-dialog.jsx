@@ -29,6 +29,7 @@ import state from '../core/state';
 import { cpfCodes } from '../util/cpf-codes';
 import { numericProps, numericPropsNegative } from '../util/formatters';
 import AutoFill from './auto-fill';
+import FxField from './fx-field';
 
 const DateBar = styled.div`
     display: flex;
@@ -41,12 +42,6 @@ const DateButton = styled(IconButton)`
     align-self: center;
 `
 
-const ForeignCurrencyBar = styled.div`
-    display: flex;
-    gap: 1rem;
-    & :first-child { width: 8rem }
-`;
-
 const AddTransactionDialog = ({
     setShowAddDialog, transactionToEdit, setTransactionToEdit, setSelectedRows, apiRef,
  }) => {
@@ -57,7 +52,7 @@ const AddTransactionDialog = ({
     const [ side, setSide ] = useState(-1);
     const [ date, setDate ] = state.useState(state.date);
     const [ month, setMonth ] = useState(dayjs.utc().startOf('day'));
-    const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || 'SGD');
+
     const [ currency, setCurrency ] = state.useState(state.currency);
     const [ code, setCode ] = useState(transactionToEdit?.code || '');
     const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || 0);
@@ -325,36 +320,15 @@ const AddTransactionDialog = ({
             />
         ),
         fx: (
-            <ForeignCurrencyBar key="fx">
-                <Autocomplete
-                    disableClearable
-                    freeSolo
-                    inputValue={inputCurrency}
-                    onInputChange={(e, v) => setInputCurrency(v)}
-                    value={currency}
-                    onChange={(e, v) => setCurrency(v)}
-                    options={[ 'SGD', 'USD', 'EUR', 'AUD', 'GBP', 'JPY', 'KRW', 'MYR', 'VND', 'CNY' ]}
-                    renderInput={(params) => (
-                        <TextField
-                            required
-                            name="currency"
-                            label="Currency"
-                            inputProps={{ minLength: 3, maxLength: 3 }}
-                            {...params}
-                        />
-                    )}
-                />
-                <TextField
-                    fullWidth
-                    required
-                    name="originalAmount"
-                    label="Original Amount"
-                    value={originalAmount}
-                    onChange={({ target }) => setOriginalAmount(target.value)}
-                    inputProps={numericProps}
-                    onFocus={handleFocus}
-                />
-            </ForeignCurrencyBar>
+            <FxField
+                key="fx"
+                transactionToEdit={transactionToEdit}
+                originalAmount={originalAmount}
+                setOriginalAmount={setOriginalAmount}
+                currency={currency}
+                setCurrency={setCurrency}
+                amountValue={amountValue}
+            />
         ),
         remarks: (
             <AutoFill
