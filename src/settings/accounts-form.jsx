@@ -26,7 +26,6 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ issuerId, setIssuerId ] = useState(accountToEdit?.issuerId);
-    const [ paymentAccount, setPaymentAccount ] = useState(accountToEdit?.paymentAccountId || 0);
     const [ type, setType ] = useState(accountToEdit?.type || 'Cash');
     const [ loading, setLoading ] = state.useState(state.loading);
     const [ cpfRatio, setCpfRatio ] = useState(!!accountToEdit ? {
@@ -117,54 +116,22 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                 inputProps={{ inputMode: 'numeric', pattern: '[0-9]{1,2}' }}
             />
         ),
+        billingMonthOffset: (
+            <TextField
+                required
+                key="billingMonthOffset"
+                name="billingMonthOffset"
+                label="Billing Month Offset"
+                defaultValue={accountToEdit?.billingMonthOffset || 0}
+                inputProps={{ inputMode: 'numeric', pattern: '\-?[0-9]{1}' }}
+            />
+        ),
         multiCurrency: (
             <FormControlLabel
                 key="multiCurrency"
                 control={<Checkbox name="multiCurrency" defaultChecked={accountToEdit?.multiCurrency} />}
                 label="Multi Currency"
             />
-        ),
-        paymentAccount: (
-            <Tooltip
-                key="paymentAccount"
-                arrow
-                placement="right"
-                title="Cash account used to pay the bills for this card"
-            >
-                <FormControl fullWidth>
-                    <InputLabel id="payment-account-label">
-                        Payment Account
-                    </InputLabel>
-                    <Select
-                        name="paymentAccount"
-                        label="Payment Account"
-                        labelId="payment-account-label"
-                        value={paymentAccount}
-                        onChange={({ target }) => setPaymentAccount(target.value)}
-                    >
-                        <MenuItem value={0}>None</MenuItem>
-                        { accounts.filter(a => a.type === 'Cash').map(({ id, name }) => (
-                            <MenuItem key={id} value={id}>{name}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </Tooltip>
-        ),
-        paymentRemarks: (
-            <Tooltip
-                key="paymentRemarks"
-                arrow
-                placement="right"
-                title="Match transactions from payment account above with these remarks"
-            >
-                <TextField
-                    required
-                    name="paymentRemarks"
-                    label="Payment Remarks"
-                    defaultValue={accountToEdit?.paymentRemarks}
-                    inputProps={{ minLength: 3 }}
-                />
-            </Tooltip>
         ),
         issuer: (
             <FormControl key="issuer" fullWidth>
@@ -198,10 +165,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
         }
         const formFields = [ ...cashFields ];
         if (type === 'Credit') {
-            formFields.push(...[ fields.billingCycle, fields.paymentAccount ]);
-            if (paymentAccount > 0) {
-                formFields.push(fields.paymentRemarks);
-            }
+            formFields.push(...[ fields.billingCycle, fields.billingMonthOffset ]);
         }
         return formFields;
     };
