@@ -106,15 +106,23 @@ const AddTransactionDialog = ({
 
     useEffect(() => {
         if (selectedAccount?.type === 'Credit') {
-            if (date.get('date') < selectedAccount?.billingCycle) {
-                setMonth(date.subtract(1, 'month').startOf('month'));
-            } else {
-                setMonth(date.startOf('month'));
+            if (transactionToEdit && date.isSame(dayjs.utc(transactionToEdit.date))) {
+                setMonth(dayjs.utc(transactionToEdit.billingMonth));
+                return;
             }
+            let offset = selectedAccount.billingMonthOffset || 0;
+            if (date.get('date') < selectedAccount?.billingCycle) {
+                offset -= 1;
+            }
+            if (category.toLowerCase() === 'credit card bill') {
+                offset -= 1;
+            }
+            setMonth(date.add(offset, 'month').startOf('month'));
+
         } else if (selectedAccount?.type === 'Retirement') {
             setMonth(date.subtract(1, 'month').startOf('month'));
         }
-    }, [ date ]);
+    }, [ transactionToEdit, date, category ]);
 
     const submit = (event) => {
         event.preventDefault();
