@@ -333,7 +333,7 @@ const AddTransactionDialog = ({
                     onInputChange={(e, v) => setInputCurrency(v)}
                     value={currency}
                     onChange={(e, v) => setCurrency(v)}
-                    options={[ 'USD', 'SGD', 'EUR', 'GBP', 'JPY', 'KRW' ]}
+                    options={[ 'SGD', 'USD', 'EUR', 'AUD', 'GBP', 'JPY', 'KRW', 'MYR', 'VND', 'CNY' ]}
                     renderInput={(params) => (
                         <TextField
                             required
