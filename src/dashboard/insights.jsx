@@ -245,8 +245,8 @@ const Insights = ({ setRoute }) => {
                             scrollButtons="auto"
                             aria-label="Select insights page"
                         >
-                            <Tab label="Average" component={Link} to="average" />
-                            <Tab label="Monthly" component={Link} to="monthly" />
+                            <Tab label="Average" component={Link} to="../insights/average" />
+                            <Tab label="Monthly" component={Link} to="../insights/monthly" />
                         </Tabs>
                         { tab === 0 && (<FormControlLabel
                             label="Breakdown"
