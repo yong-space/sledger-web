@@ -1,9 +1,6 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter } from 'react-router-dom';
-import { CircularLoader } from './core/utils';
 import { createRoot } from 'react-dom/client';
-import { RecoilRoot } from 'recoil';
-import { registerSW } from 'virtual:pwa-register';
 import { StyleSheetManager } from "styled-components";
 import { Suspense } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -35,27 +32,21 @@ const darkTheme = createTheme({
     },
 });
 
-registerSW({ immediate: true });
-
 const shouldForwardProp = (propName, elementToBeRendered) =>
     typeof elementToBeRendered === "string"
         ? isPropValid(propName) && !["height", "width"].includes(propName)
         : true;
 
 const Index = () => (
-    <RecoilRoot>
-        <StyleSheetManager shouldForwardProp={shouldForwardProp}>
-            <ThemeProvider theme={darkTheme}>
-                <CssBaseline />
-                <Suspense fallback={<CircularLoader />}>
-                    <BrowserRouter>
-                        <Session />
-                    </BrowserRouter>
-                    <StatusBar />
-                </Suspense>
-            </ThemeProvider>
-        </StyleSheetManager>
-    </RecoilRoot>
+    <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+        <ThemeProvider theme={darkTheme}>
+            <CssBaseline />
+            <BrowserRouter>
+                <Session />
+            </BrowserRouter>
+            <StatusBar />
+        </ThemeProvider>
+    </StyleSheetManager>
 );
 
 createRoot(document.querySelector('#root')).render(<Index />);

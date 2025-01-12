@@ -8,10 +8,31 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: {
-                    lab: [ '@mui/lab' ],
-                    material: [ '@mui/material' ],
-                    grid: [ '@mui/x-data-grid' ],
-                    date: [ '@mui/x-date-pickers' ],
+                    mui: [
+                        '@mui/material',
+                        '@mui/styled-engine-sc',
+                        '@mui/icons-material',
+                    ],
+                    muix: [
+                        '@mui/lab',
+                        '@mui/x-data-grid',
+                        '@mui/x-date-pickers',
+                    ],
+                    react: [
+                        "react",
+                        "react-dom",
+                        "react-router-dom",
+                        "react-is",
+                        "react-dropzone",
+                    ],
+                    utils: [
+                        "dayjs",
+                        "jotai",
+                        "randomcolor",
+                        "cbor-js",
+                        "workbox-build",
+                        "workbox-window",
+                    ],
                 }
             },
         },
@@ -50,5 +71,10 @@ export default defineConfig({
                 ]
             }
         })
-    ]
+    ],
+    resolve: {
+        alias: {
+            '@mui/styled-engine': '@mui/styled-engine-sc',
+        },
+    },
 });
