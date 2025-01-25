@@ -1,4 +1,7 @@
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 const processFormatDecimal = (value, hideValue = null, decimal = 2) => {
     const numberStyle = {
@@ -30,6 +33,7 @@ export const formatFx = (value) => processFormatDecimal(value, 1, 5);
 export const formatDecimalAbs = (value) => processFormatDecimal(Math.abs(value));
 export const formatNumber = (value) => processFormatDecimal(value, 0, 0);
 export const formatDate = (value) => !value ? '' : dayjs.utc(value).format('YYYY-MM-DD');
+export const formatDateRelative = (value) => !value ? '' : dayjs(value).fromNow();
 export const formatMonth = (value) => !value ? '' : dayjs.utc(value).format('YYYY MMM');
 
 const restrictFormat = (value, allowNegative) => {

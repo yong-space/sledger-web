@@ -25,6 +25,9 @@ const api = () => {
             const contentType = response.headers.get('Content-type').split(';')[0];
             return contentType === 'text/plain' ? response.text() : response.json();
         } else {
+            if (response.status === 403) {
+                return null;
+            }
             if (response.status === 401) {
                 setSession(undefined);
                 window.localStorage.clear();
@@ -102,6 +105,8 @@ const api = () => {
         getCreditCardBills: (id, callback) => apiCall(GET, `dash/credit-card-bills/${id}`, callback),
         getBalanceHistory: (callback) => apiCall(GET, 'dash/balance-history', callback),
         challenge: (callback) => apiCall(GET, 'profile/challenge', callback),
+        getPortfolio: (callback) => apiCall(GET, 'portfolio', callback),
+        refreshPortfolio: (callback) => apiCall(GET, 'portfolio/refresh', callback),
     };
 };
 export default api;

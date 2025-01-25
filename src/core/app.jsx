@@ -1,5 +1,5 @@
-import { NoConnectivity, NotFound } from './utils';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { CircularLoader, NoConnectivity, NotFound } from './utils';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Admin from '../admin/admin';
@@ -36,6 +36,8 @@ const App = () => {
     const [ issuers, setIssuers ] = state.useState(state.issuers);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const { listIssuers, listAccounts } = api();
+    const location = useLocation();
+    const isNoConnectivity = location.pathname === '/no-connectivity';
 
     useEffect(() => {
         if (!issuers) {
@@ -44,10 +46,11 @@ const App = () => {
         if (!accounts) {
             listAccounts((data) => setAccounts(data));
         }
+        console.log(location.pathname)
     }, []);
 
-    if (!issuers || !accounts) {
-        return '...';
+    if (!isNoConnectivity && (!issuers || !accounts)) {
+        return <CircularLoader />;
     }
 
     return (

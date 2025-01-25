@@ -1,14 +1,17 @@
-import { formatDecimal } from '../util/formatters';
-import { HorizontalLoader } from '../core/utils';
-import { useEffect, useState, Fragment } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
-import state from '../core/state';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
+import { useTheme } from '@mui/material/styles';
+import { Fragment, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { SubTitle } from '../core/utils';
-import { Title } from '../core/utils';
+import api from '../core/api';
+import state from '../core/state';
+import { HorizontalLoader, SubTitle, Title } from '../core/utils';
+import { formatDateRelative, formatDecimal } from '../util/formatters';
+import { Typography } from '@mui/material';
 
 const Wrapper = styled.div`
     display: flex;
@@ -74,7 +77,7 @@ const Table = styled.table`
     tr:not(tfoot *) {
         border-bottom: 1px solid #666;
     }
-    tbody tr { cursor: pointer }
+    tbody tr:not(.no-pointer) { cursor: pointer }
     th, td {
         padding: .8rem;
         text-align: left;
@@ -85,7 +88,7 @@ const Table = styled.table`
             max-width: var(--width);
             font-weight: 800;
         }
-        &:last-child { text-align: right }
+        &:last-child, &.right { text-align: right }
     }
     tfoot {
         border-radius: .5rem;
@@ -106,6 +109,9 @@ const Summary = ({ setRoute }) => {
     const issuers = state.useState(state.issuers)[0];
     const [ netWorth, setNetWorth ] = useState();
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
+    const { getPortfolio, refreshPortfolio } = api();
+    const [ portfolio, setPortfolio ] = useState(null);
+    const [ portFolioLoading, setPortfolioLoading ] = useState(false);
 
     useEffect(() => {
         setRoute('summary');
@@ -115,8 +121,18 @@ const Summary = ({ setRoute }) => {
         }
         if (getVisibleAccounts().length === 0) {
             navigate('/settings/accounts');
+        } else {
+            const accountTotal = getVisibleAccounts().reduce((i, account) => i + parseFloat(account.balance || 0), 0);
+            setNetWorth(accountTotal);
+
+            getPortfolio((response) => {
+                if (response) {
+                    setPortfolio(response);
+                    const tradingTotal = (response.holdings + response.cash) * response.fx;
+                    setNetWorth(accountTotal + tradingTotal);
+                }
+            });
         }
-        setNetWorth(getVisibleAccounts().reduce((i, account) => i + parseFloat(account.balance || 0), 0));
     }, [ accounts ]);
 
     const getAccounts = (type) => accounts.filter((a) => a.visible && a.type === type);
@@ -223,6 +239,64 @@ const Summary = ({ setRoute }) => {
         );
     };
 
+    const doRefreshPortfolio = () => {
+        setPortfolioLoading(true);
+        refreshPortfolio((response) => {
+            setPortfolio(response);
+            const tradingTotal = (response.holdings + response.cash) * response.fx;
+            const accountTotal = getVisibleAccounts().reduce((i, account) => i + parseFloat(account.balance || 0), 0);
+            setNetWorth(accountTotal + tradingTotal);
+            setPortfolioLoading(false);
+        });
+    };
+
+    const Portfolio = ({ refresh, holdings, cash, broker, fx, time, brokerColour }) => (
+        <Wrapper>
+            <Stack direction="row" justifyContent="space-between">
+                <SubTitle>Trading Account</SubTitle>
+                <Stack direction="row" alignItems="center">
+                    <Typography color="textDisabled">
+                        as of { formatDateRelative(time) }
+                    </Typography>
+                    <IconButton color="info" disabled={portFolioLoading} onClick={refresh}>
+                        <RefreshIcon />
+                    </IconButton>
+                </Stack>
+            </Stack>
+            <Table>
+                <thead>
+                    <tr>
+                        <th>Broker</th>
+                        <th>Allocation</th>
+                        <th className="right">USD</th>
+                        <th className="right">SGD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr className="no-pointer">
+                        <td rowSpan={2} data-issuer={broker}>
+                            <IssuerChip label={broker} color={brokerColour} />
+                        </td>
+                        <td>Holdings</td>
+                        <td className="right">{formatDecimal(holdings)}</td>
+                        <td className="right">{formatDecimal(holdings * fx)}</td>
+                    </tr>
+                    <tr className="no-pointer">
+                        <td>Cash</td>
+                        <td className="right">{formatDecimal(cash)}</td>
+                        <td className="right">{formatDecimal(cash * fx)}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colSpan={3}>Sub-Total</td>
+                        <td>{formatDecimal((cash + holdings) * fx)}</td>
+                    </tr>
+                </tfoot>
+            </Table>
+        </Wrapper>
+    );
+
     const TotalNetWorth = () => (
         <FloatingFooter>
             <Table>
@@ -256,6 +330,7 @@ const Summary = ({ setRoute }) => {
             <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
             <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
             <CpfSummaryGrid />
+            { portfolio && <Portfolio refresh={doRefreshPortfolio} {...portfolio} /> }
             <TotalNetWorth />
         </Root>
     );
