@@ -51,7 +51,7 @@ const api = () => {
         }
     };
 
-    const apiCall = (method, uri, callback, body) => {
+    const apiCall = (method, uri, callback, body, errorCallback) => {
         const headers = {};
         if (!(body instanceof FormData)) {
             headers['Content-Type'] = 'application/json';
@@ -64,7 +64,7 @@ const api = () => {
             config.body = body instanceof FormData ? body : JSON.stringify(body);
         }
         fetch(`${apiRoot}/api/${uri}`, config)
-            .then(process).then(callback).catch(handleError);
+            .then(process).then(callback).catch(errorCallback || handleError);
     };
 
     const [ GET, POST, PUT, DELETE ] = [ 'GET', 'POST', 'PUT', 'DELETE' ];
@@ -106,7 +106,7 @@ const api = () => {
         getBalanceHistory: (callback) => apiCall(GET, 'dash/balance-history', callback),
         challenge: (callback) => apiCall(GET, 'profile/challenge', callback),
         getPortfolio: (callback) => apiCall(GET, 'portfolio', callback),
-        refreshPortfolio: (callback) => apiCall(GET, 'portfolio/refresh', callback),
+        refreshPortfolio: (callback, errorCallback) => apiCall(GET, 'portfolio/refresh', callback, null, errorCallback),
     };
 };
 export default api;

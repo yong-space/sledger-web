@@ -15,6 +15,7 @@ import { Typography } from '@mui/material';
 
 const Wrapper = styled.div`
     display: flex;
+    flex: 1 1 1px;
     flex-direction: column;
 `;
 
@@ -32,6 +33,25 @@ const Root = styled(Wrapper)`
         width: calc(100vw - 3rem);
         align-self: center;
     }
+`;
+
+const TradingAccountHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    .MuiTypography-h6 {
+        margin: 0;
+        white-space: nowrap;
+    }
+    .MuiStack-root { min-width: 0 }
+    .MuiTypography-root:has(+ button) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .MuiTypography-root + button { margin: 0 -.3rem}
 `;
 
 const FloatingFooter = styled(Wrapper)`
@@ -90,15 +110,20 @@ const Table = styled.table`
         }
         &:last-child, &.right { text-align: right }
     }
+    tbody tr {
+        color: #ddd;
+        &:is(:nth-child(odd)) { background: #292929 }
+    }
     tfoot {
         border-radius: .5rem;
         font-weight: 800;
         white-space: nowrap;
+        td.no-bold { font-weight: 400 }
     }
     tfoot:not(:only-child) {
         td:first-child { border-bottom-left-radius: .5rem }
         td:last-child { border-bottom-right-radius: .5rem }
-        td { background: #333 }
+        td { background: #223641 }
     }
 `;
 
@@ -247,12 +272,12 @@ const Summary = ({ setRoute }) => {
             const accountTotal = getVisibleAccounts().reduce((i, account) => i + parseFloat(account.balance || 0), 0);
             setNetWorth(accountTotal + tradingTotal);
             setPortfolioLoading(false);
-        });
+        }, () => setPortfolioLoading(false));
     };
 
-    const Portfolio = ({ refresh, holdings, cash, broker, fx, time, brokerColour }) => (
+    const Portfolio = ({ refresh, holdings, cash, fx, time }) => (
         <Wrapper>
-            <Stack direction="row" justifyContent="space-between">
+            <TradingAccountHeader>
                 <SubTitle>Trading Account</SubTitle>
                 <Stack direction="row" alignItems="center">
                     <Typography color="textDisabled">
@@ -262,11 +287,10 @@ const Summary = ({ setRoute }) => {
                         <RefreshIcon />
                     </IconButton>
                 </Stack>
-            </Stack>
+            </TradingAccountHeader>
             <Table>
                 <thead>
                     <tr>
-                        <th>Broker</th>
                         <th>Allocation</th>
                         <th className="right">USD</th>
                         <th className="right">SGD</th>
@@ -274,9 +298,6 @@ const Summary = ({ setRoute }) => {
                 </thead>
                 <tbody>
                     <tr className="no-pointer">
-                        <td rowSpan={2} data-issuer={broker}>
-                            <IssuerChip label={broker} color={brokerColour} />
-                        </td>
                         <td>Holdings</td>
                         <td className="right">{formatDecimal(holdings)}</td>
                         <td className="right">{formatDecimal(holdings * fx)}</td>
@@ -289,8 +310,9 @@ const Summary = ({ setRoute }) => {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colSpan={3}>Sub-Total</td>
-                        <td>{formatDecimal((cash + holdings) * fx)}</td>
+                        <td>Sub-Total</td>
+                        <td className="right no-bold">{formatDecimal(cash + holdings)}</td>
+                        <td className="right">{formatDecimal((cash + holdings) * fx)}</td>
                     </tr>
                 </tfoot>
             </Table>
