@@ -6,6 +6,10 @@ export default defineConfig({
     build: {
         target: 'esnext',
         rollupOptions: {
+            external: [
+                'assert', 'fs', 'path', 'crypto', 'events', 'stream', 'url', 'util',
+                'os', 'async_hooks', 'worker_threads', 'module', 'constants', 'buffer',
+            ],
             output: {
                 manualChunks: {
                     mui: [
