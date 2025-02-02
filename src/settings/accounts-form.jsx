@@ -11,7 +11,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel'
 import InputLabel from '@mui/material/InputLabel';
-import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
@@ -19,7 +18,6 @@ import state from '../core/state';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Tooltip from '@mui/material/Tooltip';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, accountToEdit, setAccountToEdit }) => {
@@ -199,7 +197,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                 { getIssuers().find(({ id }) => id === issuerId) && getFields() }
 
                 <Stack direction="row" gap={2}>
-                    <LoadingButton
+                    <Button
                         type="submit"
                         loading={loading}
                         loadingPosition="center"
@@ -207,7 +205,7 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                         disabled={submitDisabled()}
                     >
                         { !!accountToEdit ? 'Edit' : 'Add' } Account
-                    </LoadingButton>
+                    </Button>
                     <Button
                         color="info"
                         variant="outlined"

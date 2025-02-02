@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../core/api';
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 import LoginIcon from '@mui/icons-material/Login';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
@@ -44,7 +44,7 @@ const Login = () => {
                 <Title>Login</Title>
                 <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7, autoComplete: 'username' }} />
                 <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8, autoComplete: 'password' }} />
-                <LoadingButton
+                <Button
                     type="submit"
                     endIcon={<LoginIcon />}
                     loading={loading}
@@ -52,7 +52,7 @@ const Login = () => {
                     variant="contained"
                 >
                     Login
-                </LoadingButton>
+                </Button>
                 <Link to="/register">Get an account</Link>
             </Stack>
         </form>

@@ -4,7 +4,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 import state from '../core/state';
 
 const ConfirmDialog = ({ open, setOpen, title, message, confirm }) => {
@@ -30,9 +29,9 @@ const ConfirmDialog = ({ open, setOpen, title, message, confirm }) => {
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <LoadingButton variant="contained" color="error" onClick={confirm} loading={loading}>
+                <Button variant="contained" color="error" onClick={confirm} loading={loading}>
                     Confirm
-                </LoadingButton>
+                </Button>
                 <Button variant="contained" onClick={() => setOpen(false)} autoFocus disabled={loading}>
                     Cancel
                 </Button>

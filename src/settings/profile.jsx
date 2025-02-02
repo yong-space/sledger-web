@@ -3,7 +3,7 @@ import api from '../core/api';
 import CBOR from 'cbor-js';
 import Grid from '@mui/material/Grid';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import TextField from '@mui/material/TextField';
@@ -123,7 +123,7 @@ const Profile = () => {
                 </Tooltip>
                 <TextField name="newPassword" type="password" label="New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
                 <TextField name="newPassword2" type="password" label="Repeat New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                <LoadingButton
+                <Button
                     type="submit"
                     endIcon={<HowToRegIcon />}
                     loading={loading}
@@ -131,7 +131,7 @@ const Profile = () => {
                     variant="contained"
                 >
                     Update
-                </LoadingButton>
+                </Button>
             </Grid>
         </form>
     );

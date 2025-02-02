@@ -2,7 +2,6 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -482,7 +481,7 @@ const AddTransactionDialog = ({
                 </LocalizationProvider>
 
                 <Stack direction="row" justifyContent="space-between">
-                    <LoadingButton
+                    <Button
                         type="submit"
                         loading={loading}
                         loadingPosition="center"
@@ -490,7 +489,7 @@ const AddTransactionDialog = ({
                         color={transactionToEdit ? 'warning' : 'success'}
                     >
                         { transactionToEdit ? 'Save Changes' : 'Add Transaction' }
-                    </LoadingButton>
+                    </Button>
                     <Button variant="contained" onClick={dismiss} autoFocus>
                         Cancel
                     </Button>
@@ -506,6 +505,7 @@ const AddTransactionDialog = ({
             fullScreen={isMobile}
             aria-labelledby="add-transaction-dialog-title"
             aria-describedby="add-transaction-dialog-description"
+            onClose={() => setShowAddDialog(false)}
         >
             <DialogTitle id="add-transaction-dialog-title">
                 { transactionToEdit ? 'Edit' : 'Add' } Transaction

@@ -1,4 +1,6 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SearchIcon from '@mui/icons-material/Search';
+import { Typography } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
@@ -11,7 +13,7 @@ import api from '../core/api';
 import state from '../core/state';
 import { HorizontalLoader, SubTitle, Title } from '../core/utils';
 import { formatDateRelative, formatDecimal } from '../util/formatters';
-import { Typography } from '@mui/material';
+import Search from './search';
 
 const Wrapper = styled.div`
     display: flex;
@@ -137,6 +139,7 @@ const Summary = ({ setRoute }) => {
     const { getPortfolio, refreshPortfolio } = api();
     const [ portfolio, setPortfolio ] = useState(null);
     const [ portFolioLoading, setPortfolioLoading ] = useState(false);
+    const [ searchOpen, setSearchOpen ] = useState(false);
 
     useEffect(() => {
         setRoute('summary');
@@ -348,12 +351,22 @@ const Summary = ({ setRoute }) => {
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
         <Root theme={theme}>
-            <Title>Summary</Title>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Title>Summary</Title>
+                <IconButton
+                    color="info"
+                    sx={{ margin: "-8px" }}
+                    onClick={() => setSearchOpen(true)}
+                >
+                    <SearchIcon />
+                </IconButton>
+            </Stack>
             <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
             <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
             <CpfSummaryGrid />
             { portfolio && <Portfolio refresh={doRefreshPortfolio} {...portfolio} /> }
             <TotalNetWorth />
+            { searchOpen && <Search setSearchOpen={setSearchOpen} /> }
         </Root>
     );
 };
