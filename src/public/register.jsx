@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../core/api';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import TextField from '@mui/material/TextField';
@@ -38,7 +38,7 @@ const Register = () => {
                 <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />
                 <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
                 <TextField required name="password2" type="password" label="Repeat Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                <LoadingButton
+                <Button
                     type="submit"
                     endIcon={<HowToRegIcon />}
                     loading={loading}
@@ -46,7 +46,7 @@ const Register = () => {
                     variant="contained"
                 >
                     Register
-                </LoadingButton>
+                </Button>
                 <Link to="/login">Have an account?</Link>
             </Stack>
         </form>

@@ -48,12 +48,11 @@ const FooterRoot = styled.div`
     .MuiButtonBase-root { padding: .2rem }
 `;
 
-const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, apiRef }) => {
+const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, setTransactionToEdit, apiRef }) => {
     const theme = useTheme();
     const isSmallHeight = useMediaQuery('(max-height:600px)');
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const { listTransactions } = api();
-    const selectedAccount = state.useState(state.selectedAccount)[0];
+    const { listTransactions, listTransactionsWithQuery } = api();
     const [ loading, setLoading ] = useState(true);
     const [ transactions, setTransactions ] = state.useState(state.transactions);
     const [ visibleColumns, setVisibleColumns ] = useState({});
@@ -77,7 +76,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
             setLoading(true);
             setTransactions([]);
             setPaginationModel(null);
-            listTransactions(selectedAccount.id, (response) => {
+            const callback = (response) => {
                 console.debug(`Loaded transactions for ${selectedAccount.id}`)
                 const processedResponse = response.map((o) => {
                     const category = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
@@ -86,7 +85,12 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
                 setTransactions(processedResponse);
                 setTansactionsAccountId(selectedAccount.id);
                 setLoading(false);
-            });
+            };
+            if (query) {
+                listTransactionsWithQuery(selectedAccount.id, query, callback);
+            } else {
+                listTransactions(selectedAccount.id, callback);
+            }
         } else {
             setLoading(false);
         }
@@ -94,7 +98,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
 
     useEffect(() => {
         const vColumns = !isMobile ? { amount: false } : {
-            credit: false, debit: false, category: false, balance: false,
+            credit: false, debit: false, category: false, balance: false, accountId: false,
             fx: false, originalAmount: false, company: false, forMonth: false, billingMonth: false,
             ordinaryAmount: false, specialAmount: false, medisaveAmount: false, subCategory: false,
         };
@@ -154,6 +158,7 @@ const TransactionsGrid = ({ accounts, setShowAddDialog, setTransactionToEdit, ap
         const fields = [ ...cashFields ];
         if (!selectedAccount.type) {
             fields.splice(0, 0, columns.account);
+            fields.splice(fields.findIndex(({ field }) => field === 'balance'), 1);
         } else {
             if (selectedAccount.multiCurrency) {
                 fields.splice(4, 0, columns.fx);

@@ -30,8 +30,10 @@ const Transactions = () => {
     const [ showAddDialog, setShowAddDialog ] = useState(false);
     const [ canImport, setCanImport ] = useState(false);
     const [ transactionToEdit, setTransactionToEdit ] = useState();
+    const [ query, setQuery ] = useState(null);
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
     const [ transactions, setTransactions ] = state.useState(state.transactions);
+    const setTansactionsAccountId = state.useState(state.transactionsAccountId)[1];
     const [ importMode, setImportMode ] = useState(false);
     const theme = useTheme();
     const isSmallHeight = useMediaQuery('(max-height:600px)');
@@ -49,9 +51,14 @@ const Transactions = () => {
             navigate('/settings/accounts');
             return;
         }
-        const match = location.pathname.match(/\d+/);
-        if (match) {
-            const id = parseInt(match[0]);
+        const matchId = location.pathname.match(/\d+/);
+        if (matchId) {
+            const newQuery = (new URLSearchParams(location.search)).get('q');
+            if (query !== newQuery) {
+                setQuery(newQuery);
+                setTansactionsAccountId(-1);
+            }
+            const id = parseInt(matchId[0]);
             const account = (id === 0) ? { id: 0 } : getVisibleAccounts().find(a => a.id === id);
             if (account) {
                 setSelectedAccount(account);
@@ -84,7 +91,11 @@ const Transactions = () => {
             { !isSmallHeight && (
                 <>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Title>Transactions { importMode && 'Import'}</Title>
+                        <Title>
+                            Transactions
+                            { importMode && ' Import'}
+                            { query && `: ${query}` }
+                        </Title>
                         { isMobile && <TransactionsActionButtons {...actionProps} apiRef={apiRef} />}
                     </Stack>
                     <Stack direction="row" spacing={1} justifyContent="space-between">
@@ -106,6 +117,8 @@ const Transactions = () => {
                 ) : (
                     <TransactionsGrid
                         accounts={accounts}
+                        query={query}
+                        selectedAccount={selectedAccount}
                         setShowAddDialog={setShowAddDialog}
                         setTransactionToEdit={setTransactionToEdit}
                         apiRef={apiRef}

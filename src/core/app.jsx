@@ -46,7 +46,6 @@ const App = () => {
         if (!accounts) {
             listAccounts((data) => setAccounts(data));
         }
-        console.log(location.pathname)
     }, []);
 
     if (!isNoConnectivity && (!issuers || !accounts)) {

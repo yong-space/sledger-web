@@ -89,6 +89,7 @@ const api = () => {
         editAccountSort: (accountId, direction, callback) => apiCall(PUT, `account/${accountId}/sort/${direction}`, callback),
         deleteAccount: (id, callback) => apiCall(DELETE, `account/${id}`, callback),
         listTransactions: (id, callback) => apiCall(GET, `transaction/${id}`, callback),
+        listTransactionsWithQuery: (id, query, callback) => apiCall(GET, `transaction/${id}?q=${query}`, callback),
         addTransaction: (payload, callback) => apiCall(POST, 'transaction', callback, payload),
         editTransaction: (payload, callback) => apiCall(PUT, 'transaction', callback, payload),
         bulkEditTransactions: (payload, callback) => apiCall(PUT, 'transaction/bulk', callback, payload),

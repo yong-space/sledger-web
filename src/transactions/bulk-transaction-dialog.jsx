@@ -13,7 +13,6 @@ import dayjs from 'dayjs';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import TextField from '@mui/material/TextField';
@@ -136,7 +135,7 @@ const BulkTransactionDialog = ({
                 </LocalizationProvider>
 
                 <Stack direction="row" spacing={2}>
-                    <LoadingButton
+                    <Button
                         type="submit"
                         loading={loading}
                         loadingPosition="center"
@@ -144,7 +143,7 @@ const BulkTransactionDialog = ({
                         color="warning"
                     >
                         Bulk Edit Transactions
-                    </LoadingButton>
+                    </Button>
                     <Button variant="contained" onClick={dismiss} autoFocus>
                         Cancel
                     </Button>

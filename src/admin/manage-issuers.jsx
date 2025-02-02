@@ -13,7 +13,6 @@ import FormGroup from '@mui/material/FormGroup';
 import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
-import LoadingButton from '@mui/lab/LoadingButton';
 import state from '../core/state';
 import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
@@ -168,14 +167,14 @@ const IssuersForm = ({ setIssuers }) => {
                         ))}
                     </FormGroup>
                 </FormControl>
-                <LoadingButton
+                <Button
                     type="submit"
                     loading={loading}
                     loadingPosition="center"
                     variant="contained"
                 >
                     Add Issuer
-                </LoadingButton>
+                </Button>
             </Grid>
         </form>
     )

@@ -143,7 +143,7 @@ const Insights = ({ setRoute }) => {
                 field: 'average',
                 type: 'number',
                 valueFormatter: formatDecimal,
-                headerName: 'Average',
+                headerName: isMobile ? 'M. Avg' : 'Monthly Average',
                 cellClassName: getColourClassForValue,
             },
             {
@@ -151,7 +151,7 @@ const Insights = ({ setRoute }) => {
                 field: 'transactions',
                 type: 'number',
                 valueFormatter: formatNumber,
-                headerName: isMobile ? 'Tx' : 'Transactions',
+                headerName: isMobile ? 'A. Tx' : 'Annual Transactions',
             },
         ];
 
