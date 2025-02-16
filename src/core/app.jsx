@@ -20,14 +20,15 @@ const Root = styled.div`
     min-height: 100%;
 `;
 
-const Content = styled.div`
+const Main = styled.main`
     display: flex;
     flex-direction: column;
     flex: 1 1 1px;
     gap: .5rem;
     padding: ${props => props.isMobile ? '1rem .5rem' : '1rem 1.5rem'};
-    padding-bottom: 0;
+    /* padding-bottom: 0; */
     overflow: auto;
+    max-width: 100dvw;
 `;
 
 const App = () => {
@@ -55,7 +56,7 @@ const App = () => {
     return (
         <Root>
             <NavBar />
-            <Content isMobile={isMobile}>
+            <Main isMobile={isMobile}>
                 <Routes>
                     <Route path="dash/*" element={<Dashboard />} />
                     <Route path="tx/*" element={<Transactions /> } />
@@ -68,7 +69,7 @@ const App = () => {
                     <Route path="login" element={<Navigate to="/dash" /> } />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
-            </Content>
+            </Main>
         </Root>
     );
 };

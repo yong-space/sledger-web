@@ -1,11 +1,13 @@
 import { atom, useAtom } from 'jotai';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { Transaction } from './types';
+import { GridFilterModel, GridRowSelectionModel } from '@mui/x-data-grid/models';
 
 dayjs.extend(utc);
 
 const state = () => ({
-    useState: (atomObj) => useAtom(atomObj),
+    useState: useAtom,
     dashRoute: atom('summary'),
     settingsRoute: atom('accounts'),
     loading: atom(false),
@@ -14,14 +16,14 @@ const state = () => ({
     accounts: atom(),
     selectedAccount: atom(),
     issuers: atom(),
-    transactions: atom(),
+    transactions: atom<Transaction[]>(),
     templates: atom(),
     transactionsAccountId: atom(),
-    selectedRows: atom([]),
-    filterModel: atom(),
+    selectedRows: atom<GridRowSelectionModel>([]),
+    filterModel: atom<GridFilterModel>(),
     categories: atom([]),
     date: atom(dayjs.utc().startOf('day')),
-    visibleTransactionId: atom(),
+    visibleTransactionId: atom(-1),
     currency: atom('SGD'),
 });
 

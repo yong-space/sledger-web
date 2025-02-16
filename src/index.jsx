@@ -2,7 +2,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { StyleSheetManager } from "styled-components";
-import { Suspense } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import isPropValid from "@emotion/is-prop-valid";
 import Session from './core/session';

@@ -5,15 +5,17 @@
     scrollbar-color: var(--scroll-color) transparent;
 }
 html, body, #root {
-    min-height: 100%;
+    height: 100dvh;
+}
+body, #root {
     background-color: var(--bg);
     display: flex;
     flex: 1 1 1px;
-    max-width: 100vw;
+    max-width: 100dvw;
 }
 a, a:active, a:visited { color: white; text-decoration: none }
 button.MuiButton-containedSuccess { color: #fff; }
-.MuiDataGrid-panelWrapper { max-width: 100vw }
+.MuiDataGrid-panelWrapper { max-width: 100dvw }
 
 ::-webkit-scrollbar { width: 10px }
 ::-webkit-scrollbar-thumb {
