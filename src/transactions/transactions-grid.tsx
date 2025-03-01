@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import api from '../core/api';
 import state from '../core/state';
-import { Transaction } from '../core/types';
+import { Account, Transaction } from '../core/types';
 import { HorizontalLoader } from '../core/utils';
 import { cpfCodes } from '../util/cpf-codes';
 import {
@@ -32,6 +32,8 @@ import {
 } from '../util/formatters';
 import ContextMenu from './context-menu';
 import SplitTransactionDialog from './split-transaction-dialog';
+import { GridApiCommunity } from '@mui/x-data-grid/models/api/gridApiCommunity';
+import { RefObject } from 'react';
 
 const FlexDataGrid = styled(DataGrid)`
     display: flex;
@@ -48,8 +50,15 @@ const FooterRoot = styled.div`
     .MuiTablePagination-actions { margin-left: .5rem }
     .MuiButtonBase-root { padding: .2rem }
 `;
-
-const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, setTransactionToEdit, apiRef }) => {
+interface TransactionsGridProps {
+    accounts: Account[];
+    query: string;
+    selectedAccount: Account;
+    setShowAddDialog: (show: boolean) => void;
+    setTransactionToEdit: (tx: Transaction) => void;
+    apiRef: RefObject<GridApiCommunity>;
+}
+const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, setTransactionToEdit, apiRef } : TransactionsGridProps) => {
     const theme = useTheme();
     const isSmallHeight = useMediaQuery('(max-height:600px)');
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -63,37 +72,45 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState<number>(state.visibleTransactionId);
     const [ txToSplit, setTxToSplit ] = useState();
-    const [ paginationModel, setPaginationModel ] = useState(null);
+
+    const gotoLastPage = (rows = transactions?.length) => {
+        const pageSize = apiRef.current.state.pagination.paginationModel.pageSize;
+        const lastPage = Math.ceil(rows / pageSize) - 1;
+        apiRef.current.setPage(lastPage);
+    };
+
+    const listTransactionsCallback = (response) => {
+        console.debug(`Loaded transactions for ${selectedAccount.id}`)
+        const processedResponse = response.map((o) => {
+            const category = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
+            return { ...o, category };
+        });
+        setTransactions(processedResponse);
+        setTansactionsAccountId(selectedAccount.id);
+        setLoading(false);
+        gotoLastPage(processedResponse.length);
+    };
 
     useEffect(() => {
         if (!selectedAccount) {
             console.debug('No selected account')
             return;
         }
-        if (selectedAccount.id !== transactionsAccountId) {
-            console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
-            setSelectedRows([]);
-            setScrolledToEnd(false);
-            setLoading(true);
-            setTransactions([]);
-            setPaginationModel(null);
-            const callback = (response) => {
-                console.debug(`Loaded transactions for ${selectedAccount.id}`)
-                const processedResponse = response.map((o) => {
-                    const category = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
-                    return { ...o, category };
-                });
-                setTransactions(processedResponse);
-                setTansactionsAccountId(selectedAccount.id);
-                setLoading(false);
-            };
-            if (query) {
-                listTransactionsWithQuery(selectedAccount.id, query, callback);
-            } else {
-                listTransactions(selectedAccount.id, callback);
-            }
-        } else {
+        if (selectedAccount.id === transactionsAccountId) {
             setLoading(false);
+            gotoLastPage();
+            return;
+        }
+        console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
+        setSelectedRows([]);
+        setScrolledToEnd(false);
+        setLoading(true);
+        setTransactions([]);
+
+        if (query) {
+            listTransactionsWithQuery(selectedAccount.id, query, listTransactionsCallback);
+        } else {
+            listTransactions(selectedAccount.id, listTransactionsCallback);
         }
     }, [ selectedAccount ]);
 
@@ -182,16 +199,6 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         setSelectedRows([]);
     };
 
-    const handlePagination = (n) => {
-        if (transactions.length === 0 || scrolledToEnd) {
-            setPaginationModel(n);
-            return;
-        }
-        const lastPage = Math.floor(transactions.length / n.pageSize);
-        setPaginationModel({ pageSize: n.pageSize, page: lastPage });
-        setScrolledToEnd(true);
-    };
-
     useEffect(() => {
         if (visibleTransactionId === -1) {
             return;
@@ -219,8 +226,8 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         const selectedIds = useGridSelector(apiRef, gridRowSelectionStateSelector);
         const allRows = useGridSelector(apiRef, gridFilteredSortedRowEntriesSelector)
             .map(({ model }) => model) as Transaction[];
-        const data : Transaction[] = (selectedIds.length === 0) ?
-            allRows : Array.from(apiRef.current.getSelectedRows().values());
+        const data = (selectedIds.length === 0) ?
+            allRows : Array.from(apiRef.current.getSelectedRows().values()) as Transaction[];
         const count = formatNumber(data.length);
         const plural = data.length > 1 ? 's' : '';
         const totalAmount = formatDecimal(data.reduce((sum, row) => sum + row.amount, 0));
@@ -283,8 +290,6 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
                 columnVisibilityModel={visibleColumns}
                 rowSelectionModel={selectedRows}
                 onRowSelectionModelChange={(m) => setSelectedRows(m)}
-                paginationModel={paginationModel}
-                onPaginationModelChange={handlePagination}
                 onRowDoubleClick={handleDoubleClick}
                 filterModel={filterModel}
                 onFilterModelChange={handleFilterModelChange}

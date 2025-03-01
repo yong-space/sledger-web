@@ -1,5 +1,5 @@
 import { HorizontalLoader } from '../core/utils';
-import { useEffect, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import AccountSelector from '../core/account-selector';
@@ -14,6 +14,7 @@ import TransactionsGrid from './transactions-grid';
 import TransactionsImport from './transactions-import';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useGridApiRef } from '@mui/x-data-grid';
+import { GridApiCommunity } from '@mui/x-data-grid/models/api/gridApiCommunity';
 
 const TransactionsRoot = styled.div`
     display: flex;
@@ -41,7 +42,7 @@ const Transactions = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const getVisibleAccounts = () => accounts?.filter((a) => a.visible);
-    const apiRef = useGridApiRef();
+    const apiRef : RefObject<GridApiCommunity> = useGridApiRef();
 
     useEffect(() => {
         if (!accounts) {
