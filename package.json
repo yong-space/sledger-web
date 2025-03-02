@@ -8,7 +8,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@fontsource/roboto": "^5.2.1",
+    "@fontsource/roboto": "^5.2.5",
     "@mui/icons-material": "^6.4.6",
     "@mui/lab": "^6.0.0-beta.24",
     "@mui/material": "^6.4.6",
