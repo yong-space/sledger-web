@@ -33,6 +33,8 @@ jobs:
         context: .
         push: true
         tags: ${{ env.IMAGE_NAME }}
+        build-args: |
+          VITE_APP_VERSION=${{ steps.tag.outputs.new_tag }}
 
     outputs:
       image_name: ${{ env.IMAGE_NAME }}
