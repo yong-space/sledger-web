@@ -97,6 +97,9 @@ const ProfileMenu = ({ currentPath }) => {
                     </ListItemIcon>
                     <ListItemText>Logout</ListItemText>
                 </MenuItem>
+                <MenuItem>
+                    v{import.meta.env.VITE_APP_VERSION || '.dev'}
+                </MenuItem>
             </FloatingMenu>
         </>
     );

@@ -6,11 +6,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import isPropValid from "@emotion/is-prop-valid";
 import Session from './core/session';
 import StatusBar from './core/statusbar';
+import { registerSW } from 'virtual:pwa-register';
 
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+import '@fontsource/roboto/300';
+import '@fontsource/roboto/400';
+import '@fontsource/roboto/500';
+import '@fontsource/roboto/700';
 import './index.css';
 
 const darkTheme = createTheme({
@@ -35,6 +36,8 @@ const shouldForwardProp = (propName, elementToBeRendered) =>
     typeof elementToBeRendered === "string"
         ? isPropValid(propName) && !["height", "width"].includes(propName)
         : true;
+
+registerSW({ immediate: true });
 
 const Index = () => (
     <StyleSheetManager shouldForwardProp={shouldForwardProp}>

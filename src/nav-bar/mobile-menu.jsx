@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState, Fragment } from 'react';
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -13,10 +13,22 @@ import Typography from '@mui/material/Typography';
 import styled from 'styled-components';
 
 const Brand = styled(Typography)`
+    font-size: 1.4rem;
     margin: 1rem 2rem;
-    font-weight: 200;
+    font-weight: 300;
     letter-spacing: .15rem;
     user-select: none;
+`;
+
+const Version = styled(Typography)`
+    margin: 1rem 2rem;
+    font-weight: 300;
+`;
+
+const Drawer = styled(SwipeableDrawer)`
+    .MuiPaper-root {
+        justify-content: space-between;
+    }
 `;
 
 const NavListItem = styled(ListItemButton)`
@@ -42,14 +54,13 @@ const MobileMenu = ({ pages, currentPath }) => {
             <IconButton size="large" onClick={() => setOpen(true)} aria-label="Menu">
                 <MenuIcon />
             </IconButton>
-            <SwipeableDrawer
+            <Drawer
                 open={isOpen}
                 onClose={() => setOpen(false)}
                 onOpen={() => setOpen(true)}
-                PaperProps={{ sx: { width: '20rem' } }}
             >
                 <Box>
-                    <Brand variant="h6">Sledger</Brand>
+                    <Brand>Sledger</Brand>
                     <Divider />
                     <List>
                         { pages.map((item) => !item.children ?
@@ -58,7 +69,8 @@ const MobileMenu = ({ pages, currentPath }) => {
                         )}
                     </List>
                 </Box>
-            </SwipeableDrawer>
+                <Version>v{import.meta.env.VITE_APP_VERSION || '.dev'}</Version>
+            </Drawer>
         </Box>
     );
 };
