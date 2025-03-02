@@ -230,7 +230,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
             allRows : Array.from(apiRef.current.getSelectedRows().values()) as Transaction[];
         const count = formatNumber(data.length);
         const plural = data.length > 1 ? 's' : '';
-        const totalAmount = formatDecimal(data.reduce((sum, row) => sum + row.amount, 0));
+        const totalAmount = formatDecimal(data.reduce((sum, row) => sum + row?.amount || 0, 0));
 
         return (
             <FooterRoot>
