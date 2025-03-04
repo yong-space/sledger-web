@@ -29,6 +29,7 @@ import { cpfCodes } from '../util/cpf-codes';
 import { numericProps, numericPropsNegative } from '../util/formatters';
 import AutoFill from './auto-fill';
 import FxField from './fx-field';
+import { Transaction } from 'core/types';
 
 const DateBar = styled.div`
     display: flex;
@@ -125,7 +126,7 @@ const AddTransactionDialog = ({
 
     const submit = (event) => {
         event.preventDefault();
-        const tx = {
+        const tx : Transaction = {
             date: (transactionToEdit ? date : date.second(0)).toISOString(),
             accountId: selectedAccount?.id,
             ...Object.fromEntries(new FormData(event.target).entries()),
@@ -162,7 +163,7 @@ const AddTransactionDialog = ({
         if (transactionToEdit) {
             tx.id = transactionToEdit.id;
         }
-        const currentTransactions = Array.from(apiRef.current.getRowModels().values());
+        const currentTransactions : Transaction[] = Array.from(apiRef.current.getRowModels().values());
         const maxDate = dayjs.max(currentTransactions.map(({ date }) => dayjs.utc(date)));
 
         setLoading(true);
@@ -249,7 +250,7 @@ const AddTransactionDialog = ({
         if (!value) {
             return;
         }
-        const currentTransactions = Array.from(apiRef.current.getRowModels().values());
+        const currentTransactions : Transaction[] = Array.from(apiRef.current.getRowModels().values());
         const match = currentTransactions.find((t) => t.remarks === value);
         if (match) {
             setCategory(match.category);
@@ -322,7 +323,7 @@ const AddTransactionDialog = ({
                 label="Amount"
                 value={amountValue}
                 onChange={handleAmountChange}
-                inputProps={numericProps}
+                slotProps={{ htmlInput: numericProps}}
                 onFocus={handleFocus}
             />
         ),
@@ -411,7 +412,7 @@ const AddTransactionDialog = ({
                 label="Ordinary Amount"
                 value={cpfAmounts.ordinaryAmount}
                 onChange={updateAmount}
-                inputProps={numericPropsNegative}
+                slotProps={{ htmlInput: numericPropsNegative }}
                 onFocus={handleFocus}
             />
         ),
@@ -423,7 +424,7 @@ const AddTransactionDialog = ({
                 label="Special Amount"
                 value={cpfAmounts.specialAmount}
                 onChange={updateAmount}
-                inputProps={numericPropsNegative}
+                slotProps={{ htmlInput: numericPropsNegative }}
                 onFocus={handleFocus}
             />
         ),
@@ -435,7 +436,7 @@ const AddTransactionDialog = ({
                 label="Medisave Amount"
                 value={cpfAmounts.medisaveAmount}
                 onChange={updateAmount}
-                inputProps={numericPropsNegative}
+                slotProps={{ htmlInput: numericPropsNegative }}
                 onFocus={handleFocus}
             />
         ),

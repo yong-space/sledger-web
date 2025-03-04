@@ -1,7 +1,7 @@
 import { atom, useAtom } from 'jotai';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { Account, Transaction } from './types';
+import { Account, AccountIssuer, Transaction } from './types';
 import { GridFilterModel, GridRowSelectionModel } from '@mui/x-data-grid/models';
 
 dayjs.extend(utc);
@@ -15,7 +15,7 @@ const state = () => ({
     session: atom(),
     accounts: atom<Account[]>(),
     selectedAccount: atom<Account>(),
-    issuers: atom(),
+    issuers: atom<AccountIssuer[]>(),
     transactions: atom<Transaction[]>(),
     templates: atom(),
     transactionsAccountId: atom(),

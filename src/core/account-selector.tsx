@@ -2,10 +2,11 @@ import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import state from './state';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useState, useEffect } from 'react';
+import state from './state';
+import { Account } from './types';
 
 const FxRoot = styled.sup`
     font-size: .8rem;
@@ -14,8 +15,14 @@ const FxRoot = styled.sup`
     left: -.3rem;
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
-
-const AccountSelector = ({ handleChange, disabled, sx, accountFilter, showCashCredit }) => {
+interface AccountSelectorProps {
+    handleChange: (event: SelectChangeEvent<number>, child: ReactNode) => void;
+    disabled: boolean;
+    sx?: any;
+    accountFilter?: (account: Account) => boolean;
+    showCashCredit?: boolean;
+}
+const AccountSelector = ({ handleChange, disabled, sx, accountFilter, showCashCredit } : AccountSelectorProps) => {
     const [ loading, setLoading ] = useState(true);
     const issuers = state.useState(state.issuers)[0];
     const accounts = state.useState(state.accounts)[0];
@@ -53,7 +60,13 @@ const AccountSelector = ({ handleChange, disabled, sx, accountFilter, showCashCr
         'Retirement': 'info',
     };
 
-    const AccountEntry = ({ type, issuer, name, multiCurrency }) => (
+    interface AccountEntryProps {
+        name: string;
+        type?: string;
+        issuer?: any;
+        multiCurrency?: boolean;
+    }
+    const AccountEntry = ({ type, issuer, name, multiCurrency } : AccountEntryProps) => (
         <>
             { issuer ? (
                 <>

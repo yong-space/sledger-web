@@ -4,6 +4,7 @@
         "checkJs": true,
         "jsx": "react-jsx",
         "module": "ESNext",
+        "target": "ESNext",
         "moduleResolution": "node",
         "types": [ "vite/client", "vite-plugin-pwa/client" ],
     }

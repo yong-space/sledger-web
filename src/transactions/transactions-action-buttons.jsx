@@ -1,17 +1,15 @@
 import { AddButton, EditButton, DeleteButton, ImportButton } from '../core/buttons';
 import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import AddTransactionDialog from './add-transaction-dialog';
 import api from '../core/api';
 import BulkTransactionDialog from './bulk-transaction-dialog';
 import ConfirmDialog from '../core/confirm-dialog';
-import dayjs from 'dayjs';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const TransactionsActionButtons = ({
-    transactions, setAccounts, showAddDialog, setShowAddDialog,
+    transactions, setAccounts, setShowAddDialog,
     transactionToEdit, setTransactionToEdit, setImportMode, canImport, apiRef,
 }) => {
     const theme = useTheme();
@@ -69,16 +67,6 @@ const TransactionsActionButtons = ({
 
             { isMobile && canImport && (
                 <ImportButton onClick={() => setImportMode(true)} />
-            )}
-
-            { showAddDialog && (
-                <AddTransactionDialog {...{
-                    setShowAddDialog,
-                    transactionToEdit,
-                    setTransactionToEdit,
-                    setSelectedRows,
-                    apiRef,
-                }} />
             )}
 
             { showBulkDialog && (

@@ -1,20 +1,21 @@
-import { HorizontalLoader } from '../core/utils';
-import { RefObject, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
-import AccountSelector from '../core/account-selector';
-import TransactionsActionButtons from './transactions-action-buttons';
-import dayjs from 'dayjs';
-import minMax from 'dayjs/plugin/minMax';
 import Stack from '@mui/material/Stack';
-import state from '../core/state';
-import styled from 'styled-components';
-import { Title } from '../core/utils';
-import TransactionsGrid from './transactions-grid';
-import TransactionsImport from './transactions-import';
+import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useGridApiRef } from '@mui/x-data-grid';
 import { GridApiCommunity } from '@mui/x-data-grid/models/api/gridApiCommunity';
+import dayjs from 'dayjs';
+import minMax from 'dayjs/plugin/minMax';
+import { RefObject, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import AccountSelector from '../core/account-selector';
+import state from '../core/state';
+import { HorizontalLoader, Title } from '../core/utils';
+import AddTransactionDialog from './add-transaction-dialog';
+import TransactionsActionButtons from './transactions-action-buttons';
+import TransactionsGrid from './transactions-grid';
+import TransactionsImport from './transactions-import';
+import { Account, Transaction } from 'core/types';
 
 const TransactionsRoot = styled.div`
     display: flex;
@@ -30,10 +31,11 @@ const Transactions = () => {
     const [ loading, setLoading ] = useState(true);
     const [ showAddDialog, setShowAddDialog ] = useState(false);
     const [ canImport, setCanImport ] = useState(false);
-    const [ transactionToEdit, setTransactionToEdit ] = useState();
+    const [ transactionToEdit, setTransactionToEdit ] = useState<Transaction>();
     const [ query, setQuery ] = useState(null);
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
     const [ transactions, setTransactions ] = state.useState(state.transactions);
+    const setSelectedRows = state.useState(state.selectedRows)[1];
     const setTansactionsAccountId = state.useState(state.transactionsAccountId)[1];
     const [ importMode, setImportMode ] = useState(false);
     const theme = useTheme();
@@ -60,7 +62,7 @@ const Transactions = () => {
                 setTansactionsAccountId(-1);
             }
             const id = parseInt(matchId[0]);
-            const account = (id === 0) ? { id: 0 } : getVisibleAccounts().find(a => a.id === id);
+            const account : Account = (id === 0) ? { id: 0 } : getVisibleAccounts().find(a => a.id === id);
             if (account) {
                 setSelectedAccount(account);
                 return;
@@ -83,7 +85,7 @@ const Transactions = () => {
     }, [ accounts, selectedAccount ]);
 
     const actionProps = {
-        transactions, setTransactions, setAccounts, showAddDialog, setShowAddDialog,
+        transactions, setTransactions, setAccounts, setShowAddDialog,
         transactionToEdit, setTransactionToEdit, setImportMode, canImport,
     };
 
@@ -126,6 +128,15 @@ const Transactions = () => {
                     />
                 )
             }
+            { showAddDialog && (
+                <AddTransactionDialog {...{
+                    setShowAddDialog,
+                    transactionToEdit,
+                    setTransactionToEdit,
+                    setSelectedRows,
+                    apiRef,
+                }} />
+            )}
         </TransactionsRoot>
     )
 };
