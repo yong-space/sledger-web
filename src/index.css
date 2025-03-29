@@ -5,13 +5,13 @@
     scrollbar-color: var(--scroll-color) transparent;
 }
 html, body, #root {
+    width: 100dvw;
+    max-width: 100dvw;
     height: 100dvh;
 }
 body, #root {
     background-color: var(--bg);
     display: flex;
-    flex: 1 1 1px;
-    max-width: 100dvw;
 }
 a, a:active, a:visited { color: white; text-decoration: none }
 button.MuiButton-containedSuccess { color: #fff; }

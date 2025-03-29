@@ -1,7 +1,6 @@
 import { CircularLoader, NoConnectivity, NotFound } from './utils';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useTheme } from '@mui/material/styles';
 import Admin from '../admin/admin';
 import api from './api';
 import Dashboard from '../dashboard/dashboard';
@@ -11,13 +10,12 @@ import Settings from '../settings/settings';
 import state from './state';
 import styled from 'styled-components';
 import Transactions from '../transactions/transactions';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Root = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1 1 1px;
-    min-height: 100%;
+    height: 100dvh;
 `;
 
 const Main = styled.main`
@@ -25,15 +23,10 @@ const Main = styled.main`
     flex-direction: column;
     flex: 1 1 1px;
     gap: .5rem;
-    padding: ${props => props.isMobile ? '1rem .5rem' : '1rem 1.5rem'};
-    /* padding-bottom: 0; */
-    overflow: auto;
-    max-width: 100dvw;
+    padding: .5rem;
 `;
 
 const App = () => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ issuers, setIssuers ] = state.useState(state.issuers);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const { listIssuers, listAccounts } = api();
@@ -56,7 +49,7 @@ const App = () => {
     return (
         <Root>
             <NavBar />
-            <Main isMobile={isMobile}>
+            <Main>
                 <Routes>
                     <Route path="dash/*" element={<Dashboard />} />
                     <Route path="tx/*" element={<Transactions /> } />

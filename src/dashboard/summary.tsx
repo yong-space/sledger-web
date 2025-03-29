@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import api from '../core/api';
 import state from '../core/state';
+import { CpfAccount } from '../core/types';
 import { HorizontalLoader, SubTitle, Title } from '../core/utils';
 import { formatDateRelative, formatDecimal } from '../util/formatters';
 import Search from './search';
@@ -21,20 +22,15 @@ const Wrapper = styled.div`
     flex-direction: column;
 `;
 
-const Root = styled(Wrapper)`
-    flex: 1 1 1px;
-    gap: 1rem;
-    padding-bottom: 6rem;
+const Overflow = styled(Wrapper)`
+    overflow: hidden auto;
+`;
 
-    width: 35rem;
-    ${props => props.theme.breakpoints.down("md")} {
-        width: calc(100vw - 5rem);
-        align-self: center;
-    }
-    ${props => props.theme.breakpoints.down("sm")} {
-        width: calc(100vw - 3rem);
-        align-self: center;
-    }
+const Grid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+    gap: 1rem 2rem;
+    padding-bottom: 3rem;
 `;
 
 const TradingAccountHeader = styled.div`
@@ -56,32 +52,6 @@ const TradingAccountHeader = styled.div`
     .MuiTypography-root + button { margin: 0 -.3rem}
 `;
 
-const FloatingFooter = styled(Wrapper)`
-    position: fixed;
-    bottom: 1rem;
-    flex: 1 1 1px;
-    width: 35rem;
-    border-radius: .5rem;
-
-    ${props => props.theme.breakpoints.down("md")} {
-        width: calc(100vw - 5rem);
-        align-self: center;
-    }
-
-    ${props => props.theme.breakpoints.down("sm")} {
-        width: calc(100vw - 3rem);
-        align-self: center;
-    }
-
-    box-shadow:
-        1rem -1.5rem 1rem var(--bg),
-        -1rem -1.5rem 1rem var(--bg),
-        1rem 2rem 1rem var(--bg),
-        -1rem 2rem 1rem var(--bg);
-
-    table { background: #2c4866 }
-`;
-
 const IssuerChip = ({ color, label }) => (
     <Chip
         label={label}
@@ -92,6 +62,14 @@ const IssuerChip = ({ color, label }) => (
 
 const Table = styled.table`
     background: #222;
+    &.footer {
+        background: #2c4866;
+        box-shadow:
+        1rem -1.5rem 1rem var(--bg),
+        -1rem -1.5rem 1rem var(--bg),
+        1rem 2rem 1rem var(--bg),
+        -1rem 2rem 1rem var(--bg);
+    }
     border-radius: .5rem;
     margin: 0;
     border-collapse: collapse;
@@ -103,6 +81,7 @@ const Table = styled.table`
     th, td {
         padding: .8rem;
         text-align: left;
+        white-space: nowrap;
         &:is([data-issuer]) {
             --width: 6rem;
             width: var(--width);
@@ -134,7 +113,7 @@ const Summary = ({ setRoute }) => {
     let navigate = useNavigate();
     const accounts = state.useState(state.accounts)[0];
     const issuers = state.useState(state.issuers)[0];
-    const [ netWorth, setNetWorth ] = useState();
+    const [ netWorth, setNetWorth ] = useState(0);
     const getVisibleAccounts = () => accounts.filter((a) => a.visible);
     const { getPortfolio, refreshPortfolio } = api();
     const [ portfolio, setPortfolio ] = useState(null);
@@ -150,7 +129,7 @@ const Summary = ({ setRoute }) => {
         if (getVisibleAccounts().length === 0) {
             navigate('/settings/accounts');
         } else {
-            const accountTotal = getVisibleAccounts().reduce((i, account) => i + parseFloat(account.balance || 0), 0);
+            const accountTotal = getVisibleAccounts().reduce((i, account) => i + (account.balance || 0), 0);
             setNetWorth(accountTotal);
 
             getPortfolio((response) => {
@@ -174,6 +153,7 @@ const Summary = ({ setRoute }) => {
     const getValue = (column, row, rowIndex) => {
         const props = {
             onClick: () => navigate(`/tx/${row.id}`),
+            rowSpan: 1,
         };
         let value = undefined;
         switch (column.field) {
@@ -243,7 +223,7 @@ const Summary = ({ setRoute }) => {
     );
 
     const CpfSummaryGrid = () => {
-        const cpfAccount = getAccounts('Retirement');
+        const cpfAccount = getAccounts('Retirement') as CpfAccount[];
         const [ cpfAccounts, setCpfAccounts ] = useState(null);
 
         useEffect(() => {
@@ -272,7 +252,7 @@ const Summary = ({ setRoute }) => {
         refreshPortfolio((response) => {
             setPortfolio(response);
             const tradingTotal = (response.holdings + response.cash) * response.fx;
-            const accountTotal = getVisibleAccounts().reduce((i, account) => i + parseFloat(account.balance || 0), 0);
+            const accountTotal = getVisibleAccounts().reduce((i, account) => i + (account.balance || 0), 0);
             setNetWorth(accountTotal + tradingTotal);
             setPortfolioLoading(false);
         }, () => setPortfolioLoading(false));
@@ -322,19 +302,6 @@ const Summary = ({ setRoute }) => {
         </Wrapper>
     );
 
-    const TotalNetWorth = () => (
-        <FloatingFooter>
-            <Table>
-                <tfoot>
-                    <tr>
-                        <td colSpan={2}>Total Net Worth</td>
-                        <td>{ formatDecimal(netWorth) }</td>
-                    </tr>
-                </tfoot>
-            </Table>
-        </FloatingFooter>
-    );
-
     const Empty = () => (
         <Alert
             severity="info"
@@ -350,7 +317,7 @@ const Summary = ({ setRoute }) => {
     }
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
-        <Root theme={theme}>
+        <>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Title>Summary</Title>
                 <IconButton
@@ -360,14 +327,25 @@ const Summary = ({ setRoute }) => {
                 >
                     <SearchIcon />
                 </IconButton>
+                { searchOpen && <Search setSearchOpen={setSearchOpen} /> }
             </Stack>
-            <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
-            <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
-            <CpfSummaryGrid />
-            { portfolio && <Portfolio refresh={doRefreshPortfolio} {...portfolio} /> }
-            <TotalNetWorth />
-            { searchOpen && <Search setSearchOpen={setSearchOpen} /> }
-        </Root>
+            <Overflow>
+                <Grid>
+                    <SummaryGrid label="Cash Accounts" data={getAccounts('Cash')} />
+                    <SummaryGrid label="Credit Accounts" data={getAccounts('Credit')} />
+                    <CpfSummaryGrid />
+                    { portfolio && <Portfolio refresh={doRefreshPortfolio} {...portfolio} /> }
+                </Grid>
+            </Overflow>
+            <Table className="footer">
+                <tfoot>
+                    <tr>
+                        <td colSpan={2}>Total Net Worth</td>
+                        <td>{ formatDecimal(netWorth) }</td>
+                    </tr>
+                </tfoot>
+            </Table>
+        </>
     );
 };
 export default Summary;
