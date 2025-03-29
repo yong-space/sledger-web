@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import IconButton from '@mui/material/IconButton/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
