@@ -6,6 +6,14 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import api from '../core/api';
 import { HorizontalLoader, Title } from '../core/utils';
+import styled from 'styled-components';
+
+const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 1px;
+    overflow: hidden;
+`;
 
 const BalanceHistory = ({ setRoute }) => {
     const [ balanceHistory, setBalanceHistory ] = useState(null);
@@ -27,7 +35,7 @@ const BalanceHistory = ({ setRoute }) => {
             sx={{
                 [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
                   strokeWidth: 4,
-                },
+                }
             }}
         >
             <ChartsGrid horizontal vertical />
@@ -41,10 +49,10 @@ const BalanceHistory = ({ setRoute }) => {
     );
 
     return (
-        <>
+        <Wrapper>
             <Title>Balance History</Title>
             { !balanceHistory ? <HorizontalLoader /> : <BalanceChart /> }
-        </>
+        </Wrapper>
     )
 };
 export default BalanceHistory;
