@@ -17,7 +17,7 @@ const FxRoot = styled.sup`
 const Fx = () => <FxRoot>FX</FxRoot>;
 interface AccountSelectorProps {
     handleChange: (event: SelectChangeEvent<number>, child: ReactNode) => void;
-    disabled: boolean;
+    disabled?: boolean;
     sx?: any;
     accountFilter?: (account: Account) => boolean;
     showCashCredit?: boolean;

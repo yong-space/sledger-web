@@ -1,4 +1,4 @@
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber, formatMonth } from '../util/formatters';
 import { HorizontalLoader } from '../core/utils';
 import { useEffect, useState } from 'react';
@@ -12,18 +12,10 @@ import styled from 'styled-components';
 import { Title } from '../core/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-const Root = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    flex: 1 1 1px;
-`;
-
-const GridBox = styled.div`
+const FlexDataGrid = styled(DataGrid)`
     display: flex;
     flex: 1 1 1px;
     height: calc(100vh - 12rem);
-    margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
 `;
 
 const CreditCardBills = ({ setRoute }) => {
@@ -32,7 +24,7 @@ const CreditCardBills = ({ setRoute }) => {
     const navigate = useNavigate();
     const accounts = state.useState(state.accounts)[0];
     const { getCreditCardBills } = api();
-    const [ bills, setBills ] = useState();
+    const [ bills, setBills ] = useState(null);
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
     const setFilterModel = state.useState(state.filterModel)[1];
 
@@ -69,12 +61,7 @@ const CreditCardBills = ({ setRoute }) => {
         const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
         const [ paginationModel, setPaginationModel ] = useState();
 
-        const maxGridSize = {
-            maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-            maxHeight: `calc(100vh - ${isMobile ? 1 : 12.5}rem)`,
-        };
-
-        const columns = [
+        const columns : GridColDef[] = [
             { flex: 1, field: 'month', valueFormatter: formatMonth, headerName: 'Month' },
             { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
             { flex: 1, field: 'amount', type: 'number', valueFormatter: formatDecimal, headerName: 'Amount' },
@@ -96,40 +83,37 @@ const CreditCardBills = ({ setRoute }) => {
                         value: dayjs.utc(row.month).format('YYYY-MM-DD'),
                     },
                 ],
-                logicOperator: "and"
+                operator: "and"
             };
             setFilterModel(filter);
             navigate('/tx/' + selectedAccount.id);
         };
 
         return (
-            <GridBox isMobile={isMobile}>
-                <DataGrid
-                    autoPageSize
-                    disableColumnMenu
-                    hideFooterSelectedRowCount
-                    initialState={{ density: 'compact' }}
-                    rows={bills}
-                    columns={columns}
-                    paginationModel={paginationModel}
-                    onPaginationModelChange={handlePagination}
-                    sx={maxGridSize}
-                    getRowId={({ month }) =>  month}
-                    onRowDoubleClick={handleDoubleClick}
-                />
-            </GridBox>
+            <FlexDataGrid
+                autoPageSize
+                disableColumnMenu
+                hideFooterSelectedRowCount
+                initialState={{ density: 'compact' }}
+                rows={bills}
+                columns={columns}
+                paginationModel={paginationModel}
+                onPaginationModelChange={handlePagination}
+                getRowId={({ month }) =>  month}
+                onRowDoubleClick={handleDoubleClick}
+            />
         );
     };
 
     return (
-        <Root spacing={3} pb={3}>
+        <>
             <Title>Credit Card Bills</Title>
             <AccountSelector
                 accountFilter={({ type }) => type === 'Credit' }
                 handleChange={({ target }) => navigate(`${uri}/${target.value}`)}
             />
             { !bills ? <HorizontalLoader /> : <BillGrid /> }
-        </Root>
+        </>
     );
 };
 export default CreditCardBills;
