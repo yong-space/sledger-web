@@ -20,10 +20,26 @@ import Tabs from '@mui/material/Tabs';
 import { Title } from '../core/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-const ContentRoot = styled.div`
+const Root = styled.div`
     display: flex;
     flex: 1 1 1px;
+    flex-direction: column;
+    height: 100dvh;
     overflow: hidden;
+
+    details > summary {
+        font-weight: 500;
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+    details > div {
+        display: inline-flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        gap: .5rem .8rem;
+        padding: 1rem;
+        .MuiChip-labelMedium { font-size: 1rem }
+    }
 `;
 
 const TabRow = styled.div`
@@ -61,8 +77,19 @@ const IssuerChip = styled(Chip)<IssuerChipProps>`
     .MuiChip-label { padding: 0 }
 `;
 
-type Insight = {};
-type Series = {};
+type Insight = {
+    category: string;
+    subCategory: string;
+    transactions: number;
+    average: number;
+};
+type Series = {
+    id: string;
+    label: string;
+    stack: 'Credit' | 'Debit';
+    stackOrder: 'ascending' | 'descending';
+    data: number[];
+};
 type Insights = {
     summary: Insight[];
     series: Series[];
@@ -203,15 +230,49 @@ const Insights = ({ setRoute }) => {
 
     const MonthlyChart = () => {
         useEffect(() => setRoute('insights/monthly'), []);
-        return insights && (
-            <BarChart
-                series={insights.series}
-                xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
-                sx={{ ['.MuiChartsLegend-root'] : { 'display': 'none' } }}
-                margin={{ top: 10, right: 0 }}
-                colors={palette}
-                tooltip={{ trigger: 'item' }}
-            />
+        const categories = [ ...new Set(insights.series.map((s) => s.id.substring(1))) ].toSorted();
+        const [ selectedCategories, setSelectedCategories ] = useState(categories);
+
+        const toggleCategory = (e) => {
+            const label = e.target.textContent;
+            setSelectedCategories((old) => (old.includes(label) ? old.filter((c) => c !== label) : [ ...old, label ]));
+        };
+
+        return (
+            <Root>
+                <BarChart
+                    series={insights.series.filter((s) => selectedCategories.indexOf(s.id.substring(1)) > -1)}
+                    xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
+                    margin={{ top: 10, right: 0 }}
+                    colors={palette}
+                    tooltip={{ trigger: 'item' }}
+                    slotProps={{ legend: { hidden: true } }}
+                />
+                <details>
+                    <summary>Filter Categories</summary>
+                    <div>
+                        <Chip
+                            label="Select All"
+                            color="success"
+                            onClick={() => setSelectedCategories(categories)}
+                        />
+                        <Chip
+                            label="Select None"
+                            color="error"
+                            onClick={() => setSelectedCategories([])}
+                        />
+                        { categories.map((category) => (
+                            <Chip
+                                key={category}
+                                label={category}
+                                variant={selectedCategories.includes(category) ? 'filled' : 'outlined'}
+                                onClick={toggleCategory}
+                                color={selectedCategories.includes(category) ? 'info' : 'default'}
+                            />
+                        ))}
+                    </div>
+                </details>
+            </Root>
         );
     };
 
@@ -250,14 +311,11 @@ const Insights = ({ setRoute }) => {
                             />}
                         />) }
                     </TabRow>
-
-                    <ContentRoot>
-                        <Routes>
-                            <Route path="average" element={<AverageGrid /> } />
-                            <Route path="monthly" element={<MonthlyChart /> } />
-                            <Route path="" element={<Navigate to="average" />} />
-                        </Routes>
-                    </ContentRoot>
+                    <Routes>
+                        <Route path="average" element={<AverageGrid /> } />
+                        <Route path="monthly" element={<MonthlyChart /> } />
+                        <Route path="" element={<Navigate to="average" />} />
+                    </Routes>
                 </>
             )}
         </>

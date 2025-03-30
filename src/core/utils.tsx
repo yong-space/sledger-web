@@ -1,4 +1,4 @@
-import { Button, Divider, Grid, Typography } from '@mui/material';
+import { Button, Divider, Grid, Typography, TypographyVariant } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -33,8 +33,12 @@ const HorizontalLoader = () => (
   </Box>
 );
 
-const Title = ({ children }) => (
-  <Typography variant="h5" m={0}>
+type TitleProps = {
+  children: React.ReactNode;
+  variant?: TypographyVariant;
+};
+const Title = ({ children, variant="h5" } : TitleProps) => (
+  <Typography variant={variant} m={0}>
       {children}
   </Typography>
 );
