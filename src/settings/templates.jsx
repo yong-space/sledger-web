@@ -15,30 +15,24 @@ import styled from 'styled-components';
 import TextField from '@mui/material/TextField';
 import { Title } from '../core/utils';
 
-const GridBox = styled.div`
+const FlexDataGrid = styled(DataGrid)`
+    display: flex;
     flex: 1 1 1px;
-    padding-bottom: ${props => props.isMobile ? '.5rem' : '1rem'};
 `;
 
-const Templates = ({ isMobile, setRoute }) => {
+const Templates = ({ setRoute }) => {
     const apiRef = useGridApiRef();
     const [ originalData, setOriginalData ] = state.useState(state.templates);
     const [ categories, setCategories ] = state.useState(state.categories);
-    const [ data, setData ] = useState();
+    const [ data, setData ] = useState(null);
     const [ selectedRows, setSelectedRows ] = useState([]);
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const { listTemplates, addTemplates, editTemplates, deleteTemplate, showStatus, getCategories, suggestRemarks } = api();
 
-    const maxGridSize = {
-        marginTop: '1rem',
-        maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 8.6 : 9.9}rem)`,
-    };
-
     const RemarksEditor = (props) => {
         const { id, value, field, hasFocus } = props;
         const apiRef = useGridApiContext();
-        const ref = useRef();
+        const ref = useRef(null);
 
         useLayoutEffect(() => {
           if (hasFocus) {
@@ -71,7 +65,7 @@ const Templates = ({ isMobile, setRoute }) => {
     const CategoryEditor = (props) => {
         const { id, value, field, hasFocus } = props;
         const apiRef = useGridApiContext();
-        const ref = useRef();
+        const ref = useRef(null);
 
         useLayoutEffect(() => {
           if (hasFocus) {
@@ -90,7 +84,7 @@ const Templates = ({ isMobile, setRoute }) => {
                 filterOptions={createFilterOptions({ limit: 5 })}
                 value={value || ""}
                 onChange={handleChange}
-                onBlur={(e) => handleChange(e, e.target.value)}
+                onBlur={(e) => handleChange(e, ref.current.value)}
                 disableClearable
                 sx={{ flex: 1 }}
                 renderInput={(params) => (
@@ -204,7 +198,7 @@ const Templates = ({ isMobile, setRoute }) => {
     };
 
     return (
-        <GridBox isMobile={isMobile}>
+        <>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Title>Templates</Title>
                 <Stack spacing={2} direction="row">
@@ -230,7 +224,7 @@ const Templates = ({ isMobile, setRoute }) => {
                 </Stack>
             </Stack>
             { !data ? <HorizontalLoader /> : (
-                <DataGrid
+                <FlexDataGrid
                     apiRef={apiRef}
                     autoPageSize
                     initialState={{ density: 'compact' }}
@@ -238,9 +232,8 @@ const Templates = ({ isMobile, setRoute }) => {
                     columns={columns}
                     editMode="row"
                     processRowUpdate={editRow}
-                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : m)}
+                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : [...m])}
                     rowSelectionModel={selectedRows}
-                    sx={maxGridSize}
                 />
             )}
             <ConfirmDialog
@@ -250,7 +243,7 @@ const Templates = ({ isMobile, setRoute }) => {
                 setOpen={setShowConfirmDelete}
                 confirm={submitDelete}
             />
-        </GridBox>
+        </>
     );
 };
 export default Templates;

@@ -43,3 +43,12 @@ export type AccountIssuer = {
     canImport: boolean;
     colour?: string;
 }
+
+export type Template = {
+    id: number;
+    ownerId: number;
+    reference: string;
+    remarks: string;
+    category: string;
+    subCategory: string;
+}

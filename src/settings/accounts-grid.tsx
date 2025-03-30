@@ -3,20 +3,19 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Switch from '@mui/material/Switch';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import api from '../core/api';
 import { HorizontalLoader } from '../core/utils';
 
-const GridBox = styled.div`
+const FlexDataGrid = styled(DataGrid)`
     display: flex;
     flex: 1 1 1px;
-    margin-bottom: ${props => props.isMobile ? '.5rem' : '1rem' };
     .no-ellipsis { text-overflow: clip }
 `;
-
-const ChipInternal = styled(Chip)`
+type ChipProps = { colour?: string }
+const ChipInternal = styled(Chip)<ChipProps>`
     border-radius: .5rem;
     height: fit-content;
     font-size: .875rem;
@@ -53,12 +52,6 @@ const AccountsGrid = ({
         'Credit': 'warning',
         'Retirement': 'info',
     };
-
-    const maxGridSize = {
-        maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-        maxHeight: `calc(100vh - ${isMobile ? 1 : 9.4}rem)`,
-    };
-
     const getIssuer = (id) => issuers.find(i => i.id === id);
 
     const updateVisibility = (event, id) => editAccountVisibility(id, event.target.checked, ({ visible }) => {
@@ -67,7 +60,7 @@ const AccountsGrid = ({
             (account.id !== id) ? account : { ...account, visible }));
     });
 
-    const columns = [
+    const columns : GridColDef[] = [
         {
             field: 'id',
             headerName: 'ID',
@@ -109,7 +102,7 @@ const AccountsGrid = ({
         {
             field: 'name',
             headerName: 'Name',
-            width: isMobile ? 0 : '150',
+            width: isMobile ? 0 : 150,
             flex: isMobile ? 1 : 0,
             renderCell: ({ row }) => (
                 <>
@@ -209,9 +202,9 @@ const AccountsGrid = ({
     }
 
     return accounts.length === 0 ? <Empty /> : (
-        <GridBox isMobile={isMobile}>
+        <>
             { accounts.filter(a => a.visible).length === 0 && <NoVisible /> }
-            <DataGrid
+            <FlexDataGrid
                 hideFooter
                 disableColumnMenu
                 disableRowSelectionOnClick
@@ -222,9 +215,8 @@ const AccountsGrid = ({
                 onRowSelectionModelChange={updateRowSelection}
                 onRowDoubleClick={handleDoubleClick}
                 onRowClick={handleClick}
-                sx={maxGridSize}
             />
-        </GridBox>
+        </>
     );
 };
 export default AccountsGrid;
