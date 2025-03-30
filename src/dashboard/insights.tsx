@@ -1,5 +1,5 @@
 import { BarChart } from '@mui/x-charts';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridSortModel } from '@mui/x-data-grid';
 import { formatDecimal, formatNumber } from '../util/formatters';
 import { HorizontalLoader } from '../core/utils';
 import { pink, lightGreen } from '@mui/material/colors';
@@ -20,13 +20,6 @@ import Tabs from '@mui/material/Tabs';
 import { Title } from '../core/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-const Root = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    flex: 1 1 1px;
-`;
-
 const ContentRoot = styled.div`
     display: flex;
     flex: 1 1 1px;
@@ -38,7 +31,7 @@ const TabRow = styled.div`
     justify-content: space-between;
 `;
 
-const GridBox = styled.div`
+const FlexDataGrid = styled(DataGrid)`
     display: flex;
     flex: 1 1 1px;
     .red { color: ${pink[300]} }
@@ -55,8 +48,8 @@ const FooterRoot = styled.div`
     .MuiTablePagination-actions { margin-left: .5rem }
     .MuiButtonBase-root { padding: .2rem }
 `;
-
-const IssuerChip = styled(Chip)`
+type IssuerChipProps = { colour?: string }
+const IssuerChip = styled(Chip)<IssuerChipProps>`
     border-radius: .5rem;
     height: fit-content;
     font-size: .875rem;
@@ -68,21 +61,29 @@ const IssuerChip = styled(Chip)`
     .MuiChip-label { padding: 0 }
 `;
 
+type Insight = {};
+type Series = {};
+type Insights = {
+    summary: Insight[];
+    series: Series[];
+    xaxis: string[];
+};
+
 const Insights = ({ setRoute }) => {
     const location = useLocation();
     const { getInsights } = api();
     const [ tab, setTab ] = useState(location.pathname.endsWith('monthly') ? 1 : 0);
-    const [ insights, setInsights ] = useState();
-    const [ categorySummary, setCategorySummary ] = useState();
+    const [ insights, setInsights ] = useState<Insights>();
+    const [ categorySummary, setCategorySummary ] = useState(null);
     const [ breakdown, setBreakdown ] = useState(false);
-    const [ palette, setPalette ] = useState();
-    const [ paletteMap, setPaletteMap ] = useState();
-    const [ sortModel, setSortModel ] = useState([{ field: 'average', sort: 'asc' }]);
+    const [ palette, setPalette ] = useState(null);
+    const [ paletteMap, setPaletteMap ] = useState(null);
+    const [ sortModel, setSortModel ] = useState<GridSortModel>([{ field: 'average', sort: 'asc' }]);
 
     useEffect(() => getInsights((response) => {
         const keys = [ 'average', 'transactions' ];
         const summary = response.summary.reduce((acc, curr) => {
-                acc[curr.category] = acc[curr.category] || Object.assign(...keys.map(k => ({ [k]: 0 })));
+                acc[curr.category] = acc[curr.category] || Object.fromEntries(keys.map(k => [k, 0]));
                 keys.forEach(k => acc[curr.category][k] += curr[k]);
                 return acc;
             }, Object.create(null));
@@ -115,12 +116,8 @@ const Insights = ({ setRoute }) => {
         const navigate = useNavigate();
         const setFilterModel = state.useState(state.filterModel)[1];
         const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-        const maxGridSize = {
-            maxWidth: `calc(100vw - ${isMobile ? 1 : 3}rem)`,
-            maxHeight: `calc(100vh - ${isMobile ? 11.9 : 13.4}rem)`,
-        };
-        const getColourClassForValue = ({ value }) => !value ? '' : value > 0 ? 'green' : 'red';
-        const columns = [
+        const getColourClassForValue = (p) => !p.value ? '' : p.value > 0 ? 'green' : 'red';
+        const columns : GridColDef[] = [
             {
                 flex: 1, field: 'category', headerName: 'Category',
                 renderCell: ({ value }) => (
@@ -166,14 +163,14 @@ const Insights = ({ setRoute }) => {
                         value: value || undefined,
                     },
                 ],
-                logicOperator: "and"
+                operator: "and"
             };
             setFilterModel(filter);
             navigate('/tx/0');
         };
 
         const GridFooter = () => {
-            const rows = (breakdown ? insights.summary : categorySummary).length;
+            const rows = (breakdown ? insights && insights.summary : categorySummary).length;
             const noun = breakdown ? 'Sub-categor' : 'Categor';
             const plural = (rows > 1) ? 'ies' : 'y';
 
@@ -187,21 +184,18 @@ const Insights = ({ setRoute }) => {
             );
         };
 
-        return (
-            <GridBox isMobile={isMobile}>
-                <DataGrid
-                    disableColumnMenu
-                    rows={breakdown ? insights.summary : categorySummary}
-                    columns={columns.filter(({ field }) => field !== (breakdown ? 'category' : 'subCategory'))}
-                    sx={maxGridSize}
-                    getRowId={({ category, subCategory }) => category + subCategory }
-                    initialState={{ density: 'compact' }}
-                    onRowDoubleClick={handleDoubleClick}
-                    slots={{ footer: GridFooter }}
-                    sortModel={sortModel}
-                    onSortModelChange={(newSortModel) => setSortModel(newSortModel)}
-                />
-            </GridBox>
+        return insights && (
+            <FlexDataGrid
+                disableColumnMenu
+                rows={breakdown ? insights.summary : categorySummary}
+                columns={columns.filter(({ field }) => field !== (breakdown ? 'category' : 'subCategory'))}
+                getRowId={({ category, subCategory }) => category + subCategory }
+                initialState={{ density: 'compact' }}
+                onRowDoubleClick={handleDoubleClick}
+                slots={{ footer: GridFooter }}
+                sortModel={sortModel}
+                onSortModelChange={(newSortModel) => setSortModel(newSortModel)}
+            />
         );
     };
 
@@ -209,7 +203,7 @@ const Insights = ({ setRoute }) => {
 
     const MonthlyChart = () => {
         useEffect(() => setRoute('insights/monthly'), []);
-        return (
+        return insights && (
             <BarChart
                 series={insights.series}
                 xAxis={[{ data: formatAxis(insights), scaleType: 'band' }]}
@@ -233,7 +227,7 @@ const Insights = ({ setRoute }) => {
     };
 
     return (
-        <Root spacing={3} pb={3}>
+        <>
             <Title>Past Year Insights</Title>
             { !insights ? <HorizontalLoader /> : (
                 <>
@@ -266,7 +260,7 @@ const Insights = ({ setRoute }) => {
                     </ContentRoot>
                 </>
             )}
-        </Root>
+        </>
     );
 };
 export default Insights;
