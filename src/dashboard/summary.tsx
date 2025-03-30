@@ -5,7 +5,6 @@ import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import { useTheme } from '@mui/material/styles';
 import { Fragment, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -18,19 +17,35 @@ import Search from './search';
 
 const Wrapper = styled.div`
     display: flex;
-    flex: 1 1 1px;
     flex-direction: column;
 `;
 
 const Overflow = styled(Wrapper)`
+    max-width: 106rem;
+    flex: 1 1 1px;
     overflow: hidden auto;
 `;
 
 const Grid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr));
     gap: 1rem 2rem;
-    padding-bottom: 3rem;
+    padding-bottom: 2rem;
+`;
+
+const Footer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    max-width: 106rem;
+    font-weight: 800;
+    background: #2c4866;
+    border-radius: .5rem;
+    padding: .8rem;
+    box-shadow:
+        1rem -1.5rem 1rem var(--bg),
+        -1rem -1.5rem 1rem var(--bg),
+        1rem 2rem 1rem var(--bg),
+        -1rem 2rem 1rem var(--bg);
 `;
 
 const TradingAccountHeader = styled.div`
@@ -62,54 +77,39 @@ const IssuerChip = ({ color, label }) => (
 
 const Table = styled.table`
     background: #222;
-    &.footer {
-        background: #2c4866;
-        box-shadow:
-        1rem -1.5rem 1rem var(--bg),
-        -1rem -1.5rem 1rem var(--bg),
-        1rem 2rem 1rem var(--bg),
-        -1rem 2rem 1rem var(--bg);
-    }
     border-radius: .5rem;
     margin: 0;
     border-collapse: collapse;
 
-    tr:not(tfoot *) {
+    thead tr, tbody tr {
         border-bottom: 1px solid #666;
-    }
-    tbody tr:not(.no-pointer) { cursor: pointer }
-    th, td {
-        padding: .8rem;
-        text-align: left;
-        white-space: nowrap;
-        &:is([data-issuer]) {
-            --width: 6rem;
-            width: var(--width);
-            min-width: var(--width);
-            max-width: var(--width);
-            font-weight: 800;
-        }
-        &:last-child, &.right { text-align: right }
     }
     tbody tr {
         color: #ddd;
         &:is(:nth-child(odd)) { background: #292929 }
+        &:not(.no-pointer) { cursor: pointer }
     }
     tfoot {
-        border-radius: .5rem;
         font-weight: 800;
-        white-space: nowrap;
         td.no-bold { font-weight: 400 }
-    }
-    tfoot:not(:only-child) {
         td:first-child { border-bottom-left-radius: .5rem }
         td:last-child { border-bottom-right-radius: .5rem }
         td { background: #223641 }
     }
+    th, td {
+        padding: .8rem;
+        text-align: left;
+        white-space: nowrap;
+        width: 1rem;
+        &:is([data-issuer]) {
+            width: 6rem;
+            font-weight: 800;
+        }
+        &:last-child, &.right { text-align: right }
+    }
 `;
 
 const Summary = ({ setRoute }) => {
-    const theme = useTheme();
     let navigate = useNavigate();
     const accounts = state.useState(state.accounts)[0];
     const issuers = state.useState(state.issuers)[0];
@@ -337,14 +337,10 @@ const Summary = ({ setRoute }) => {
                     { portfolio && <Portfolio refresh={doRefreshPortfolio} {...portfolio} /> }
                 </Grid>
             </Overflow>
-            <Table className="footer">
-                <tfoot>
-                    <tr>
-                        <td colSpan={2}>Total Net Worth</td>
-                        <td>{ formatDecimal(netWorth) }</td>
-                    </tr>
-                </tfoot>
-            </Table>
+            <Footer>
+                <div>Total Net Worth</div>
+                <div>{ formatDecimal(netWorth) }</div>
+            </Footer>
         </>
     );
 };

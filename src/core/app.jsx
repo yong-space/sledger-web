@@ -16,6 +16,7 @@ const Root = styled.div`
     flex-direction: column;
     flex: 1 1 1px;
     height: 100dvh;
+    width: 100dvw;
 `;
 
 const Main = styled.main`
