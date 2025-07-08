@@ -1,6 +1,6 @@
 import {
     BarPlot, ChartsGrid, ChartsTooltip, ChartsXAxis, ChartsYAxis, LinePlot,
-    MarkPlot, ResponsiveChartContainer, lineElementClasses, markElementClasses,
+    MarkPlot, ChartContainer, lineElementClasses, markElementClasses,
 } from '@mui/x-charts';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ const BalanceHistory = ({ setRoute }) => {
     }, []);
 
     const BalanceChart = () => (
-        <ResponsiveChartContainer
+        <ChartContainer
             series={balanceHistory.series}
             xAxis={[{
                 data: balanceHistory.xaxis.map((str) => dayjs.utc(str).format('MMM YY')),
@@ -45,7 +45,7 @@ const BalanceHistory = ({ setRoute }) => {
             <LinePlot />
             <MarkPlot />
             <ChartsTooltip trigger="item" />
-        </ResponsiveChartContainer>
+        </ChartContainer>
     );
 
     return (

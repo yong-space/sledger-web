@@ -29,7 +29,7 @@ import { cpfCodes } from '../util/cpf-codes';
 import { numericProps, numericPropsNegative } from '../util/formatters';
 import AutoFill from './auto-fill';
 import FxField from './fx-field';
-import { Transaction } from 'core/types';
+import { isMultiCurrency, Transaction } from '../core/types';
 
 const DateBar = styled.div`
     display: flex;
@@ -114,7 +114,7 @@ const AddTransactionDialog = ({
             if (date.get('date') < selectedAccount?.billingCycle) {
                 offset -= 1;
             }
-            if (category.toLowerCase() === 'credit card bill') {
+            if (category && category.toLowerCase() === 'credit card bill') {
                 offset -= 1;
             }
             setMonth(date.add(offset, 'month').startOf('month'));
@@ -149,10 +149,11 @@ const AddTransactionDialog = ({
         if (tx.code && tx.code.indexOf(':') > -1) {
             tx.code = tx.code.split(':').shift();
         }
-        tx['@type'] = (selectedAccount?.multiCurrency ? 'fx-' : '') + selectedAccount?.type.toLowerCase();
-        if (selectedAccount?.type === 'Credit') {
+        const fxPrefix = isMultiCurrency(selectedAccount) ? 'fx-' : '';
+        tx['@type'] = fxPrefix + selectedAccount.type.toLowerCase();
+        if (selectedAccount.type === 'Credit') {
             tx.billingMonth = month.toISOString();
-        } else if (selectedAccount?.type === 'Retirement') {
+        } else if (selectedAccount.type === 'Retirement') {
             tx.code = tx.code.toUpperCase();
             if (code === 'CON') {
                 tx.forMonth = month.toISOString();
@@ -216,7 +217,7 @@ const AddTransactionDialog = ({
         setAmountValue(target.value);
         if (selectedAccount?.type === 'Retirement') {
             updateCpfAmounts({ target });
-        } else if (selectedAccount?.multiCurrency && currency === 'SGD') {
+        } else if (isMultiCurrency(selectedAccount) && currency === 'SGD') {
             setOriginalAmount(target.value);
         }
     };
@@ -224,7 +225,7 @@ const AddTransactionDialog = ({
     const handleFocus = ({ target }) => target.select();
 
     const updateCpfAmounts = ({ target }) => {
-        if (code === 'CON') {
+        if (selectedAccount.type === 'Retirement' && code === 'CON') {
             const value = isNaN(parseFloat(target.value)) ? 0 : target.value;
             setCpfAmounts({
                 ordinaryAmount: (value * parseFloat(selectedAccount?.ordinaryRatio)).toFixed(2),
@@ -461,14 +462,14 @@ const AddTransactionDialog = ({
     ];
 
     const getFields = () => {
-        if (selectedAccount?.type === 'Retirement') {
+        if (selectedAccount.type === 'Retirement') {
             return cpfFields;
         }
         const result = [ ...cashFields ];
-        if (selectedAccount?.multiCurrency) {
+        if (isMultiCurrency(selectedAccount)) {
             result.splice(3, 0, fields.fx);
         }
-        if (selectedAccount?.type === 'Credit') {
+        if (selectedAccount.type === 'Credit') {
             result.splice(1, 0, fields.month);
         }
         return result;

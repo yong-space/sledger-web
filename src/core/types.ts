@@ -14,28 +14,44 @@ export type Transaction = {
 
 export type Account = {
     id: number;
-    name?: string;
-    issuerId?: number;
-    visible?: boolean;
-    type?: 'Cash' | 'Credit' | 'Retirement';
-    multiCurrency?: boolean;
-    sortOrder?: number;
-    balance?: number;
+    name: string;
+    issuerId: number;
+    visible: boolean;
+    type: 'Cash' | 'Credit' | 'Retirement';
+    sortOrder: number;
+    balance: number;
+}
+
+export type CashAccount = Account & {
+    type: 'Cash';
+    multiCurrency: boolean;
 }
 
 export type CreditAccount = Account & {
-    billingMonthOffset?: number;
-    billingCycle?: number;
+    type: 'Credit';
+    billingMonthOffset: number;
+    billingCycle: number;
+    multiCurrency: boolean;
 }
 
+export const isMultiCurrency = (account: AnyAccount): boolean => {
+    if (account.type != 'Cash' && account.type != 'Credit') {
+        return false;
+    }
+    return account.multiCurrency;
+};
+
 export type CpfAccount = Account & {
-    ordinaryBalance?: number;
-    specialBalance?: number;
-    medisaveBalance?: number;
-    ordinaryRatio?: string;
-    specialRatio?: string;
-    medisaveRatio?: string;
+    type: 'Retirement';
+    ordinaryBalance: number;
+    specialBalance: number;
+    medisaveBalance: number;
+    ordinaryRatio: string;
+    specialRatio: string;
+    medisaveRatio: string;
 }
+
+export type AnyAccount = CashAccount | CreditAccount | CpfAccount;
 
 export type AccountIssuer = {
     id: number;
