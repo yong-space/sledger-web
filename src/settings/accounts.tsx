@@ -4,12 +4,13 @@ import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import { Title } from '../core/utils';
 import AccountsActionButtons from './accounts-action-buttons';
+import { GridRowId, GridRowSelectionModel } from '@mui/x-data-grid/models';
 
 const Accounts = ({ isMobile, setRoute }) => {
     const issuers = state.useState(state.issuers)[0];
     const [ accounts, setAccounts ] = state.useState(state.accounts);
     const [ accountToEdit, setAccountToEdit ] = useState();
-    const [ selectedAccount, setSelectedAccount ] = useState([]);
+    const [ selectedAccount, setSelectedAccount ] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set<GridRowId>() });
     const [ showAddDialog, setShowAddDialog ] = useState(false);
 
     useEffect(() => setRoute('accounts'), []);

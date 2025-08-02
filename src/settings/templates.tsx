@@ -1,5 +1,5 @@
 import { createFilterOptions } from '@mui/material/Autocomplete';
-import { DataGrid, useGridApiRef, useGridApiContext, gridPageCountSelector } from '@mui/x-data-grid';
+import { DataGrid, useGridApiRef, useGridApiContext, gridPageCountSelector, GridRowId, GridRowSelectionModel } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/utils';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -25,7 +25,7 @@ const Templates = ({ setRoute }) => {
     const [ originalData, setOriginalData ] = state.useState(state.templates);
     const [ categories, setCategories ] = state.useState(state.categories);
     const [ data, setData ] = useState(null);
-    const [ selectedRows, setSelectedRows ] = useState([]);
+    const [ selectedRows, setSelectedRows ] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set<GridRowId>() });
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const { listTemplates, addTemplates, editTemplates, deleteTemplate, showStatus, getCategories, suggestRemarks } = api();
 
@@ -179,14 +179,14 @@ const Templates = ({ setRoute }) => {
     };
 
     const submitDelete = () => {
-        if (originalData.find(t => t.id === selectedRows[0])) {
-            deleteTemplate(selectedRows[0], () => {
-                setOriginalData((old) => old.filter((o) => o.id !== selectedRows[0]));
+        if (originalData.find(t => t.id === selectedRows.ids[0])) {
+            deleteTemplate(selectedRows.ids[0], () => {
+                setOriginalData((old) => old.filter((o) => o.id !== selectedRows.ids[0]));
                 setShowConfirmDelete(false);
                 showStatus('success', 'Template deleted');
             });
         } else {
-            setData((old) => old.filter((o) => o.id !== selectedRows[0]));
+            setData((old) => old.filter((o) => o.id !== selectedRows.ids[0]));
             setShowConfirmDelete(false);
             showStatus('success', 'Template deleted');
         }
@@ -217,7 +217,7 @@ const Templates = ({ setRoute }) => {
                         startIcon={<DeleteForeverIcon />}
                         onClick={() => setShowConfirmDelete(true)}
                         sx={{ height: '2.5rem' }}
-                        disabled={selectedRows.length === 0}
+                        disabled={selectedRows.ids.size === 0}
                     >
                         Delete
                     </Button>
@@ -232,7 +232,7 @@ const Templates = ({ setRoute }) => {
                     columns={columns}
                     editMode="row"
                     processRowUpdate={editRow}
-                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m[0] === o[0]) ? [] : [...m])}
+                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m.ids[0] === o.ids[0]) ? { type: 'include', ids: new Set<GridRowId>() } : m)}
                     rowSelectionModel={selectedRows}
                 />
             )}

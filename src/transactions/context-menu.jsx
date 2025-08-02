@@ -3,11 +3,14 @@ import CallSplitIcon from '@mui/icons-material/CallSplit';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import api from '../core/api';
+import { gridRowSelectionCountSelector } from '@mui/x-data-grid';
 
 const ContextMenu = ({
-    mode, contextRow, contextMenuPosition, setContextMenuPosition,selectedRowSize, setTxToSplit, apiRef
+    mode, contextRow, contextMenuPosition, setContextMenuPosition, setTxToSplit, apiRef
 }) => {
     const { editTransaction, deleteTransaction, listTransactions, showStatus } = api();
+
+    const selectedRowSize = gridRowSelectionCountSelector(apiRef);
 
     const handleSplitTransaction = () => {
         setContextMenuPosition(null);

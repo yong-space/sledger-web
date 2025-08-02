@@ -1,3 +1,5 @@
+import Pagination from '@mui/material/Pagination';
+import PaginationItem from '@mui/material/PaginationItem';
 import Tooltip from '@mui/material/Tooltip';
 import { lightGreen, pink } from '@mui/material/colors';
 import { useTheme } from '@mui/material/styles';
@@ -5,21 +7,22 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/system/Box';
 import {
     DataGrid,
-    GridPagination,
-    GridToolbar,
     gridFilteredSortedRowEntriesSelector,
+    GridFooterContainer,
     gridPageCountSelector,
     gridPageSelector,
     gridPageSizeSelector,
     gridPaginatedVisibleSortedGridRowIdsSelector,
+    GridRowId,
     gridRowSelectionStateSelector,
     useGridSelector,
 } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
+import { GridApiCommunity } from '@mui/x-data-grid/models/api/gridApiCommunity';
+import { RefObject, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import api from '../core/api';
 import state from '../core/state';
-import { Account, Transaction } from '../core/types';
+import { Account, AnyAccount, isMultiCurrency, Transaction } from '../core/types';
 import { HorizontalLoader } from '../core/utils';
 import { cpfCodes } from '../util/cpf-codes';
 import {
@@ -32,8 +35,6 @@ import {
 } from '../util/formatters';
 import ContextMenu from './context-menu';
 import SplitTransactionDialog from './split-transaction-dialog';
-import { GridApiCommunity } from '@mui/x-data-grid/models/api/gridApiCommunity';
-import { RefObject } from 'react';
 
 const FlexDataGrid = styled(DataGrid)`
     display: flex;
@@ -42,18 +43,10 @@ const FlexDataGrid = styled(DataGrid)`
     .green { color: ${lightGreen[300]} }
 `;
 
-const FooterRoot = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: rgb(81, 81, 81) 2px solid;
-    .MuiTablePagination-actions { margin-left: .5rem }
-    .MuiButtonBase-root { padding: .2rem }
-`;
 interface TransactionsGridProps {
     accounts: Account[];
     query: string;
-    selectedAccount: Account;
+    selectedAccount: AnyAccount;
     setShowAddDialog: (show: boolean) => void;
     setTransactionToEdit: (tx: Transaction) => void;
     apiRef: RefObject<GridApiCommunity>;
@@ -68,7 +61,6 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const [ transactionsAccountId, setTansactionsAccountId ] = state.useState(state.transactionsAccountId);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
-    const [ scrolledToEnd, setScrolledToEnd ] = useState(false);
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState<number>(state.visibleTransactionId);
     const [ txToSplit, setTxToSplit ] = useState();
@@ -102,8 +94,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
             return;
         }
         console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
-        setSelectedRows([]);
-        setScrolledToEnd(false);
+        setSelectedRows({ type: 'include', ids: new Set<GridRowId>() });
         setLoading(true);
         setTransactions([]);
 
@@ -178,7 +169,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
             fields.splice(0, 0, columns.account);
             fields.splice(fields.findIndex(({ field }) => field === 'balance'), 1);
         } else {
-            if (selectedAccount.multiCurrency) {
+            if (isMultiCurrency(selectedAccount)) {
                 fields.splice(4, 0, columns.fx);
             }
             if (selectedAccount.type === 'Credit') {
@@ -189,14 +180,14 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
     };
 
     const handleDoubleClick = (params) => {
-        setSelectedRows([ params.id ]);
+        setSelectedRows({ type: 'include', ids: new Set([params.id]) });
         setTransactionToEdit(params.row);
         setShowAddDialog(true);
     };
 
     const handleFilterModelChange = (model) => {
         setFilterModel(model);
-        setSelectedRows([]);
+        setSelectedRows({ type: 'include', ids: new Set<GridRowId>() });
     };
 
     useEffect(() => {
@@ -216,39 +207,52 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         setVisibleTransactionId(-1);
     }, [ visibleTransactionId ]);
 
-    const PageLabel = () => {
-        const page = gridPageSelector(apiRef) + 1;
-        const pages = gridPageCountSelector(apiRef);
-        return <>Page {page}{!isMobile && ` / ${pages}`}</>;
-    };
-
     const TransactionsGridFooter = () => {
         const selectedIds = useGridSelector(apiRef, gridRowSelectionStateSelector);
         const allRows = useGridSelector(apiRef, gridFilteredSortedRowEntriesSelector)
             .map(({ model }) => model) as Transaction[];
-        const data = (selectedIds.length === 0) ?
-            allRows : Array.from(apiRef.current.getSelectedRows().values()) as Transaction[];
+        const data = (selectedIds.ids.size === 0) ?
+            allRows : Array.from(selectedIds.ids).map(id => apiRef.current.getRow(id)).filter(Boolean) as Transaction[];
         const count = formatNumber(data.length);
         const plural = data.length > 1 ? 's' : '';
         const totalAmount = formatDecimal(data.reduce((sum, row) => sum + row?.amount || 0, 0));
 
+        const page = useGridSelector(apiRef, gridPageSelector);
+        const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+        let pageItems = 0;
+
+        const itemRenderer = (item) => {
+            if (item.type.indexOf('ellipsis') > -1) {
+                return <></>;
+            }
+            if (item.type === 'page') {
+                if (pageItems > 0) {
+                    return <></>;
+                }
+                pageItems++;
+                const suffix = isMobile ? '' : ` / ${pageCount}`;
+                return `Page ${page +1}${suffix}`;
+            }
+            return <PaginationItem {...item} />;
+        }
+
         return (
-            <FooterRoot>
+            <GridFooterContainer>
                 <Box sx={{ marginLeft: '1rem' }}>
                     {count} row{plural}: {totalAmount}
                 </Box>
-                <GridPagination
+                <Pagination
+                    boundaryCount={0}
+                    siblingCount={0}
+                    count={pageCount}
+                    page={page + 1}
+                    onChange={(_, value) => apiRef.current.setPage(value - 1)}
                     showFirstButton
                     showLastButton
-                    labelDisplayedRows={PageLabel}
+                    renderItem={itemRenderer}
                 />
-            </FooterRoot>
+            </GridFooterContainer>
         );
-    };
-
-    const slots = {
-        toolbar: GridToolbar,
-        footer: TransactionsGridFooter,
     };
 
     const [ contextRow, setContextRow ] = useState(null);
@@ -273,8 +277,6 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         },
     };
 
-    const selectedRowSize = apiRef.current?.getSelectedRows ? apiRef.current.getSelectedRows().size : 0;
-
     return !transactions ? <HorizontalLoader /> : (
         <>
             <FlexDataGrid
@@ -293,7 +295,8 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
                 onRowDoubleClick={handleDoubleClick}
                 filterModel={filterModel}
                 onFilterModelChange={handleFilterModelChange}
-                slots={slots}
+                slots={{ footer: TransactionsGridFooter }}
+                showToolbar
                 slotProps={slotProps}
                 initialState={{
                     density: 'compact',
@@ -307,7 +310,6 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
                 contextRow={contextRow}
                 contextMenuPosition={contextMenuPosition}
                 setContextMenuPosition={setContextMenuPosition}
-                selectedRowSize={selectedRowSize}
                 setTxToSplit={setTxToSplit}
                 apiRef={apiRef}
             />

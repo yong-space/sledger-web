@@ -1,6 +1,6 @@
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { createFilterOptions } from '@mui/material/Autocomplete';
-import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, GridRowId, useGridApiContext } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { formatDate, formatMonth, formatDecimal } from '../util/formatters';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -212,7 +212,7 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
 
     const [ txToSplit, setTxToSplit ] = useState();
 
-    const [ selectionModel, setSelectionModel ] = useState(transactions.map(({ id }) => id ));
+    const [ selectionModel, setSelectionModel ] = useState({ type: 'include', ids: new Set<GridRowId>(transactions.map(({ id }) => id )) });
 
     const [ contextRow, setContextRow ] = useState(null);
     const [ contextMenuPosition, setContextMenuPosition ] = useState(null);
@@ -223,8 +223,6 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
         setContextRow(apiRef.current.getRow(rowId));
         setContextMenuPosition((old) => old === null ? { left: event.clientX - 2, top: event.clientY - 4 } : null);
     };
-
-    const selectedRowSize = apiRef.current?.getSelectedRows ? apiRef.current.getSelectedRows().size : 0;
 
     return (
         <ImportGridRoot>
@@ -259,7 +257,6 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
                     contextRow={contextRow}
                     contextMenuPosition={contextMenuPosition}
                     setContextMenuPosition={setContextMenuPosition}
-                    selectedRowSize={selectedRowSize}
                     setTxToSplit={setTxToSplit}
                     apiRef={apiRef}
                 />

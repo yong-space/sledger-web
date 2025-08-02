@@ -7,6 +7,7 @@ import ConfirmDialog from '../core/confirm-dialog';
 import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { GridRowId } from '@mui/x-data-grid';
 
 const TransactionsActionButtons = ({
     transactions, setAccounts, setShowAddDialog,
@@ -16,7 +17,7 @@ const TransactionsActionButtons = ({
     const setLoading = state.useState(state.loading)[1];
     const [ showBulkDialog, setShowBulkDialog ] = useState(false);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
-    const selectedLength = selectedRows?.length;
+    const selectedLength = selectedRows?.ids.size;
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
@@ -26,7 +27,7 @@ const TransactionsActionButtons = ({
 
         deleteTransaction(selectedRows, () =>
             listTransactions(selectedAccount.id, (response) => {
-                selectedRows.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
+                selectedRows.ids.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
                 response
                     .filter((updatedRow) => updatedRow.balance !== apiRef.current.getRow(updatedRow.id).balance)
                     .forEach((updatedRow) => apiRef.current.updateRows([{ id: updatedRow.id, balance: updatedRow.balance }]));
@@ -40,7 +41,7 @@ const TransactionsActionButtons = ({
     };
 
     const addTransaction = () => {
-        setSelectedRows([]);
+        setSelectedRows({ type: 'include', ids: new Set<GridRowId>() });
         setShowAddDialog(true);
     };
 

@@ -246,7 +246,7 @@ const Insights = ({ setRoute }) => {
                     margin={{ top: 10, right: 0 }}
                     colors={palette}
                     tooltip={{ trigger: 'item' }}
-                    slotProps={{ legend: { hidden: true } }}
+                    hideLegend={true}
                 />
                 <details>
                     <summary>Filter Categories</summary>

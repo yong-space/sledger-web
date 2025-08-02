@@ -3,7 +3,7 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Switch from '@mui/material/Switch';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowId } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import api from '../core/api';
@@ -181,7 +181,7 @@ const AccountsGrid = ({
     );
 
     const updateRowSelection = (newRows) => {
-        if (newRows.length === 0) {
+        if (newRows.ids.size === 0) {
             return;
         }
         setSelectedAccount(newRows);
@@ -193,7 +193,9 @@ const AccountsGrid = ({
     };
 
     const handleClick = ({ id }) => {
-        const selection = (id === selectedAccount[0]) ? [] : [ id ];
+        const selection = (id === selectedAccount.ids[0]) ?
+            { type: 'include', ids: new Set<GridRowId>() } :
+            { type: 'include', ids: new Set<GridRowId>(id) };
         setSelectedAccount(selection);
     };
 
