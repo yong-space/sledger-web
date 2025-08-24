@@ -25,7 +25,7 @@ const TransactionsActionButtons = ({
     const submitDelete = () => {
         setLoading(true);
 
-        deleteTransaction(selectedRows, () =>
+        deleteTransaction([...selectedRows.ids], () =>
             listTransactions(selectedAccount.id, (response) => {
                 selectedRows.ids.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
                 response
