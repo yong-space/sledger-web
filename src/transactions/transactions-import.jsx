@@ -51,7 +51,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
                     return { ...o, category };
                 });
                 setTransactions(processedTx);
-                setParentSelectedRows(response.map(({ id }) => id));
+                setParentSelectedRows({ type: 'include', ids: new Set(response.map(({ id }) => id))});
                 setVisibleTransactionId(response[0].id);
                 setLoading(false);
                 setImportMode(false);
