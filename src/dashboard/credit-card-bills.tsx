@@ -1,16 +1,13 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { formatDecimal, formatNumber, formatMonth } from '../util/formatters';
-import { HorizontalLoader } from '../core/utils';
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
+import styled from 'styled-components';
 import AccountSelector from '../core/account-selector';
 import api from '../core/api';
-import dayjs from 'dayjs';
 import state from '../core/state';
-import styled from 'styled-components';
-import { Title } from '../core/utils';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { HorizontalLoader, Title } from '../core/utils';
+import { formatDecimal, formatMonth, formatNumber } from '../util/formatters';
 
 const FlexDataGrid = styled(DataGrid)`
     display: flex;
@@ -57,8 +54,6 @@ const CreditCardBills = ({ setRoute }) => {
     }, [ selectedAccount ]);
 
     const BillGrid = () => {
-        const theme = useTheme();
-        const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
         const [ paginationModel, setPaginationModel ] = useState();
 
         const columns : GridColDef[] = [

@@ -177,7 +177,7 @@ const CategoryEditor = (props) => {
     );
 };
 
-const ImportGrid = ({ apiRef, transactions, setTransactions, accountType, selectionModel, setSelectionModel }) => {
+const ImportGrid = ({ apiRef, transactions, setTransactions, accountType, selectionModel, setSelectionModel, paginationModel, setPaginationModel }) => {
     const columns = {
         date: { editable: true, width: 150, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate, renderEditCell: (p) => <DateEditor {...p} /> },
         billingMonth: { editable: true, width: 150, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth, renderEditCell: (p) => <MonthEditor {...p} /> },
@@ -248,6 +248,8 @@ const ImportGrid = ({ apiRef, transactions, setTransactions, accountType, select
                     sx={maxGridSize}
                     rowSelectionModel={selectionModel}
                     onRowSelectionModelChange={(n) => setSelectionModel(n)}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={(n) => setPaginationModel(n)}
                     slotProps={{
                         row: {
                             onContextMenu: handleContextMenu,
