@@ -9,7 +9,7 @@ import api from '../core/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import AutoFill from './auto-fill';
 import Button from '@mui/material/Button';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -19,16 +19,23 @@ import TextField from '@mui/material/TextField';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import utc from 'dayjs/plugin/utc';
 
+type BulkEditValues = {
+    ids: any;
+    category: string | null;
+    subCategory: string | null;
+    remarks: string | null;
+    billingMonth?: string;
+};
+
 const BulkTransactionDialog = ({
     setShowBulkDialog, transactionToEdit, setTransactionToEdit, apiRef,
- }) => {
+}) => {
     dayjs.extend(utc);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
-    const [ transactions, setTransactions ] = state.useState(state.transactions);
-    const [ month, setMonth ] = useState();
+    const [ month, setMonth ] = useState<Dayjs>();
     const [ categories, setCategories ] = state.useState(state.categories);
     const [ category, setCategory ] = useState('');
 
@@ -49,20 +56,24 @@ const BulkTransactionDialog = ({
 
     const submit = (event) => {
         event.preventDefault();
-        const { category, remarks } = Object.fromEntries(new FormData(event.target).entries());
-
+        const formData = new FormData(event.target);
+        const categoryValue = formData.get('category');
+        const remarksValue = formData.get('remarks');
+        const category = typeof categoryValue === 'string' ? categoryValue : '';
+        const remarks = typeof remarksValue === 'string' ? remarksValue : '';
         const parts = category.trim().length === 0 ? null : category.split(':');
         const processedCategory = parts ? parts.shift().trim() : null;
         const processedSubCategory = parts ? (parts.join(':').trim() || processedCategory) : null;
 
-        const values = {
+
+        const values: BulkEditValues = {
             ids: transactionToEdit,
             category: processedCategory,
             subCategory: processedSubCategory,
             remarks: remarks.trim().length === 0 ? null : remarks.trim(),
         };
-        if (selectedAccount?.type === 'Credit') {
-            values.billingMonth = month?.utc().startOf('month').toISOString();
+        if (selectedAccount?.type === 'Credit' && month) {
+            values.billingMonth = month.utc().startOf('month').toISOString();
         }
 
         if (Object.values(values).filter(i => i).length === 1) {
@@ -76,7 +87,12 @@ const BulkTransactionDialog = ({
                 ? `${values.category}: ${values.subCategory}`
                 : values.category;
 
-            const changes = {};
+            const changes: {
+                category?: string;
+                billingMonth?: string;
+                subCategory?: string;
+                remarks?: string;
+            } = {};
             if (category) { changes.category = category; }
             if (values.billingMonth) { changes.billingMonth = values.billingMonth; }
             if (values.subCategory) { changes.subCategory = values.subCategory; }
@@ -111,6 +127,7 @@ const BulkTransactionDialog = ({
                         />
                     )}
                     <AutoFill
+                        initValue=""
                         promise={suggestRemarks}
                         fieldProps={{
                             inputProps: { minLength: 2 },
@@ -123,7 +140,7 @@ const BulkTransactionDialog = ({
                         options={categories}
                         filterOptions={createFilterOptions({ limit: 5 })}
                         value={category}
-                        onChange={(e, v) => setCategory(v)}
+                        onChange={(_, v) => setCategory(v)}
                         renderInput={(params) => (
                             <TextField
                                 name="category"

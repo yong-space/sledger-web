@@ -50,7 +50,7 @@ const TransactionsActionButtons = ({
             setTransactionToEdit(transactions.find(({ id }) => id === selectedRows[0]));
             setShowAddDialog(true);
         } else {
-            setTransactionToEdit(selectedRows);
+            setTransactionToEdit([...selectedRows.ids]);
             setShowBulkDialog(true);
         }
     };
