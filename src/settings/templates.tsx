@@ -35,14 +35,13 @@ const Templates = ({ setRoute }) => {
         const ref = useRef(null);
 
         useLayoutEffect(() => {
-          if (hasFocus) {
-            ref.current.focus();
-          }
+            if (hasFocus) {
+                ref.current.focus();
+            }
         }, [ hasFocus ]);
 
-        const handleChange = (e, v) => {
+        const handleChange = (_, v) =>
             apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
-        };
 
         return (
             <AutoFill
@@ -68,14 +67,13 @@ const Templates = ({ setRoute }) => {
         const ref = useRef(null);
 
         useLayoutEffect(() => {
-          if (hasFocus) {
-            ref.current.focus();
-          }
+            if (hasFocus) {
+                ref.current.focus();
+            }
         }, [ hasFocus ]);
 
-        const handleChange = (e, v) => {
+        const handleChange = (_, v) =>
             apiRef.current.setEditCellValue({ id, field, value: v?.label || v });
-        };
 
         return (
             <Autocomplete
@@ -232,7 +230,7 @@ const Templates = ({ setRoute }) => {
                     columns={columns}
                     editMode="row"
                     processRowUpdate={editRow}
-                    onRowSelectionModelChange={(m) => setSelectedRows((o) => (m.ids[0] === o.ids[0]) ? { type: 'include', ids: new Set<GridRowId>() } : m)}
+                    onRowSelectionModelChange={(m) => setSelectedRows(m)}
                     rowSelectionModel={selectedRows}
                 />
             )}
