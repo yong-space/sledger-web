@@ -66,6 +66,9 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
     const [ txToSplit, setTxToSplit ] = useState();
 
     const gotoLastPage = (rows = transactions?.length) => {
+        if (selectedRows.ids.size > 0) {
+            return;
+        }
         const pageSize = apiRef.current.state.pagination.paginationModel.pageSize;
         const lastPage = Math.ceil(rows / pageSize) - 1;
         apiRef.current.setPage(lastPage);
