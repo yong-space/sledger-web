@@ -1,5 +1,5 @@
 import { CircularLoader } from '../core/utils';
-import { useGridApiRef } from '@mui/x-data-grid';
+import { GridRowId, GridRowSelectionModel, useGridApiRef } from '@mui/x-data-grid';
 import { useState } from 'react';
 import api from '../core/api';
 import Button from '@mui/material/Button';
@@ -24,6 +24,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const setParentSelectedRows = state.useState(state.selectedRows)[1];
     const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const { addTransaction, showStatus, listTransactions } = api();
+    const [ selectionModel, setSelectionModel ] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set<GridRowId>() });
 
     const apiRef = useGridApiRef();
 
@@ -65,12 +66,16 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             selectedAccountId={selectedAccount.id}
             setLoading={setLoading}
             setImportTransactions={setImportTransactions}
+            setSelectionModel={setSelectionModel}
         />
     ) : (
         <ImportGrid
             transactions={importTransactions}
+            setTransactions={setImportTransactions}
             apiRef={apiRef}
             accountType={selectedAccount.type}
+            selectionModel={selectionModel}
+            setSelectionModel={setSelectionModel}
         />
     );
 

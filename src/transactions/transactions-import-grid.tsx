@@ -1,19 +1,18 @@
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { createFilterOptions } from '@mui/material/Autocomplete';
-import { DataGrid, GridRowId, useGridApiContext } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { formatDate, formatMonth, formatDecimal } from '../util/formatters';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 import api from '../core/api';
-import Autocomplete from '@mui/material/Autocomplete';
+import state from '../core/state';
+import { formatDate, formatDecimal, formatMonth } from '../util/formatters';
 import AutoFill from './auto-fill';
 import ContextMenu from './context-menu';
-import dayjs from 'dayjs';
 import SplitTransactionDialog from './split-transaction-dialog';
-import state from '../core/state';
-import styled from 'styled-components';
-import TextField from '@mui/material/TextField';
 
 const ImportGridRoot = styled.div`
     height: calc(100vh - 16rem);
@@ -88,15 +87,15 @@ const MonthEditor = (props) => {
 const RemarksEditor = (props) => {
     const { id, value, field, hasFocus } = props;
     const apiRef = useGridApiContext();
-    const ref = useRef();
+    const ref = useRef(null);
     const { suggestRemarks } = api();
     const transactions = state.useState(state.transactions)[0];
 
     useLayoutEffect(() => {
-      if (hasFocus) {
-        // @ts-ignore
-        ref.current.focus();
-      }
+        if (hasFocus) {
+            // @ts-ignore
+            ref.current.focus();
+        }
     }, [ hasFocus ]);
 
     const handleChange = (_, v) => {
@@ -130,7 +129,7 @@ const CategoryEditor = (props) => {
     const [ categories, setCategories ] = state.useState(state.categories);
     const { id, value, field, hasFocus } = props;
     const apiRef = useGridApiContext();
-    const ref = useRef();
+    const ref = useRef(null);
     const { getCategories } = api();
 
     useEffect(() => {
@@ -145,10 +144,10 @@ const CategoryEditor = (props) => {
     }, []);
 
     useLayoutEffect(() => {
-      if (hasFocus) {
-        // @ts-ignore
-        ref.current.focus();
-      }
+        if (hasFocus) {
+            // @ts-ignore
+            ref.current.focus();
+        }
     }, [ hasFocus ]);
 
     const handleChange = (_, v) => {
@@ -178,7 +177,7 @@ const CategoryEditor = (props) => {
     );
 };
 
-const ImportGrid = ({ apiRef, transactions, accountType }) => {
+const ImportGrid = ({ apiRef, transactions, setTransactions, accountType, selectionModel, setSelectionModel }) => {
     const columns = {
         date: { editable: true, width: 150, field: 'date', headerName: 'Date', type: 'date', valueFormatter: formatDate, renderEditCell: (p) => <DateEditor {...p} /> },
         billingMonth: { editable: true, width: 150, field: 'billingMonth', headerName: 'Bill', type: 'date', valueFormatter: formatMonth, renderEditCell: (p) => <MonthEditor {...p} /> },
@@ -197,7 +196,7 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
     const cashFields = [ columns.date, columns.amount, columns.remarks, columns.category ];
     const creditFields = [ ...cashFields ];
     creditFields.splice(1, 0, columns.billingMonth);
-    const retirementFields = [ columns.selector, columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ];
+    const retirementFields = [ columns.date, columns.forMonth, columns.code, columns.company, columns.amount, columns.ordinaryAmount, columns.specialAmount, columns.medisaveAmount ];
 
     const columnMap = {
         Cash: cashFields,
@@ -211,9 +210,6 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
     };
 
     const [ txToSplit, setTxToSplit ] = useState();
-
-    const [ selectionModel, setSelectionModel ] = useState({ type: 'include', ids: new Set<GridRowId>(transactions.map(({ id }) => id )) });
-
     const [ contextRow, setContextRow ] = useState(null);
     const [ contextMenuPosition, setContextMenuPosition ] = useState(null);
 
@@ -223,6 +219,17 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
         setContextRow(apiRef.current.getRow(rowId));
         setContextMenuPosition((old) => old === null ? { left: event.clientX - 2, top: event.clientY - 4 } : null);
     };
+
+    const handleProcessRowUpdate = (newRow, _) => {
+        setTransactions(prevTransactions =>
+            prevTransactions.map(tx =>
+                tx.id === newRow.id ? { ...tx, ...newRow } : tx
+            )
+        );
+        return newRow;
+    };
+
+    const handleProcessRowUpdateError = (error) => console.error('Row update error:', error);
 
     return (
         <ImportGridRoot>
@@ -236,6 +243,8 @@ const ImportGrid = ({ apiRef, transactions, accountType }) => {
                     rows={transactions}
                     columns={columnMap[accountType]}
                     editMode="row"
+                    processRowUpdate={handleProcessRowUpdate}
+                    onProcessRowUpdateError={handleProcessRowUpdateError}
                     sx={maxGridSize}
                     rowSelectionModel={selectionModel}
                     onRowSelectionModelChange={(n) => setSelectionModel(n)}

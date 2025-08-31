@@ -14,7 +14,7 @@ import { HorizontalLoader, Title } from '../core/utils';
 import AddTransactionDialog from './add-transaction-dialog';
 import TransactionsActionButtons from './transactions-action-buttons';
 import TransactionsGrid from './transactions-grid';
-import TransactionsImport from './transactions-import';
+import TransactionsImport from './transactions-import.tsx';
 import { Account, Transaction } from 'core/types';
 
 const TransactionsRoot = styled.div`

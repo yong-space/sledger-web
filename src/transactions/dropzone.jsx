@@ -16,7 +16,7 @@ const ImportZone = styled.div`
     border-color: ${props => props.isDragAccept ? green[400] : props.isDragReject ? red[400] : props.isFocused ? blue[400] : grey[400] };
 `;
 
-const DropZone = ({ selectedAccountId, setLoading, setImportTransactions }) => {
+const DropZone = ({ selectedAccountId, setLoading, setImportTransactions, setSelectionModel }) => {
     const { uploadImport } = api();
 
     const onDrop = (acceptedFiles) => {
@@ -32,6 +32,7 @@ const DropZone = ({ selectedAccountId, setLoading, setImportTransactions }) => {
                     ? `${r.category}: ${r.subCategory}`
                     : r.category,
             }))
+            setSelectionModel({ type: 'include', ids: new Set(processedResponse.map(({ id }) => id)) });
             setImportTransactions(processedResponse);
             setLoading(false);
         });
