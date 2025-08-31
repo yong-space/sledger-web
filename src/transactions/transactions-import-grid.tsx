@@ -270,6 +270,7 @@ const ImportGrid = ({ apiRef, transactions, setTransactions, accountType, select
                     setContextMenuPosition={setContextMenuPosition}
                     setTxToSplit={setTxToSplit}
                     apiRef={apiRef}
+                    setTransactions={setTransactions}
                 />
                 { txToSplit && (
                     <SplitTransactionDialog
