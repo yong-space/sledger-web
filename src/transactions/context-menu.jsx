@@ -6,7 +6,7 @@ import api from '../core/api';
 import { gridRowSelectionCountSelector } from '@mui/x-data-grid';
 
 const ContextMenu = ({
-    mode, contextRow, contextMenuPosition, setContextMenuPosition, setTxToSplit, apiRef, setTransactions
+    mode, contextRow, contextMenuPosition, setContextMenuPosition, setTxToSplit, apiRef, setTransactions, setSelectionModel,
 }) => {
     const { editTransaction, deleteTransaction, listTransactions, showStatus } = api();
 
@@ -20,7 +20,6 @@ const ContextMenu = ({
     const handleMergeTransaction = () => {
         setContextMenuPosition(null);
         const tx = Array.from(apiRef.current.getSelectedRows().values());
-
         const mainTx = (mode === 'import') ? tx[0] : { ...tx[0] };
         for (let i=1; i<tx.length; i++) {
             const subTx = tx[i];
@@ -32,6 +31,7 @@ const ContextMenu = ({
         const idsToDelete = tx.slice(1).map(({ id }) => id);
         if (setTransactions) {
             setTransactions((t) => t.filter(({id}) => !idsToDelete.includes(id)));
+            setSelectionModel({ type: 'include', ids: new Set([ mainTx.id ]) });
         } else {
             editTransaction([ mainTx ], () => {
                 deleteTransaction(idsToDelete, () => {

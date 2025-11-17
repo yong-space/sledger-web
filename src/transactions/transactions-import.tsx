@@ -25,7 +25,6 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
     const setVisibleTransactionId = state.useState(state.visibleTransactionId)[1];
     const { addTransaction, showStatus, listTransactions } = api();
     const [ selectionModel, setSelectionModel ] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set<GridRowId>() });
-    const [ paginationModel, setPaginationModel ] = useState();
 
     const apiRef = useGridApiRef();
 
@@ -77,8 +76,6 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
             accountType={selectedAccount.type}
             selectionModel={selectionModel}
             setSelectionModel={setSelectionModel}
-            paginationModel={paginationModel}
-            setPaginationModel={setPaginationModel}
         />
     );
 

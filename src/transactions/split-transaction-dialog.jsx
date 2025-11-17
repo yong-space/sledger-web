@@ -9,7 +9,7 @@ import api from '../core/api';
 import { useState } from 'react';
 import { numericProps } from '../util/formatters';
 
-const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSelectionModel }) => {
+const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSelectionModel, setTransactions }) => {
     const round = (val) => Number(Number(val).toFixed(2));
     const [ value1, setValue1 ] = useState((Math.abs(tx.amount) - 0.01).toFixed(2));
     const value2 = round(Math.abs(tx.amount) - Number(value1));
@@ -18,10 +18,8 @@ const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSe
     const { addTransaction, editTransaction, listTransactions, showStatus } = api();
 
     const postProcess = (newTx) => {
+        setSelectionModel({ type: 'include', ids: new Set([ ...selectionModel.ids, newTx.id ]) });
         setTx(undefined);
-        if (selectionModel.indexOf(tx.id) > -1) {
-            setSelectionModel((old) => [ ...old, newTx.id ]);
-        }
     };
 
     const processSplit = () => {
@@ -32,7 +30,7 @@ const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSe
 
         if (mode === 'import') {
             tx.amount = splits[0] * multiplier;
-            apiRef.current.updateRows([ newTx ]);
+            setTransactions((t) => [ ...t, newTx ]);
             postProcess(newTx);
         } else {
             const editTx = { ...tx, amount: splits[0] * multiplier };
