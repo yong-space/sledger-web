@@ -61,27 +61,25 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
         });
     };
 
-    const MainElement = () => !importTransactions ? (
-        <DropZone
-            selectedAccountId={selectedAccount.id}
-            setLoading={setLoading}
-            setImportTransactions={setImportTransactions}
-            setSelectionModel={setSelectionModel}
-        />
-    ) : (
-        <ImportGrid
-            transactions={importTransactions}
-            setTransactions={setImportTransactions}
-            apiRef={apiRef}
-            accountType={selectedAccount.type}
-            selectionModel={selectionModel}
-            setSelectionModel={setSelectionModel}
-        />
-    );
-
     return (
         <ImportRoot>
-            { loading ? <CircularLoader /> : <MainElement /> }
+            { loading ? <CircularLoader /> : !importTransactions ? (
+                <DropZone
+                    selectedAccountId={selectedAccount.id}
+                    setLoading={setLoading}
+                    setImportTransactions={setImportTransactions}
+                    setSelectionModel={setSelectionModel}
+                />
+            ) : (
+                <ImportGrid
+                    transactions={importTransactions}
+                    setTransactions={setImportTransactions}
+                    apiRef={apiRef}
+                    accountType={selectedAccount.type}
+                    selectionModel={selectionModel}
+                    setSelectionModel={setSelectionModel}
+                />
+            ) }
             <Stack direction="row" spacing={2}>
                 <Button
                     color="info"
