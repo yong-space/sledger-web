@@ -4,7 +4,8 @@ import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Switch from '@mui/material/Switch';
 import { DataGrid, GridColDef, GridRowId } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
+import { GridRowSelectionModel } from '@mui/x-data-grid/models';
+import { useEffect, useState, Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
 import api from '../core/api';
 import { HorizontalLoader } from '../core/utils';
@@ -42,9 +43,20 @@ const FxRoot = styled.sup`
 `;
 const Fx = () => <FxRoot>FX</FxRoot>;
 
+type AccountsGridProps = {
+    issuers: any[];
+    accounts: any[];
+    setAccounts: any;
+    isMobile: boolean;
+    selectedAccount: GridRowSelectionModel;
+    setSelectedAccount: Dispatch<SetStateAction<GridRowSelectionModel>>;
+    setAccountToEdit: any;
+    setShowAddDialog: any;
+};
+
 const AccountsGrid = ({
     issuers, accounts, setAccounts, isMobile, selectedAccount, setSelectedAccount, setAccountToEdit, setShowAddDialog,
-}) => {
+}: AccountsGridProps) => {
     const [ visibleColumns, setVisibleColumns ] = useState({});
     const { editAccountVisibility, showStatus, editAccountSort } = api();
     const colors = {
@@ -180,8 +192,8 @@ const AccountsGrid = ({
         </Alert>
     );
 
-    const updateRowSelection = (newRows) => {
-        if (newRows.ids.size === 0) {
+    const updateRowSelection = (newRows: GridRowSelectionModel) => {
+        if (!newRows?.ids || (newRows.ids as Set<GridRowId>).size === 0) {
             return;
         }
         setSelectedAccount(newRows);
@@ -192,10 +204,10 @@ const AccountsGrid = ({
         setShowAddDialog(true);
     };
 
-    const handleClick = ({ id }) => {
-        const selection = (id === selectedAccount.ids[0]) ?
-            { type: 'include', ids: new Set<GridRowId>() } :
-            { type: 'include', ids: new Set<GridRowId>(id) };
+    const handleClick = ({ id }: { id: GridRowId }) => {
+        const selectedIds = selectedAccount.ids as Set<GridRowId>;
+        const hasId = selectedIds && selectedIds.has(id);
+        const selection: GridRowSelectionModel = hasId ? { type: 'include', ids: new Set<GridRowId>() } : { type: 'include', ids: new Set<GridRowId>([id]) };
         setSelectedAccount(selection);
     };
 

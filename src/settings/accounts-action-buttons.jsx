@@ -12,24 +12,28 @@ const AccountsActionButtons = ({
     const [ showConfirmDelete, setShowConfirmDelete ] = useState(false);
     const { deleteAccount, showStatus } = api();
 
-    const submitDelete = () => deleteAccount(selectedAccount[0], () => {
-        setAccounts((accounts) => accounts.filter(i => i.id !== selectedAccount[0]));
-        showStatus('success', 'Account deleted');
-        setShowConfirmDelete(false);
-        setSelectedAccount([]);
-    });
+    const submitDelete = () => {
+        const id = selectedAccount?.ids ? Array.from(selectedAccount.ids)[0] : undefined;
+        return deleteAccount(id, () => {
+            setAccounts((accounts) => accounts.filter(i => i.id !== id));
+            showStatus('success', 'Account deleted');
+            setShowConfirmDelete(false);
+            setSelectedAccount({ type: 'include', ids: new Set() });
+        });
+    };
 
     const editAccount = () => {
-        setAccountToEdit(accounts.find(({ id }) => id === selectedAccount[0]));
+        const id = selectedAccount?.ids ? Array.from(selectedAccount.ids)[0] : undefined;
+        setAccountToEdit(accounts.find(({ id: aid }) => aid === id));
         setShowAddDialog(true);
     };
 
     return (
         <>
             <Stack direction="row" spacing={1}>
-                { selectedAccount.length === 0 && <AddButton onClick={() => setShowAddDialog(true)} />}
-                { selectedAccount.length === 1 && <EditButton onClick={editAccount} />}
-                { selectedAccount.length === 1 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
+                { (selectedAccount?.ids?.size ?? 0) === 0 && <AddButton onClick={() => setShowAddDialog(true)} />}
+                { (selectedAccount?.ids?.size ?? 0) === 1 && <EditButton onClick={editAccount} />}
+                { (selectedAccount?.ids?.size ?? 0) === 1 && <DeleteButton onClick={() => setShowConfirmDelete(true)} />}
             </Stack>
             { showConfirmDelete && (
                 <ConfirmDialog
