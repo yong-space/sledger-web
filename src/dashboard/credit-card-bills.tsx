@@ -1,4 +1,4 @@
-import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, useGridApiRef } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -9,24 +9,19 @@ import state from '../core/state';
 import { HorizontalLoader, Title } from '../core/utils';
 import { formatDecimal, formatMonth, formatNumber } from '../util/formatters';
 import { CreditAccount } from '../core/types';
-
-type Bill = {
-    month: string;
-    transactions: number;
-    amount: number;
-    net: number;
-    balance: number;
-};
+import { GridApiCommunity } from '@mui/x-data-grid/models/api/gridApiCommunity';
+import { RefObject } from 'react';
 
 interface BillGridProps {
-    bills: Bill[];
     selectedAccount: CreditAccount;
+    getCreditAccounts: () => CreditAccount[];
 }
 
 const Root = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1 1 1px;
+    gap: 1rem;
 `;
 
 const FlexDataGrid = styled(DataGrid)`
@@ -42,14 +37,27 @@ const columns: GridColDef[] = [
     { flex: 1, field: 'balance', type: 'number', valueFormatter: formatDecimal, headerName: 'Balance' },
 ];
 
-const BillGrid = ({ bills, selectedAccount }: BillGridProps) => {
+const BillGrid = ({ getCreditAccounts, selectedAccount }: BillGridProps) => {
     const navigate = useNavigate();
+    const [ bills, setBills ] = useState(null);
     const setFilterModel = state.useState(state.filterModel)[1];
-    const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel | undefined>(undefined);
+    const apiRef : RefObject<GridApiCommunity> = useGridApiRef();
+    const { getCreditCardBills } = api();
 
-    const handlePagination = (n: GridPaginationModel) => setPaginationModel(
-        paginationModel ? n : { ...n, page: Math.floor(bills.length / n.pageSize) }
-    );
+    useEffect(() => {
+        if (selectedAccount && getCreditAccounts().find(({ id }) => id === selectedAccount.id)) {
+            getCreditCardBills(selectedAccount.id, (response) => {
+                setBills(response);
+                gotoLastPage(response.length);
+            });
+        }
+    }, [ selectedAccount ]);
+
+    const gotoLastPage = (rows = bills?.length) => setTimeout(() => {
+        const pageSize = apiRef.current.state.pagination.paginationModel.pageSize;
+        const lastPage = Math.ceil(rows / pageSize) - 1;
+        apiRef.current.setPage(lastPage);
+    }, 100);
 
     const handleDoubleClick = ({ row }) => {
         const filter = {
@@ -67,16 +75,15 @@ const BillGrid = ({ bills, selectedAccount }: BillGridProps) => {
         navigate('/tx/' + selectedAccount.id);
     };
 
-    return (
+    return !bills ? <HorizontalLoader /> : (
         <FlexDataGrid
+            apiRef={apiRef}
             autoPageSize
             disableColumnMenu
             hideFooterSelectedRowCount
             initialState={{ density: 'compact' }}
             rows={bills}
             columns={columns}
-            paginationModel={paginationModel}
-            onPaginationModelChange={handlePagination}
             getRowId={({ month }) =>  month}
             onRowDoubleClick={handleDoubleClick}
         />
@@ -88,11 +95,11 @@ const CreditCardBills = ({ setRoute }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const accounts = state.useState(state.accounts)[0];
-    const { getCreditCardBills } = api();
-    const [ bills, setBills ] = useState(null);
-    const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
 
-    const getCreditAccounts = () => accounts.filter((a) => a.visible && a.type === 'Credit');
+
+    const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
+    const getCreditAccounts = (): CreditAccount[] =>
+        accounts.filter((a): a is CreditAccount => a.visible && a.type === 'Credit');
 
     useEffect(() => {
         if (getCreditAccounts().length === 0) {
@@ -114,12 +121,6 @@ const CreditCardBills = ({ setRoute }) => {
         navigate(`${uri}/${getCreditAccounts()[0].id}`);
     }, [ accounts, location.pathname ]);
 
-    useEffect(() => {
-        if (selectedAccount && getCreditAccounts().find(({ id }) => id === selectedAccount.id)) {
-            getCreditCardBills(selectedAccount.id, (response) => setBills(response));
-        }
-    }, [ selectedAccount ]);
-
     return (
         <Root>
             <Title>Credit Card Bills</Title>
@@ -127,7 +128,7 @@ const CreditCardBills = ({ setRoute }) => {
                 accountFilter={({ type }) => type === 'Credit' }
                 handleChange={({ target }) => navigate(`${uri}/${target.value}`)}
             />
-            { !bills ? <HorizontalLoader /> : <BillGrid bills={bills} selectedAccount={selectedAccount} /> }
+            <BillGrid getCreditAccounts={getCreditAccounts} selectedAccount={selectedAccount as CreditAccount} />
         </Root>
     );
 };
