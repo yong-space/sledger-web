@@ -1,4 +1,4 @@
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,12 +8,80 @@ import api from '../core/api';
 import state from '../core/state';
 import { HorizontalLoader, Title } from '../core/utils';
 import { formatDecimal, formatMonth, formatNumber } from '../util/formatters';
+import { CreditAccount } from '../core/types';
+
+type Bill = {
+    month: string;
+    transactions: number;
+    amount: number;
+    net: number;
+    balance: number;
+};
+
+interface BillGridProps {
+    bills: Bill[];
+    selectedAccount: CreditAccount;
+}
+
+const Root = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 1px;
+`;
 
 const FlexDataGrid = styled(DataGrid)`
     display: flex;
     flex: 1 1 1px;
-    height: calc(100vh - 12rem);
 `;
+
+const columns: GridColDef[] = [
+    { flex: 1, field: 'month', valueFormatter: formatMonth, headerName: 'Month' },
+    { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
+    { flex: 1, field: 'amount', type: 'number', valueFormatter: formatDecimal, headerName: 'Amount' },
+    { flex: 1, field: 'net', type: 'number', valueFormatter: formatDecimal, headerName: 'Net' },
+    { flex: 1, field: 'balance', type: 'number', valueFormatter: formatDecimal, headerName: 'Balance' },
+];
+
+const BillGrid = ({ bills, selectedAccount }: BillGridProps) => {
+    const navigate = useNavigate();
+    const setFilterModel = state.useState(state.filterModel)[1];
+    const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel | undefined>(undefined);
+
+    const handlePagination = (n: GridPaginationModel) => setPaginationModel(
+        paginationModel ? n : { ...n, page: Math.floor(bills.length / n.pageSize) }
+    );
+
+    const handleDoubleClick = ({ row }) => {
+        const filter = {
+            items: [
+                {
+                    field: "billingMonth",
+                    id: 1,
+                    operator: "is",
+                    value: dayjs.utc(row.month).format('YYYY-MM-DD'),
+                },
+            ],
+            operator: "and"
+        };
+        setFilterModel(filter);
+        navigate('/tx/' + selectedAccount.id);
+    };
+
+    return (
+        <FlexDataGrid
+            autoPageSize
+            disableColumnMenu
+            hideFooterSelectedRowCount
+            initialState={{ density: 'compact' }}
+            rows={bills}
+            columns={columns}
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePagination}
+            getRowId={({ month }) =>  month}
+            onRowDoubleClick={handleDoubleClick}
+        />
+    );
+};
 
 const CreditCardBills = ({ setRoute }) => {
     const uri = '/dash/credit-card-bills';
@@ -23,7 +91,6 @@ const CreditCardBills = ({ setRoute }) => {
     const { getCreditCardBills } = api();
     const [ bills, setBills ] = useState(null);
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
-    const setFilterModel = state.useState(state.filterModel)[1];
 
     const getCreditAccounts = () => accounts.filter((a) => a.visible && a.type === 'Credit');
 
@@ -53,62 +120,15 @@ const CreditCardBills = ({ setRoute }) => {
         }
     }, [ selectedAccount ]);
 
-    const BillGrid = () => {
-        const [ paginationModel, setPaginationModel ] = useState();
-
-        const columns : GridColDef[] = [
-            { flex: 1, field: 'month', valueFormatter: formatMonth, headerName: 'Month' },
-            { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
-            { flex: 1, field: 'amount', type: 'number', valueFormatter: formatDecimal, headerName: 'Amount' },
-            { flex: 1, field: 'net', type: 'number', valueFormatter: formatDecimal, headerName: 'Net' },
-            { flex: 1, field: 'balance', type: 'number', valueFormatter: formatDecimal, headerName: 'Balance' },
-        ];
-
-        const handlePagination = (n) => setPaginationModel(
-            paginationModel ? n : { ...n, page: Math.floor(bills.length / n.pageSize) }
-        );
-
-        const handleDoubleClick = ({ row }) => {
-            const filter = {
-                items: [
-                    {
-                        field: "billingMonth",
-                        id: 1,
-                        operator: "is",
-                        value: dayjs.utc(row.month).format('YYYY-MM-DD'),
-                    },
-                ],
-                operator: "and"
-            };
-            setFilterModel(filter);
-            navigate('/tx/' + selectedAccount.id);
-        };
-
-        return (
-            <FlexDataGrid
-                autoPageSize
-                disableColumnMenu
-                hideFooterSelectedRowCount
-                initialState={{ density: 'compact' }}
-                rows={bills}
-                columns={columns}
-                paginationModel={paginationModel}
-                onPaginationModelChange={handlePagination}
-                getRowId={({ month }) =>  month}
-                onRowDoubleClick={handleDoubleClick}
-            />
-        );
-    };
-
     return (
-        <>
+        <Root>
             <Title>Credit Card Bills</Title>
             <AccountSelector
                 accountFilter={({ type }) => type === 'Credit' }
                 handleChange={({ target }) => navigate(`${uri}/${target.value}`)}
             />
-            { !bills ? <HorizontalLoader /> : <BillGrid /> }
-        </>
+            { !bills ? <HorizontalLoader /> : <BillGrid bills={bills} selectedAccount={selectedAccount} /> }
+        </Root>
     );
 };
 export default CreditCardBills;
