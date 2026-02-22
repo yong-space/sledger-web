@@ -214,8 +214,16 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         const selectedIds = useGridSelector(apiRef, gridRowSelectionStateSelector);
         const allRows = useGridSelector(apiRef, gridFilteredSortedRowEntriesSelector)
             .map(({ model }) => model) as Transaction[];
-        const data = (selectedIds.ids.size === 0) ?
-            allRows : Array.from(selectedIds.ids).map(id => apiRef.current.getRow(id)).filter(Boolean) as Transaction[];
+        const getSelectedData = (): Transaction[] => {
+            if (selectedIds.type === 'exclude') {
+                return allRows.filter(row => !selectedIds.ids.has(row.id));
+            }
+            if (selectedIds.ids.size === 0) {
+                return allRows;
+            }
+            return Array.from(selectedIds.ids).map(id => apiRef.current.getRow(id)).filter(Boolean) as Transaction[];
+        };
+        const data = getSelectedData();
         const count = formatNumber(data.length);
         const plural = data.length > 1 ? 's' : '';
         const totalAmount = formatDecimal(data.reduce((sum, row) => sum + row?.amount || 0, 0));
