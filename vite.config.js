@@ -7,32 +7,11 @@ export default defineConfig({
         target: 'esnext',
         rollupOptions: {
             output: {
-                manualChunks: {
-                    mui: [
-                        '@mui/material',
-                        '@mui/styled-engine-sc',
-                        '@mui/icons-material',
-                    ],
-                    muix: [
-                        '@mui/lab',
-                        '@mui/x-data-grid',
-                        '@mui/x-date-pickers',
-                    ],
-                    react: [
-                        "react",
-                        "react-dom",
-                        "react-router-dom",
-                        "react-is",
-                        "react-dropzone",
-                    ],
-                    utils: [
-                        "dayjs",
-                        "jotai",
-                        "randomcolor",
-                        "cbor-js",
-                        "workbox-build",
-                        "workbox-window",
-                    ],
+                manualChunks(id) {
+                    if (id.includes('@mui/lab') || id.includes('@mui/x-data-grid') || id.includes('@mui/x-date-pickers')) return 'muix';
+                    if (id.includes('@mui/')) return 'mui';
+                    if (['react', 'react-dom', 'react-router-dom', 'react-is', 'react-dropzone'].some(p => id.includes(`/node_modules/${p}/`))) return 'react';
+                    if (['dayjs', 'jotai', 'randomcolor', 'cbor-js', 'workbox-build', 'workbox-window'].some(p => id.includes(`/node_modules/${p}/`))) return 'utils';
                 }
             },
         },
