@@ -177,14 +177,15 @@ const Templates = ({ setRoute }) => {
     };
 
     const submitDelete = () => {
-        if (originalData.find(t => t.id === selectedRows.ids[0])) {
-            deleteTemplate(selectedRows.ids[0], () => {
-                setOriginalData((old) => old.filter((o) => o.id !== selectedRows.ids[0]));
+        const selectedId = [...selectedRows.ids][0];
+        if (originalData.find(t => t.id === selectedId)) {
+            deleteTemplate(selectedId, () => {
+                setOriginalData((old) => old.filter((o) => o.id !== selectedId));
                 setShowConfirmDelete(false);
                 showStatus('success', 'Template deleted');
             });
         } else {
-            setData((old) => old.filter((o) => o.id !== selectedRows.ids[0]));
+            setData((old) => old.filter((o) => o.id !== selectedId));
             setShowConfirmDelete(false);
             showStatus('success', 'Template deleted');
         }
