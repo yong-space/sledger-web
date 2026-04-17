@@ -31,9 +31,10 @@ const FlexDataGrid = styled(DataGrid)`
 
 const columns: GridColDef[] = [
     { flex: 1, field: 'month', valueFormatter: formatMonth, headerName: 'Month' },
-    { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Transactions' },
+    { flex: 1, field: 'transactions', type: 'number', valueFormatter: formatNumber, headerName: 'Count' },
     { flex: 1, field: 'amount', type: 'number', valueFormatter: formatDecimal, headerName: 'Amount' },
-    { flex: 1, field: 'net', type: 'number', valueFormatter: formatDecimal, headerName: 'Net' },
+    { flex: 1, field: 'outstanding', type: 'number', valueFormatter: formatDecimal, headerName: 'Outstanding' },
+    { flex: 1, field: 'paid', type: 'number', valueFormatter: formatDecimal, headerName: 'Paid' },
     { flex: 1, field: 'balance', type: 'number', valueFormatter: formatDecimal, headerName: 'Balance' },
 ];
 
