@@ -29,7 +29,10 @@ const TransactionsActionButtons = ({
             listTransactions(selectedAccount.id, (response) => {
                 selectedRows.ids.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
                 response
-                    .filter((updatedRow) => updatedRow.balance !== apiRef.current.getRow(updatedRow.id).balance)
+                    .filter((updatedRow) => {
+                        const gridRow = apiRef.current.getRow(updatedRow.id);
+                        return gridRow !== null && updatedRow.balance !== gridRow.balance;
+                    })
                     .forEach((updatedRow) => apiRef.current.updateRows([{ id: updatedRow.id, balance: updatedRow.balance }]));
                 const plural = selectedLength > 1 ? 's' : '';
                 showStatus('success', selectedLength + ` transaction${plural} deleted`);
