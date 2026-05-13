@@ -28,3 +28,13 @@ export const transactions = [
         amount: -100.00, balance: 850.00, remarks: 'Electricity', category: 'Utilities', company: 'SP Group',
     },
 ];
+
+export const templates = [
+    { id: 1, reference: 'NTUC', remarks: 'Groceries', category: 'Food', subCategory: 'Food' },
+    { id: 2, reference: 'SP GROUP', remarks: 'Electricity', category: 'Utilities', subCategory: 'Utilities' },
+];
+
+export const creditCardBills = [
+    { month: '2024-01-01T00:00:00Z', transactions: 5, amount: -250.00, outstanding: 250.00, paid: 250.00, balance: 0 },
+    { month: '2024-02-01T00:00:00Z', transactions: 3, amount: -180.00, outstanding: 180.00, paid: 0, balance: 180.00 },
+];

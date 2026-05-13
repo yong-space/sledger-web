@@ -1,5 +1,6 @@
 import { test, expect } from 'playwright/test';
 import { seedAuth, mockApi } from './helpers';
+import { creditCardBills } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
     await seedAuth(page);
@@ -33,6 +34,23 @@ test('clicking account row navigates to transactions', async ({ page }) => {
     await page.getByText('Checking').click();
 
     await expect(page).toHaveURL(/\/tx\/1/);
+});
+
+test('credit card bills page shows title and account selector', async ({ page }) => {
+    await mockApi(page, { 'GET /api/dash/credit-card-bills/2': creditCardBills });
+
+    await page.goto('/dash/credit-card-bills/2');
+
+    await expect(page.getByRole('heading', { name: 'Credit Card Bills' })).toBeVisible();
+    await expect(page.getByRole('combobox')).toBeVisible();
+});
+
+test('balance history page shows title', async ({ page }) => {
+    await mockApi(page, { 'GET /api/dash/balance-history': null });
+
+    await page.goto('/dash/balance-history');
+
+    await expect(page.getByRole('heading', { name: 'Balance History' })).toBeVisible();
 });
 
 test('authenticated visit to / redirects to /dash', async ({ page }) => {

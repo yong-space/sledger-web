@@ -86,3 +86,14 @@ test('delete button shows confirmation dialog', async ({ page }) => {
 
     await expect(page.getByText('Confirm Deletion')).toBeVisible();
 });
+
+test('confirming transaction delete shows success message', async ({ page }) => {
+    await page.goto('/tx/1');
+
+    const firstCheckbox = page.getByRole('checkbox').nth(1);
+    await firstCheckbox.click();
+    await page.getByRole('button', { name: /delete/i }).click();
+    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await expect(page.getByText(/1 transaction deleted/i)).toBeVisible();
+});

@@ -45,3 +45,13 @@ test('Edit button opens the edit account dialog', async ({ page }) => {
 
     await expect(page.getByRole('dialog')).toBeVisible();
 });
+
+test('confirming account delete shows success message', async ({ page }) => {
+    await page.goto('/settings/accounts');
+
+    await page.getByText('Checking').click();
+    await page.getByRole('button', { name: /delete/i }).click();
+    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await expect(page.getByText(/account deleted/i)).toBeVisible();
+});
