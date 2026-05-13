@@ -118,18 +118,20 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
             delete vColumns.amount;
         }
         setVisibleColumns(vColumns);
-    }, [ isMobile, isSmallHeight ]);
+    }, [ isMobile, isSmallHeight, selectedAccount ]);
 
     const getAmount = (_, row, column) => (column.field === 'credit') ?
         (row.amount > 0 ? row.amount : 0) :
         (row.amount < 0 ? -row.amount : 0);
 
-    const getFx = (_, row) => {
-        if (row.currency === 'SGD') {
-            return '';
-        }
-        return row.currency + ' @ ' + Math.abs(row.amount / row.originalAmount).toFixed(5);
+    const getFxRate = (_, row) => {
+        if (row.currency === 'SGD') return '';
+        const rate = Math.abs(row.amount / row.originalAmount);
+        const normalized = rate < 1 ? 1 / rate : rate;
+        return normalized < 10 ? normalized.toFixed(5) : formatNumber(Math.round(normalized));
     };
+
+    const renderOriginalAmount = ({ value, row }) => value && row.currency !== 'SGD' ? `${row.currency} ${formatDecimalAbs(value)}` : '';
 
     const getAccountName = (_, row) => accounts.find(({ id }) => id === row.accountId).name;
 
@@ -148,8 +150,8 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         credit: { flex: 2, field: 'credit', headerName: 'Credit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimalHideZero, cellClassName: 'green' },
         debit: { flex: 2, field: 'debit', headerName: 'Debit', type: 'number', valueGetter: getAmount, valueFormatter: formatDecimalHideZero, cellClassName: 'red' },
         amount: { flex: 2.5, field: 'amount', headerName: 'Amount', type: 'number', valueFormatter: formatDecimal, cellClassName: getColourClassForValue },
-        originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', valueFormatter: formatDecimalAbs },
-        fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: getFx },
+        originalAmount: { flex: 2, field: 'originalAmount', type: 'number', headerName: 'Original', renderCell: renderOriginalAmount },
+        fx: { flex: 2, field: 'fx', headerName: 'FX', type: 'number', valueGetter: getFxRate },
         balance: { flex: 2, field: 'balance', headerName: 'Balance', type: 'number', valueFormatter: formatDecimal },
         remarks: { flex: 4, field: 'remarks', headerName: 'Remarks' },
         category: { flex: 2, field: 'category', headerName: 'Category' },
@@ -174,6 +176,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         } else {
             if (isMultiCurrency(selectedAccount)) {
                 fields.splice(4, 0, columns.fx);
+                fields.splice(4, 0, columns.originalAmount);
             }
             if (selectedAccount.type === 'Credit') {
                 fields.splice(1, 0, columns.billingMonth);
@@ -293,7 +296,6 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
             <FlexDataGrid
                 autoPageSize
                 checkboxSelection
-                disableColumnSelector
                 disableDensitySelector
                 disableColumnMenu
                 apiRef={apiRef}
@@ -301,6 +303,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
                 rows={transactions}
                 columns={getColumns()}
                 columnVisibilityModel={visibleColumns}
+                onColumnVisibilityModelChange={setVisibleColumns}
                 rowSelectionModel={selectedRows}
                 onRowSelectionModelChange={(m) => setSelectedRows(m)}
                 onRowDoubleClick={handleDoubleClick}
