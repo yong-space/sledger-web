@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material/styles';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ControlPoint from '@mui/icons-material/ControlPoint';
 import Button from '@mui/material/Button';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -39,7 +39,7 @@ export const AddButton = (props) => (
     <ActionButton
         label="Add"
         color="success"
-        startIcon={<AddCircleOutlineIcon />}
+        startIcon={<ControlPoint />}
         {...props}
     />
 );

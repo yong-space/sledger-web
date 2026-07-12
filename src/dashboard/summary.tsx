@@ -262,7 +262,9 @@ const Summary = ({ setRoute }) => {
         <Wrapper>
             <TradingAccountHeader>
                 <SubTitle>Trading Account</SubTitle>
-                <Stack direction="row" alignItems="center">
+                <Stack direction="row" sx={{
+                    alignItems: "center"
+                }}>
                     <Typography color="textDisabled">
                         as of { formatDateRelative(time) }
                     </Typography>
@@ -318,7 +320,12 @@ const Summary = ({ setRoute }) => {
 
     return !accounts.find((a) => a.visible) ? <Empty /> : (
         <>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack
+                direction="row"
+                sx={{
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}>
                 <Title>Summary</Title>
                 <IconButton
                     color="info"

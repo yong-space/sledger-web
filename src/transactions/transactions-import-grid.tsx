@@ -117,7 +117,7 @@ const RemarksEditor = (props) => {
             sx={{ flex: 1 }}
             fieldProps={{
                 inputRef: ref,
-                inputProps: { minLength: 2 },
+                slotProps: { htmlInput: { minLength: 2 } },
                 name: 'remarks',
                 size: 'small',
             }}

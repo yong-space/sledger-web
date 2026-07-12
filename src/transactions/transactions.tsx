@@ -93,7 +93,12 @@ const Transactions = () => {
         <TransactionsRoot>
             { !isSmallHeight && (
                 <>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Stack
+                        direction="row"
+                        sx={{
+                            justifyContent: "space-between",
+                            alignItems: "center"
+                        }}>
                         <Title>
                             Transactions
                             { importMode && ' Import'}
@@ -101,7 +106,9 @@ const Transactions = () => {
                         </Title>
                         { isMobile && <TransactionsActionButtons {...actionProps} apiRef={apiRef} />}
                     </Stack>
-                    <Stack direction="row" spacing={1} justifyContent="space-between">
+                    <Stack direction="row" spacing={1} sx={{
+                        justifyContent: "space-between"
+                    }}>
                         <AccountSelector
                             sx={{ flex: 4 }}
                             disabled={importMode}
@@ -138,6 +145,6 @@ const Transactions = () => {
                 }} />
             )}
         </TransactionsRoot>
-    )
+    );
 };
 export default Transactions;

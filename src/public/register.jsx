@@ -34,10 +34,18 @@ const Register = () => {
         <form onSubmit={submit} autoComplete="off">
             <Stack spacing={2}>
                 <Title>Register</Title>
-                <TextField required name="displayName" label="Name" inputProps={{ minLength: 3 }}/>
-                <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7 }} />
-                <TextField required name="password" type="password" label="Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                <TextField required name="password2" type="password" label="Repeat Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
+                <TextField required name="displayName" label="Name" slotProps={{
+                    htmlInput: { minLength: 3 }
+                }}/>
+                <TextField required name="username" type="email" label="Email" slotProps={{
+                    htmlInput: { minLength: 7 }
+                }} />
+                <TextField required name="password" type="password" label="Password" autoComplete="new-password" slotProps={{
+                    htmlInput: { minLength: 8 }
+                }} />
+                <TextField required name="password2" type="password" label="Repeat Password" autoComplete="new-password" slotProps={{
+                    htmlInput: { minLength: 8 }
+                }} />
                 <Button
                     type="submit"
                     endIcon={<HowToRegIcon />}

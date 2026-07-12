@@ -25,7 +25,11 @@ const CircularLoader = () => (
 );
 
 const HorizontalLoader = () => (
-  <Box width="100%" height="100%">
+  <Box
+    sx={{
+      width: "100%",
+      height: "100%"
+    }}>
     <Skeleton animation="wave" />
     <Skeleton animation="wave"  />
     <Skeleton animation="wave" />
@@ -38,13 +42,17 @@ type TitleProps = {
   variant?: TypographyVariant;
 };
 const Title = ({ children, variant="h5" } : TitleProps) => (
-  <Typography variant={variant} m={0}>
+  <Typography variant={variant} sx={{
+    m: 0
+  }}>
       {children}
   </Typography>
 );
 
 const SubTitle = ({ children }) => (
-  <Typography variant="h6" mb={1}>
+  <Typography variant="h6" sx={{
+    mb: 1
+  }}>
       {children}
   </Typography>
 );
@@ -52,14 +60,20 @@ const SubTitle = ({ children }) => (
 const Error = ({ title, message }) => (
   <Root>
     <Card>
-      <Typography m={3} variant="h4">
+      <Typography variant="h4" sx={{
+        m: 3
+      }}>
         {title}
       </Typography>
       <Divider />
-      <Typography m={3}>
+      <Typography sx={{
+        m: 3
+      }}>
         {message}
       </Typography>
-      <Grid p={3}>
+      <Grid sx={{
+        p: 3
+      }}>
         <Button variant="contained" onClick={() => window.location.href = '/'}>
           Back to Home
         </Button>

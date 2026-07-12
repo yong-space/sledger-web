@@ -9,15 +9,10 @@ import FaceIcon from '@mui/icons-material/Face';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoutIcon from '@mui/icons-material/Logout';
-import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import state from '../core/state';
 import styled from 'styled-components';
-
-const FloatingMenu = styled(Menu)`
-    pointer-events: none;
-    .MuiPaper-root { pointer-events: all }
-`;
+import FloatingMenu from './floating-menu';
 
 const NavButton = styled(Button)`
     color: #fff;
@@ -81,13 +76,9 @@ const ProfileMenu = ({ currentPath }) => {
             <FloatingMenu
                 id="profile-menu"
                 anchorEl={() => document.querySelector('#avatar')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                placement="bottom-end"
                 open={open}
-                MenuListProps={{
-                    onMouseLeave: () => setOpen(false),
-                }}
-                disableScrollLock
+                onMouseLeave={() => setOpen(false)}
             >
                 { menuItems.map((item) => <ProfileMenuItem key={item.uri} {...item} />) }
                 <Divider />

@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
+import Dialog from '../core/dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slider from '@mui/material/Slider';
@@ -74,13 +74,19 @@ const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSe
                     sx={{ margin: '.6rem 0' }}
                 />
 
-                <Stack direction="row" justifyContent="space-between" pb={2}>
+                <Stack
+                    direction="row"
+                    sx={{
+                        justifyContent: "space-between",
+                        pb: 2
+                    }}>
                     <TextField
                         required
                         value={value1}
                         onChange={({ target }) => setValue1(target.value)}
-                        // @ts-ignore
-                        inputProps={numericProps}
+                        slotProps={{
+                            htmlInput: numericProps
+                        }}
                     />
                     <TextField
                         disabled
@@ -88,7 +94,9 @@ const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSe
                     />
                 </Stack>
 
-                <Stack direction="row" justifyContent="space-between">
+                <Stack direction="row" sx={{
+                    justifyContent: "space-between"
+                }}>
                     <Button
                         variant="contained"
                         color="info"

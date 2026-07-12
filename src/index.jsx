@@ -6,6 +6,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import isPropValid from "@emotion/is-prop-valid";
 import Session from './core/session';
 import StatusBar from './core/statusbar';
+import { blurActiveElement } from './core/blur-on-open';
 import { registerSW } from 'virtual:pwa-register';
 
 import '@fontsource/roboto/300.css';
@@ -28,6 +29,16 @@ const darkTheme = createTheme({
         error: {
             main: '#d32f2f',
             dark: '#d32f2f',
+        },
+    },
+    components: {
+        MuiSelect: {
+            defaultProps: {
+                // Select opens a modal Menu; blur the trigger first so the
+                // aria-hidden applied to #root never hides a focused element
+                // (Chrome's "Blocked aria-hidden" warning). See blur-on-open.js.
+                onOpen: blurActiveElement,
+            },
         },
     },
 });

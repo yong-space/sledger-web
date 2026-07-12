@@ -1,6 +1,6 @@
 import {
     BarPlot, ChartsGrid, ChartsTooltip, ChartsXAxis, ChartsYAxis, LinePlot,
-    MarkPlot, ChartContainer, lineElementClasses, markElementClasses,
+    MarkPlot, ChartsContainer, lineClasses,
 } from '@mui/x-charts';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ const BalanceHistory = ({ setRoute }) => {
     }, []);
 
     const BalanceChart = () => (
-        <ChartContainer
+        <ChartsContainer
             series={balanceHistory.series}
             xAxis={[{
                 data: balanceHistory.xaxis.map((str) => dayjs.utc(str).format('MMM YY')),
@@ -33,7 +33,7 @@ const BalanceHistory = ({ setRoute }) => {
             }]}
             margin={{ top: 10, left: 53, right: 0, bottom: 40 }}
             sx={{
-                [`.${lineElementClasses.root}, .${markElementClasses.root}`]: {
+                [`.${lineClasses.line}, .${lineClasses.mark}`]: {
                   strokeWidth: 4,
                 }
             }}
@@ -45,7 +45,7 @@ const BalanceHistory = ({ setRoute }) => {
             <LinePlot />
             <MarkPlot />
             <ChartsTooltip trigger="item" />
-        </ChartContainer>
+        </ChartsContainer>
     );
 
     return (

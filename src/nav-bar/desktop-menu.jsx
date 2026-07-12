@@ -4,14 +4,9 @@ import { useState, Fragment } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ListItemText from '@mui/material/ListItemText';
-import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import styled from 'styled-components';
-
-const FloatingMenu = styled(Menu)`
-    pointer-events: none;
-    .MuiPaper-root { pointer-events: all }
-`;
+import FloatingMenu from './floating-menu';
 
 const NavButton = styled(Button)`
     color: #fff;
@@ -56,13 +51,9 @@ const DesktopMenu = ({ pages, currentPath }) => {
                             <FloatingMenu
                                 id={`${link.substring(1)}-menu`}
                                 anchorEl={() => document.querySelector(`#${link.substring(1)}-button`)}
-                                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                                placement="bottom-start"
                                 open={openMenu === link}
-                                MenuListProps={{
-                                    onMouseLeave: () => setOpenMenu(undefined),
-                                }}
-                                disableScrollLock
+                                onMouseLeave={() => setOpenMenu(undefined)}
                             >
                                 { children.map((item) => (
                                     <MenuItem key={item.link} onClick={() => goto(item.link)}>

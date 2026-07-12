@@ -107,8 +107,23 @@ const Profile = () => {
 
     return (
         <form onSubmit={submit} autoComplete="off">
-            <Grid container item xs={12} md={5} pb={3} direction="column" gap={2}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Grid
+                container
+                direction="column"
+                sx={{
+                    pb: 3,
+                    gap: 2
+                }}
+                size={{
+                    xs: 12,
+                    md: 5
+                }}>
+                <Stack
+                    direction="row"
+                    sx={{
+                        justifyContent: "space-between",
+                        alignItems: "center"
+                    }}>
                     <Title>Profile</Title>
                     <BiometricButton
                         onClick={registerBiometric}
@@ -116,13 +131,23 @@ const Profile = () => {
                         color={localStorage.getItem("biometrics") ? 'success' : 'info'}
                     />
                 </Stack>
-                <TextField required name="displayName" label="Name" inputProps={{ minLength: 3, autoComplete: 'off' }} defaultValue={session.name} />
-                <TextField required name="username" type="email" label="Email" inputProps={{ minLength: 7, autoComplete: 'off' }} defaultValue={session.email} />
+                <TextField required name="displayName" label="Name" defaultValue={session.name} slotProps={{
+                    htmlInput: { minLength: 3, autoComplete: 'off' }
+                }} />
+                <TextField required name="username" type="email" label="Email" defaultValue={session.email} slotProps={{
+                    htmlInput: { minLength: 7, autoComplete: 'off' }
+                }} />
                 <Tooltip title="Enter only if you wish to change your password">
-                    <TextField name="password" type="password" label="Current Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
+                    <TextField name="password" type="password" label="Current Password" autoComplete="new-password" slotProps={{
+                        htmlInput: { minLength: 8 }
+                    }} />
                 </Tooltip>
-                <TextField name="newPassword" type="password" label="New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
-                <TextField name="newPassword2" type="password" label="Repeat New Password" inputProps={{ minLength: 8 }} autoComplete="new-password" />
+                <TextField name="newPassword" type="password" label="New Password" autoComplete="new-password" slotProps={{
+                    htmlInput: { minLength: 8 }
+                }} />
+                <TextField name="newPassword2" type="password" label="Repeat New Password" autoComplete="new-password" slotProps={{
+                    htmlInput: { minLength: 8 }
+                }} />
                 <Button
                     type="submit"
                     endIcon={<HowToRegIcon />}

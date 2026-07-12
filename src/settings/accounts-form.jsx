@@ -5,7 +5,7 @@ import api from '../core/api';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import CpfSlider from './cpf-slider';
-import Dialog from '@mui/material/Dialog';
+import Dialog from '../core/dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
@@ -101,7 +101,9 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                 name="name"
                 label={`${type === 'Credit' ? 'Card' : 'Account'} name`}
                 defaultValue={accountToEdit?.name}
-                inputProps={{ minLength: 3 }}
+                slotProps={{
+                    htmlInput: { minLength: 3 }
+                }}
             />
         ),
         billingCycle: (
@@ -111,7 +113,9 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                 name="billingCycle"
                 label="Billing Cycle Start Date"
                 defaultValue={accountToEdit?.billingCycle || 1}
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]{1,2}' }}
+                slotProps={{
+                    htmlInput: { inputMode: 'numeric', pattern: '[0-9]{1,2}' }
+                }}
             />
         ),
         billingMonthOffset: (
@@ -121,7 +125,9 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
                 name="billingMonthOffset"
                 label="Billing Month Offset"
                 defaultValue={accountToEdit?.billingMonthOffset || 0}
-                inputProps={{ inputMode: 'numeric', pattern: '\-?[0-9]{1}' }}
+                slotProps={{
+                    htmlInput: { inputMode: 'numeric', pattern: '\-?[0-9]{1}' }
+                }}
             />
         ),
         multiCurrency: (
@@ -191,12 +197,16 @@ const AccountsDialog = ({ issuers, accounts, setAccounts, setShowAddDialog, acco
 
     const addAccountForm = (
         <form onSubmit={submit} autoComplete="off">
-            <Stack spacing={2} mt={1}>
+            <Stack spacing={2} sx={{
+                mt: 1
+            }}>
                 { !accountToEdit && <AccountTypeToggle /> }
 
                 { getIssuers().find(({ id }) => id === issuerId) && getFields() }
 
-                <Stack direction="row" gap={2}>
+                <Stack direction="row" sx={{
+                    gap: 2
+                }}>
                     <Button
                         type="submit"
                         loading={loading}

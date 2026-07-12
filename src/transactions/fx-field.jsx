@@ -51,10 +51,12 @@ export default ({
                         required
                         name="currency"
                         label="Currency"
-                        inputProps={{ minLength: 3, maxLength: 3 }}
                         onFocus={({ target }) => target.select()}
                         {...params}
-                    />
+                        slotProps={{
+                            ...params.slotProps,
+                            htmlInput: { ...params.slotProps.htmlInput, minLength: 3, maxLength: 3 }
+                        }} />
                 )}
             />
             <TextField
@@ -64,8 +66,10 @@ export default ({
                 label="Original Amount"
                 value={originalAmount}
                 onChange={({ target }) => setOriginalAmount(target.value)}
-                inputProps={numericProps}
                 onFocus={({ target }) => target.select()}
+                slotProps={{
+                    htmlInput: numericProps
+                }}
             />
         </ForeignCurrencyBar>
     );

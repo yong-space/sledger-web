@@ -36,7 +36,20 @@ const AutoFill = ({ initValue, fieldProps, promise, ...props }) => {
             getOptionLabel={(option) => option}
             inputValue={inputValue}
             onInputChange={(e, v) => setInputValue(v.replaceAll(/\s+/g, ' '))}
-            renderInput={(params) => <TextField {...fieldProps} {...params} />}
+            renderInput={(params) => (
+                <TextField
+                    {...fieldProps}
+                    {...params}
+                    slotProps={{
+                        ...fieldProps?.slotProps,
+                        ...params.slotProps,
+                        htmlInput: {
+                            ...fieldProps?.slotProps?.htmlInput,
+                            ...params.slotProps.htmlInput,
+                        },
+                    }}
+                />
+            )}
             {...props}
         />
     );

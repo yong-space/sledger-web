@@ -17,7 +17,12 @@ const Accounts = ({ isMobile, setRoute }) => {
 
     return (
         <>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack
+                direction="row"
+                sx={{
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}>
                 <Title>Accounts</Title>
                 <AccountsActionButtons {...{
                     issuers, accounts, setAccounts, accountToEdit, setAccountToEdit,

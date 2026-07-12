@@ -52,7 +52,9 @@ const CpfSlider = ({ cpfRatio, setCpfRatio, cpfAllocationInvalid }) => {
                 label="Ordinary Ratio"
                 value={cpfRatio.ordinaryRatio}
                 onChange={updateCpfRatio}
-                inputProps={numericProps}
+                slotProps={{
+                    htmlInput: numericProps
+                }}
             />
             <TextField
                 required
@@ -60,7 +62,9 @@ const CpfSlider = ({ cpfRatio, setCpfRatio, cpfAllocationInvalid }) => {
                 label="Special Ratio"
                 value={cpfRatio.specialRatio}
                 onChange={updateCpfRatio}
-                inputProps={numericProps}
+                slotProps={{
+                    htmlInput: numericProps
+                }}
             />
             <TextField
                 required
@@ -68,7 +72,9 @@ const CpfSlider = ({ cpfRatio, setCpfRatio, cpfAllocationInvalid }) => {
                 label="Medisave Ratio"
                 value={cpfRatio.medisaveRatio}
                 onChange={updateCpfRatio}
-                inputProps={numericProps}
+                slotProps={{
+                    htmlInput: numericProps
+                }}
             />
             { cpfAllocationInvalid() && (
                 <Alert severity="error" variant="outlined">

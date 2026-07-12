@@ -1,7 +1,10 @@
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import CallSplitIcon from '@mui/icons-material/CallSplit';
-import Menu from '@mui/material/Menu';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
 import api from '../core/api';
 import { gridRowSelectionCountSelector } from '@mui/x-data-grid';
 
@@ -52,33 +55,42 @@ const ContextMenu = ({
         }
     };
 
+    // Deliberately not a modal Menu: a modal would aria-hide #root while the
+    // grid re-focuses the right-clicked cell, triggering Chrome's "Blocked
+    // aria-hidden" warning. A Popper leaves grid focus alone entirely.
     return (
-        <Menu
+        <Popper
             open={contextMenuPosition !== null}
-            onClose={() => setContextMenuPosition(null)}
-            anchorReference="anchorPosition"
-            anchorPosition={ contextMenuPosition || undefined }
-            slotProps={{
-                root: {
-                    onContextMenu: (e) => {
-                        e.preventDefault();
-                        setContextMenuPosition(null);
-                    },
-                },
+            anchorEl={contextMenuPosition && {
+                getBoundingClientRect: () => new DOMRect(contextMenuPosition.left, contextMenuPosition.top, 0, 0),
             }}
+            placement="bottom-start"
+            sx={{ zIndex: 'modal' }}
         >
-            <MenuItem onClick={handleSplitTransaction}>
-                <CallSplitIcon sx={{ marginRight: '.7rem' }} />
-                Split Transaction
-            </MenuItem>
-            <MenuItem
-                onClick={handleMergeTransaction}
-                disabled={selectedRowSize < 2 || selectedRowSize > 5}
-            >
-                <CallMergeIcon sx={{ marginRight: '.7rem' }} />
-                Merge Transactions
-            </MenuItem>
-        </Menu>
+            <ClickAwayListener mouseEvent="onMouseDown" onClickAway={() => setContextMenuPosition(null)}>
+                <Paper elevation={8}>
+                    <MenuList
+                        onContextMenu={(e) => {
+                            e.preventDefault();
+                            setContextMenuPosition(null);
+                        }}
+                        onKeyDown={(e) => e.key === 'Escape' && setContextMenuPosition(null)}
+                    >
+                        <MenuItem onClick={handleSplitTransaction}>
+                            <CallSplitIcon sx={{ marginRight: '.7rem' }} />
+                            Split Transaction
+                        </MenuItem>
+                        <MenuItem
+                            onClick={handleMergeTransaction}
+                            disabled={selectedRowSize < 2 || selectedRowSize > 5}
+                        >
+                            <CallMergeIcon sx={{ marginRight: '.7rem' }} />
+                            Merge Transactions
+                        </MenuItem>
+                    </MenuList>
+                </Paper>
+            </ClickAwayListener>
+        </Popper>
     );
 };
 export default ContextMenu;
