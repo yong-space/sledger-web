@@ -507,7 +507,6 @@ const AddTransactionDialog = ({
             fullScreen={isMobile}
             aria-labelledby="add-transaction-dialog-title"
             aria-describedby="add-transaction-dialog-description"
-            onClose={() => setShowAddDialog(false)}
         >
             <DialogTitle id="add-transaction-dialog-title">
                 { transactionToEdit ? 'Edit' : 'Add' } Transaction
