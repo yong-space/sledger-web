@@ -2,7 +2,7 @@ import { createFilterOptions } from '@mui/material/Autocomplete';
 import { DataGrid, useGridApiRef, useGridApiContext, gridPageCountSelector, GridRowId, GridRowSelectionModel } from '@mui/x-data-grid';
 import { HorizontalLoader } from '../core/utils';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ControlPoint from '@mui/icons-material/ControlPoint';
 import api from '../core/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import AutoFill from '../transactions/auto-fill';
@@ -53,7 +53,7 @@ const Templates = ({ setRoute }) => {
                 sx={{ flex: 1 }}
                 fieldProps={{
                     inputRef: ref,
-                    inputProps: { minLength: 2 },
+                    slotProps: { htmlInput: { minLength: 2 } },
                     name: 'remarks',
                     label: 'Remarks'
                 }}
@@ -198,13 +198,18 @@ const Templates = ({ setRoute }) => {
 
     return (
         <>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack
+                direction="row"
+                sx={{
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}>
                 <Title>Templates</Title>
                 <Stack spacing={2} direction="row">
                     <Button
                         color="success"
                         variant="contained"
-                        startIcon={<AddCircleOutlineIcon />}
+                        startIcon={<ControlPoint />}
                         onClick={addTemplateRow}
                         sx={{ height: '2.5rem' }}
                     >

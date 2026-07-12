@@ -129,7 +129,16 @@ const IssuersForm = ({ setIssuers }) => {
 
     return (
         <form onSubmit={submitAddIssuer} autoComplete="off">
-            <Grid container item xs={12} md={5} direction="column" gap={2}>
+            <Grid
+                container
+                direction="column"
+                sx={{
+                    gap: 2
+                }}
+                size={{
+                    xs: 12,
+                    md: 5
+                }}>
                 <Typography variant="h6">
                     Add New Issuer
                 </Typography>
@@ -138,16 +147,20 @@ const IssuersForm = ({ setIssuers }) => {
                     label="Issuer name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    inputProps={{ minLength: 3 }}
+                    slotProps={{
+                        htmlInput: { minLength: 3 }
+                    }}
                 />
                 <ColourTextField
                     required
                     label="Colour"
                     value={colour}
                     onChange={(e) => setColour(e.target.value)}
-                    inputProps={{ minLength: 6, maxLength: 6 }}
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start">#</InputAdornment>,
+                    slotProps={{
+                        htmlInput: { minLength: 6, maxLength: 6 },
+                        input: {
+                            startAdornment: <InputAdornment position="start">#</InputAdornment>,
+                        },
                     }}
                     colour={colour}
                 />
@@ -177,7 +190,7 @@ const IssuersForm = ({ setIssuers }) => {
                 </Button>
             </Grid>
         </form>
-    )
+    );
 };
 
 const ManageIssuers = () => {

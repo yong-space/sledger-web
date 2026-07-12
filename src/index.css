@@ -14,7 +14,7 @@ body, #root {
     display: flex;
 }
 a, a:active, a:visited { color: white; text-decoration: none }
-button.MuiButton-containedSuccess { color: #fff; }
+button.MuiButton-contained.MuiButton-colorSuccess { color: #fff; }
 .MuiDataGrid-panelWrapper { max-width: 100dvw }
 
 ::-webkit-scrollbar { width: 10px }

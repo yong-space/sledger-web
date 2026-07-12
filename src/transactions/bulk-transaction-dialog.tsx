@@ -10,7 +10,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import AutoFill from './auto-fill';
 import Button from '@mui/material/Button';
 import dayjs, { Dayjs } from 'dayjs';
-import Dialog from '@mui/material/Dialog';
+import Dialog from '../core/dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
@@ -114,7 +114,9 @@ const BulkTransactionDialog = ({
 
     const bulkTransactionForm = (
         <form onSubmit={submit} autoComplete="off">
-            <Stack spacing={2} mt={1}>
+            <Stack spacing={2} sx={{
+                mt: 1
+            }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     { selectedAccount?.type === 'Credit' && (
                         <DatePicker
@@ -130,7 +132,7 @@ const BulkTransactionDialog = ({
                         initValue=""
                         promise={suggestRemarks}
                         fieldProps={{
-                            inputProps: { minLength: 2 },
+                            slotProps: { htmlInput: { minLength: 2 } },
                             name: 'remarks',
                             label: 'Remarks'
                         }}

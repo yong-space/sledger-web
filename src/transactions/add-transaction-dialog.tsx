@@ -4,7 +4,7 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
+import Dialog from '../core/dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
@@ -346,7 +346,7 @@ const AddTransactionDialog = ({
                 initValue={transactionToEdit?.remarks}
                 fieldProps={{
                     required: true,
-                    inputProps: { minLength: 2 },
+                    slotProps: { htmlInput: { minLength: 2 } },
                     name: 'remarks',
                     label: 'Remarks'
                 }}
@@ -364,11 +364,13 @@ const AddTransactionDialog = ({
                 renderInput={(params) => (
                     <TextField
                         required
-                        inputProps={{ minLength: 2 }}
                         name="category"
                         label="Category"
                         {...params}
-                    />
+                        slotProps={{
+                            ...params.slotProps,
+                            htmlInput: { ...params.slotProps.htmlInput, minLength: 2 }
+                        }} />
                 )}
             />
         ),
@@ -383,11 +385,13 @@ const AddTransactionDialog = ({
                 renderInput={(params) => (
                     <TextField
                         required
-                        inputProps={{ minLength: 3, maxLength: 3 }}
                         name="code"
                         label="Code"
                         {...params}
-                    />
+                        slotProps={{
+                            ...params.slotProps,
+                            htmlInput: { ...params.slotProps.htmlInput, minLength: 3, maxLength: 3 }
+                        }} />
                 )}
                 value={code}
                 onChange={(_, v) => setCode(v?.toUpperCase() || '')}
@@ -477,12 +481,16 @@ const AddTransactionDialog = ({
 
     const addTransactionForm = (
         <form onSubmit={submit} autoComplete="off">
-            <Stack spacing={2} mt={1}>
+            <Stack spacing={2} sx={{
+                mt: 1
+            }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     { getFields() }
                 </LocalizationProvider>
 
-                <Stack direction="row" justifyContent="space-between">
+                <Stack direction="row" sx={{
+                    justifyContent: "space-between"
+                }}>
                     <Button
                         type="submit"
                         loading={loading}

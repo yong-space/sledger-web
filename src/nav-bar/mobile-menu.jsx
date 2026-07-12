@@ -11,6 +11,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Typography from '@mui/material/Typography';
 import styled from 'styled-components';
+import { useBlurOnOpen } from '../core/blur-on-open';
 
 const Brand = styled(Typography)`
     font-size: 1.4rem;
@@ -40,6 +41,7 @@ const isSelected = (path, link) => path.indexOf(link) === 0;
 
 const MobileMenu = ({ pages, currentPath }) => {
     const [ isOpen, setOpen ] = useState(false);
+    useBlurOnOpen(isOpen);
 
     const MobileListItem = ({ link, label }) => (
         <ListItem component={Link} to={link} onClick={() => setOpen(false)}>
