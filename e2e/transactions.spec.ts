@@ -66,6 +66,40 @@ test('submitting add transaction dialog calls POST and shows success', async ({ 
     await expect(page.getByText(/transaction added/i)).toBeVisible();
 });
 
+test('processing a transaction split completes without crashing', async ({ page }) => {
+    // The reconciliation step after a split re-fetches the transaction list and
+    // diffs it against whatever is currently in the grid. If a row present in the
+    // grid (e.g. "Groceries") is no longer in that refreshed list — because another
+    // tab/device deleted it concurrently — the diff must not crash trying to read
+    // `.balance` off the missing row.
+    const editedMainTx = { ...transactions[0], amount: 1.00, balance: 951.00 };
+    const splitTx = { ...transactions[0], id: 10, amount: 999.99, balance: 1950.00, remarks: 'Salary' };
+
+    await mockApi(page, {
+        'PUT /api/transaction': [editedMainTx],
+        'POST /api/transaction': [splitTx],
+    });
+
+    let getCount = 0;
+    await page.route('**/api/transaction/1', async (route) => {
+        getCount += 1;
+        const body = getCount === 1
+            ? transactions
+            : [editedMainTx, transactions[2], splitTx]; // "Groceries" (transactions[1]) is missing
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+    });
+
+    await page.goto('/tx/1');
+
+    await page.getByText('Salary').first().click({ button: 'right' });
+    await page.getByRole('menuitem', { name: 'Split Transaction' }).click();
+    await expect(page.getByRole('heading', { name: /Split/ })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Split Transaction' }).click();
+
+    await expect(page.getByText(/split successfully/i)).toBeVisible();
+});
+
 test('selecting a row shows Delete button', async ({ page }) => {
     await page.goto('/tx/1');
 

@@ -26,7 +26,8 @@ const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSe
         const multiplier = tx.amount > 0 ? 1 : -1;
         const newTx = { ...tx };
         newTx.amount = (Math.abs(tx.amount) - splits[0]) * multiplier;
-        newTx.id = Math.max(...[ ...apiRef.current.getRowModels().values() ].map(({ id }) => id)) + 1;
+        const tempId = Math.max(...[ ...apiRef.current.getRowModels().values() ].map(({ id }) => id)) + 1;
+        newTx.id = tempId;
 
         if (mode === 'import') {
             tx.amount = splits[0] * multiplier;
@@ -38,10 +39,12 @@ const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSe
             editTransaction([ editTx ], () => {
                 addTransaction([ newTx ], (newTxResponse) => {
                     newTx.id = newTxResponse[0].id;
+                    apiRef.current.updateRows([ { id: tempId, _action: 'delete' } ]);
+                    apiRef.current.updateRows([ newTxResponse[0] ]);
                     listTransactions(tx.accountId, (allTx) => {
                         for (const row of apiRef.current.getRowModels().values()) {
                             const newRow = allTx.find(({ id }) => id === row.id);
-                            if (row.balance !== newRow.balance) {
+                            if (newRow && row.balance !== newRow.balance) {
                                 apiRef.current.updateRows([ newRow ]);
                             }
                         }
