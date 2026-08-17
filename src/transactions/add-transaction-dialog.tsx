@@ -53,7 +53,8 @@ const AddTransactionDialog = ({
     const [ date, setDate ] = state.useState(state.date);
     const [ month, setMonth ] = useState(dayjs.utc().startOf('day'));
 
-    const [ currency, setCurrency ] = state.useState(state.currency);
+    const [ stickyCurrency, setStickyCurrency ] = state.useState(state.currency);
+    const [ currency, setCurrency ] = useState(stickyCurrency);
     const [ code, setCode ] = useState(transactionToEdit?.code || '');
     const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || 0);
     const [ originalAmount, setOriginalAmount ] = useState(Math.abs(transactionToEdit?.originalAmount) || 0);
@@ -99,9 +100,7 @@ const AddTransactionDialog = ({
         if (transactionToEdit.category) {
             setCategory(transactionToEdit.category);
         }
-        if (transactionToEdit.currency) {
-            setCurrency(transactionToEdit.currency);
-        }
+        setCurrency(transactionToEdit.currency || 'SGD');
     }, [ selectedAccount, transactionToEdit ]);
 
     useEffect(() => {
@@ -171,6 +170,9 @@ const AddTransactionDialog = ({
         const endpoint = transactionToEdit ? editTransaction : addTransaction;
 
         const postProcess = (response, tx) => {
+            if (isMultiCurrency(selectedAccount)) {
+                setStickyCurrency(currency);
+            }
             const processedTx = tx.map((o) => {
                 const category = o.category && o.category.indexOf(':') === -1 && o.subCategory && o.subCategory !== o.category
                     ? `${o.category}: ${o.subCategory}`
