@@ -53,18 +53,6 @@ const TradingAccountHeader = styled.div`
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-
-    .MuiTypography-h6 {
-        margin: 0;
-        white-space: nowrap;
-    }
-    .MuiStack-root { min-width: 0 }
-    .MuiTypography-root:has(+ button) {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .MuiTypography-root + button { margin: 0 -.3rem}
 `;
 
 const IssuerChip = ({ color, label }) => (
@@ -261,14 +249,19 @@ const Summary = ({ setRoute }) => {
     const Portfolio = ({ refresh, holdings, cash, fx, time }) => (
         <Wrapper>
             <TradingAccountHeader>
-                <SubTitle>Trading Account</SubTitle>
+                <SubTitle sx={{ m: 0, whiteSpace: 'nowrap' }}>Trading Account</SubTitle>
                 <Stack direction="row" sx={{
-                    alignItems: "center"
+                    alignItems: "center",
+                    minWidth: 0
                 }}>
-                    <Typography color="textDisabled">
+                    <Typography color="textDisabled" sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>
                         as of { formatDateRelative(time) }
                     </Typography>
-                    <IconButton color="info" disabled={portFolioLoading} onClick={refresh}>
+                    <IconButton color="info" disabled={portFolioLoading} onClick={refresh} sx={{ margin: '0 -.3rem' }}>
                         <RefreshIcon />
                     </IconButton>
                 </Stack>

@@ -10,21 +10,6 @@ import TextField from "@mui/material/TextField";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from 'styled-components';
-
-const CenteredDialog = styled(Dialog)`
-    .MuiDialogContent-root {
-        display: flex;
-        align-items: center;
-        .MuiStack-root {
-            flex: 1 1 1px;
-            flex-wrap: wrap;
-            gap: 1rem;
-            flex-direction: row;
-            justify-content: space-between;
-        }
-    }
-`;
 
 const Search = ({ setSearchOpen }) => {
     const theme = useTheme();
@@ -35,7 +20,7 @@ const Search = ({ setSearchOpen }) => {
     const handleSearch = () => navigate(`/tx/0?q=${inputRef.current.value}`);
 
     return (
-        <CenteredDialog
+        <Dialog
             open
             fullWidth
             fullScreen={isMobile}
@@ -52,8 +37,16 @@ const Search = ({ setSearchOpen }) => {
             >
                 <CloseIcon />
             </IconButton>
-            <DialogContent>
-                <Stack>
+            <DialogContent sx={{ display: 'flex', alignItems: 'center' }}>
+                <Stack
+                    direction="row"
+                    sx={{
+                        flex: '1 1 1px',
+                        flexWrap: 'wrap',
+                        gap: '1rem',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <TextField
                         fullWidth
                         placeholder="Search by remarks.."
@@ -75,7 +68,7 @@ const Search = ({ setSearchOpen }) => {
                     </Button>
                 </Stack>
             </DialogContent>
-        </CenteredDialog>
+        </Dialog>
     );
 };
 export default Search;

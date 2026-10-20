@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import api from '../core/api';
 import Box from '@mui/system/Box';
-import Chip from '@mui/material/Chip';
+import Chip, { chipClasses } from '@mui/material/Chip';
 import dayjs from 'dayjs';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import randomColor from 'randomcolor';
@@ -38,8 +38,11 @@ const Root = styled.div`
         flex-direction: row;
         gap: .5rem .8rem;
         padding: 1rem;
-        .MuiChip-labelMedium { font-size: 1rem }
     }
+`;
+
+const FilterChip = styled(Chip)`
+    font-size: 1rem;
 `;
 
 const TabRow = styled.div`
@@ -60,9 +63,6 @@ const FooterRoot = styled.div`
     align-items: center;
     border-top: rgb(81, 81, 81) 1px solid;
     min-height: 3.25rem;
-    .MuiTablePagination-root { overflow: hidden }
-    .MuiTablePagination-actions { margin-left: .5rem }
-    .MuiButtonBase-root { padding: .2rem }
 `;
 type IssuerChipProps = { colour?: string }
 const IssuerChip = styled(Chip)<IssuerChipProps>`
@@ -74,7 +74,7 @@ const IssuerChip = styled(Chip)<IssuerChipProps>`
     padding: ${props => props.colour ? '.2rem .5rem' : '.2rem 0'};
     color: ${props => props.colour};
     border-color: ${props => props.colour || 'transparent'};
-    .MuiChip-label { padding: 0 }
+    .${chipClasses.label} { padding: 0 }
 `;
 
 type Insight = {
@@ -251,18 +251,18 @@ const Insights = ({ setRoute }) => {
                 <details>
                     <summary>Filter Categories</summary>
                     <div>
-                        <Chip
+                        <FilterChip
                             label="Select All"
                             color="success"
                             onClick={() => setSelectedCategories(categories)}
                         />
-                        <Chip
+                        <FilterChip
                             label="Select None"
                             color="error"
                             onClick={() => setSelectedCategories([])}
                         />
                         { categories.map((category) => (
-                            <Chip
+                            <FilterChip
                                 key={category}
                                 label={category}
                                 variant={selectedCategories.includes(category) ? 'filled' : 'outlined'}

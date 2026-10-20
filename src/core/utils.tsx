@@ -49,9 +49,10 @@ const Title = ({ children, variant="h5" } : TitleProps) => (
   </Typography>
 );
 
-const SubTitle = ({ children }) => (
+const SubTitle = ({ children, sx = {} }) => (
   <Typography variant="h6" sx={{
-    mb: 1
+    mb: 1,
+    ...sx
   }}>
       {children}
   </Typography>

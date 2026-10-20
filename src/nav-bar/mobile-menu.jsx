@@ -5,7 +5,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
+import ListItemButton, { listItemButtonClasses } from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
@@ -26,15 +26,9 @@ const Version = styled(Typography)`
     font-weight: 300;
 `;
 
-const Drawer = styled(SwipeableDrawer)`
-    .MuiPaper-root {
-        justify-content: space-between;
-    }
-`;
-
 const NavListItem = styled(ListItemButton)`
     border-radius: .3rem;
-    &.Mui-selected { background-color: #375a7f; }
+    &.${listItemButtonClasses.selected} { background-color: #375a7f; }
 `;
 
 const isSelected = (path, link) => path.indexOf(link) === 0;
@@ -56,10 +50,11 @@ const MobileMenu = ({ pages, currentPath }) => {
             <IconButton size="large" onClick={() => setOpen(true)} aria-label="Menu">
                 <MenuIcon />
             </IconButton>
-            <Drawer
+            <SwipeableDrawer
                 open={isOpen}
                 onClose={() => setOpen(false)}
                 onOpen={() => setOpen(true)}
+                slotProps={{ paper: { sx: { justifyContent: 'space-between' } } }}
             >
                 <Box>
                     <Brand>Sledger</Brand>
@@ -72,7 +67,7 @@ const MobileMenu = ({ pages, currentPath }) => {
                     </List>
                 </Box>
                 <Version>v{import.meta.env.VITE_APP_VERSION || '.dev'}</Version>
-            </Drawer>
+            </SwipeableDrawer>
         </Box>
     );
 };

@@ -1,4 +1,5 @@
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import Autocomplete, { autocompleteClasses, createFilterOptions } from '@mui/material/Autocomplete';
+import { inputBaseClasses } from '@mui/material/InputBase';
 import TextField from '@mui/material/TextField';
 import { DataGrid, useGridApiContext } from '@mui/x-data-grid';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -6,7 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import api from '../core/api';
 import state from '../core/state';
 import { formatDate, formatDecimal, formatMonth } from '../util/formatters';
@@ -18,27 +19,21 @@ const ImportGridRoot = styled.div`
     height: calc(100vh - 16rem);
 `;
 
-const CompactTextField = styled(TextField)`
-    .MuiInputBase-input { padding: .4rem .7rem; font-size: 14px; }
+const compactInput = css`
+    .${inputBaseClasses.input} { padding: .4rem .7rem; font-size: 14px; }
 `;
 
-const CompactDatePicker = styled(DatePicker)`
-    .MuiInputBase-input { padding: .4rem .7rem; font-size: 14px; }
-`;
-
-const CompactAutoFill = styled(AutoFill)`
-    .MuiAutocomplete-inputRoot {
+const compactAutocomplete = css`
+    .${autocompleteClasses.inputRoot} {
         padding: 0 .4rem; font-size: 14px;
-        input.MuiAutocomplete-input { padding: .4rem }
+        input.${autocompleteClasses.input} { padding: .4rem }
     }
 `;
 
-const CompactAutocomplete = styled(Autocomplete)`
-    .MuiAutocomplete-inputRoot {
-        padding: 0 .4rem; font-size: 14px;
-        input.MuiAutocomplete-input { padding: .4rem }
-    }
-`;
+const CompactTextField = styled(TextField)`${compactInput}`;
+const CompactDatePicker = styled(DatePicker)`${compactInput}`;
+const CompactAutoFill = styled(AutoFill)`${compactAutocomplete}`;
+const CompactAutocomplete = styled(Autocomplete)`${compactAutocomplete}`;
 
 const NumberEditor = (props) => {
     const { id, value, field } = props;

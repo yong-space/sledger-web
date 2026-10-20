@@ -25,6 +25,7 @@ const darkTheme = createTheme({
         success: {
             main: '#388e3c',
             dark: '#388e3c',
+            contrastText: '#fff',
         },
         error: {
             main: '#d32f2f',
@@ -38,6 +39,11 @@ const darkTheme = createTheme({
                 // aria-hidden applied to #root never hides a focused element
                 // (Chrome's "Blocked aria-hidden" warning). See blur-on-open.js.
                 onOpen: blurActiveElement,
+            },
+        },
+        MuiDataGrid: {
+            styleOverrides: {
+                panelWrapper: { maxWidth: '100dvw' },
             },
         },
     },
