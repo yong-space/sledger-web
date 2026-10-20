@@ -8,7 +8,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                    if (id.includes('@mui/lab') || id.includes('@mui/x-data-grid') || id.includes('@mui/x-date-pickers')) return 'muix';
+                    if (id.includes('@mui/x-data-grid') || id.includes('@mui/x-date-pickers')) return 'muix';
                     if (id.includes('@mui/')) return 'mui';
                     if (['react', 'react-dom', 'react-router-dom', 'react-is', 'react-dropzone'].some(p => id.includes(`/node_modules/${p}/`))) return 'react';
                     if (['dayjs', 'jotai', 'randomcolor', 'cbor-js', 'workbox-build', 'workbox-window'].some(p => id.includes(`/node_modules/${p}/`))) return 'utils';

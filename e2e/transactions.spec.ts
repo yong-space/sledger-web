@@ -1,6 +1,6 @@
 import { test, expect } from 'playwright/test';
 import { seedAuth, mockApi } from './helpers';
-import { transactions } from './fixtures';
+import { importedTransactions, issuers, transactions } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
     await seedAuth(page);
@@ -130,4 +130,36 @@ test('confirming transaction delete shows success message', async ({ page }) => 
     await page.getByRole('button', { name: 'Confirm' }).click();
 
     await expect(page.getByText(/1 transaction deleted/i)).toBeVisible();
+});
+
+test('importing a file shows parsed rows and submits selected transactions', async ({ page }) => {
+    await page.setViewportSize({ width: 1400, height: 900 });
+    await mockApi(page, {
+        'GET /api/account-issuer': issuers.map((i) => ({ ...i, canImport: true })),
+        'POST /api/import': importedTransactions,
+        'POST /api/transaction': importedTransactions,
+    });
+
+    await page.goto('/tx/1');
+    await page.getByRole('button', { name: 'Import' }).click();
+
+    const uploadRequest = page.waitForRequest((req) =>
+        req.url().includes('/api/import') && req.method() === 'POST'
+    );
+    await page.locator('input[type=file]').setInputFiles({
+        name: 'export.csv',
+        mimeType: 'text/csv',
+        buffer: Buffer.from('date,amount,remarks\n2024-03-01,-12.50,Coffee\n'),
+    });
+    await uploadRequest;
+
+    await expect(page.getByRole('gridcell', { name: 'Coffee' })).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Food: Cafe' })).toBeVisible();
+
+    const submitRequest = page.waitForRequest((req) =>
+        req.url().includes('/api/transaction') && req.method() === 'POST'
+    );
+    await page.getByRole('button', { name: 'Import Transactions' }).click();
+    await submitRequest;
+    await expect(page.getByText('1 Transactions imported')).toBeVisible();
 });

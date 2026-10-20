@@ -1,6 +1,6 @@
 import { test, expect } from 'playwright/test';
 import { seedAuth, mockApi } from './helpers';
-import { creditCardBills } from './fixtures';
+import { balanceHistory, creditCardBills, insights } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
     await seedAuth(page);
@@ -51,6 +51,35 @@ test('balance history page shows title', async ({ page }) => {
     await page.goto('/dash/balance-history');
 
     await expect(page.getByRole('heading', { name: 'Balance History' })).toBeVisible();
+});
+
+test('balance history page renders the chart', async ({ page }) => {
+    await mockApi(page, { 'GET /api/dash/balance-history': balanceHistory });
+
+    await page.goto('/dash/balance-history');
+
+    await expect(page.getByText('Jan 24')).toBeVisible();
+    await expect(page.getByText('Feb 24')).toBeVisible();
+});
+
+test('insights average tab shows category summary grid', async ({ page }) => {
+    await mockApi(page, { 'GET /api/dash/insights': insights });
+
+    await page.goto('/dash/insights');
+
+    await expect(page.getByRole('heading', { name: 'Past Year Insights' })).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Food' })).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Income' })).toBeVisible();
+});
+
+test('insights monthly tab renders the chart', async ({ page }) => {
+    await mockApi(page, { 'GET /api/dash/insights': insights });
+
+    await page.goto('/dash/insights/monthly');
+
+    await expect(page.getByRole('tab', { name: 'Monthly' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByText('Jan', { exact: true })).toBeVisible();
+    await expect(page.getByText('Feb', { exact: true })).toBeVisible();
 });
 
 test('authenticated visit to / redirects to /dash', async ({ page }) => {

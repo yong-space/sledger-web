@@ -38,3 +38,30 @@ export const creditCardBills = [
     { month: '2024-01-01T00:00:00Z', transactions: 5, amount: -250.00, outstanding: 250.00, paid: 250.00, balance: 0 },
     { month: '2024-02-01T00:00:00Z', transactions: 3, amount: -180.00, outstanding: 180.00, paid: 0, balance: 180.00 },
 ];
+
+export const insights = {
+    summary: [
+        { category: 'Food', subCategory: 'Cafe', transactions: 4, average: -120 },
+        { category: 'Income', subCategory: 'Salary', transactions: 1, average: 3000 },
+    ],
+    series: [
+        { id: 'dFood', label: 'Food', stack: 'Debit', stackOrder: 'descending', data: [-100, -140] },
+        { id: 'cIncome', label: 'Income', stack: 'Credit', stackOrder: 'ascending', data: [3000, 3000] },
+    ],
+    xaxis: ['2024-01-01T00:00:00Z', '2024-02-01T00:00:00Z'],
+};
+
+export const balanceHistory = {
+    series: [
+        { type: 'bar', label: 'Cash', data: [1000, 1200] },
+        { type: 'line', label: 'Net Worth', data: [1000, 1200] },
+    ],
+    xaxis: ['2024-01-01T00:00:00Z', '2024-02-01T00:00:00Z'],
+};
+
+export const importedTransactions = [
+    {
+        id: 'import-1', accountId: 1, date: '2024-03-01T00:00:00Z',
+        amount: -12.50, remarks: 'Coffee', category: 'Food', subCategory: 'Cafe',
+    },
+];
