@@ -4,28 +4,30 @@ on:
   push:
     branches: [ main ]
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v6
-    - uses: oven-sh/setup-bun@v2
-    - run: bun install
-    - run: bunx playwright install chromium --with-deps
-    - run: bun run test
+env:
+  REPO: ${{ github.event.repository.name }}
+  IMAGE_BASE: ${{ secrets.DOCKER_REGISTRY }}/${{ github.event.repository.name }}
 
+jobs:
   build:
-    needs: test
-    runs-on: ubuntu-latest
+    runs-on: on-prem
     permissions:
       contents: write
-      packages: write
+    outputs:
+      tag: ${{ steps.tag.outputs.nextStrict }}
     steps:
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
     - uses: oven-sh/setup-bun@v2
+
+    - run: bun install
+
+    - name: Run tests
+      run: |
+        bunx playwright install chromium --with-deps
+        bun run test
 
     - id: tag
       uses: ietf-tools/semver-action@v1
@@ -35,43 +37,30 @@ jobs:
         noVersionBumpBehavior: patch
         noNewCommitBehavior: current
 
-    - run: bun i && VITE_APP_VERSION=${{ steps.tag.outputs.nextStrict }} bun run build
+    - run: VITE_APP_VERSION=${{ steps.tag.outputs.nextStrict }} bun run build
 
     - uses: docker/login-action@v4
       with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: ${{ secrets.DOCKER_REGISTRY }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASS }}
 
-    - run: echo "IMAGE_NAME=ghcr.io/${{github.repository}}:${{ steps.tag.outputs.nextStrict }}" >> $GITHUB_ENV
+    - name: Build and push image
+      run: |
+        docker build -t ${IMAGE_BASE}:${{ steps.tag.outputs.nextStrict }} .
+        docker push ${IMAGE_BASE}:${{ steps.tag.outputs.nextStrict }}
 
-    - uses: docker/build-push-action@v7
-      with:
-        context: .
-        push: true
-        tags: ${{ env.IMAGE_NAME }}
-
-    - run: git tag ${{ steps.tag.outputs.nextStrict }} && git push origin ${{ steps.tag.outputs.nextStrict }}
-
-    outputs:
-      image_name: ${{ env.IMAGE_NAME }}
+    - name: Create and push git tag
+      run: |
+        git tag ${{ steps.tag.outputs.nextStrict }}
+        git push origin ${{ steps.tag.outputs.nextStrict }}
 
   release:
     needs: build
     runs-on: on-prem
     environment: 'Prod'
-    env:
-      DEPLOYMENT: ${{ github.event.repository.name }}
     steps:
     - name: Perform rolling update
       run: |
-        kubectl set image deployment/${DEPLOYMENT} ${DEPLOYMENT}=${{ needs.build.outputs.image_name }} -n default
-        kubectl rollout status deployment/${DEPLOYMENT} -n default
-
-    - uses: smartsquaregmbh/delete-old-packages@v1.0.0
-      with:
-        keep: 2
-        type: container
-        names: ${{ env.DEPLOYMENT }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-        organization: ${{ github.event.organization.login }}
+        kubectl -n default set image deploy/${REPO} ${REPO}=${IMAGE_BASE}:${{ needs.build.outputs.tag }}
+        kubectl -n default rollout status deploy/${REPO}
