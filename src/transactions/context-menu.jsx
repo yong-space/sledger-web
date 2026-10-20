@@ -7,6 +7,7 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import api from '../core/api';
 import { gridRowSelectionCountSelector } from '@mui/x-data-grid';
+import { refreshRows } from './transaction-rows';
 
 const ContextMenu = ({
     mode, contextRow, contextMenuPosition, setContextMenuPosition, setTxToSplit, apiRef, setTransactions, setSelectionModel,
@@ -32,22 +33,14 @@ const ContextMenu = ({
             }
         };
         const idsToDelete = tx.slice(1).map(({ id }) => id);
-        if (setTransactions) {
+        if (mode === 'import') {
             setTransactions((t) => t.filter(({id}) => !idsToDelete.includes(id)));
             setSelectionModel({ type: 'include', ids: new Set([ mainTx.id ]) });
         } else {
             editTransaction([ mainTx ], () => {
                 deleteTransaction(idsToDelete, () => {
-                    idsToDelete.map((id) => ({ id, _action: 'delete' }))
-                        .forEach((r) => apiRef.current.updateRows([ r ]));
-
                     listTransactions(mainTx.accountId, (allTx) => {
-                        for (const row of apiRef.current.getRowModels().values()) {
-                            const newRow = allTx.find(({ id }) => id === row.id);
-                            if (row.amount !== newRow.amount || row.balance !== newRow.balance) {
-                                apiRef.current.updateRows([ newRow ]);
-                            }
-                        }
+                        setTransactions((rows) => refreshRows(rows.filter(({ id }) => !idsToDelete.includes(id)), allTx));
                         showStatus('success', 'Transactions merged');
                     });
                 });

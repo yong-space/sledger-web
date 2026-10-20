@@ -28,13 +28,14 @@ type BulkEditValues = {
 };
 
 const BulkTransactionDialog = ({
-    setShowBulkDialog, transactionToEdit, setTransactionToEdit, apiRef,
+    setShowBulkDialog, transactionToEdit, setTransactionToEdit,
 }) => {
     dayjs.extend(utc);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ loading, setLoading ] = state.useState(state.loading);
     const selectedAccount = state.useState(state.selectedAccount)[0];
+    const setTransactions = state.useState(state.transactions)[1];
     const [ month, setMonth ] = useState<Dayjs>();
     const [ categories, setCategories ] = state.useState(state.categories);
     const [ category, setCategory ] = useState('');
@@ -98,7 +99,7 @@ const BulkTransactionDialog = ({
             if (values.subCategory) { changes.subCategory = values.subCategory; }
             if (values.remarks) { changes.remarks = values.remarks; }
 
-            transactionToEdit.forEach((id) => apiRef.current.updateRows([{ id, ...changes }]));
+            setTransactions((rows) => rows.map((row) => transactionToEdit.includes(row.id) ? { ...row, ...changes } : row));
 
             setShowBulkDialog(false);
             showStatus('success', 'Transactions edited');

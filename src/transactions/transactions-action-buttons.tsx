@@ -8,6 +8,7 @@ import Stack from '@mui/material/Stack';
 import state from '../core/state';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { GridRowId } from '@mui/x-data-grid';
+import { refreshRows } from './transaction-rows';
 
 const TransactionsActionButtons = ({
     setAccounts, setShowAddDialog,
@@ -17,6 +18,7 @@ const TransactionsActionButtons = ({
     const setLoading = state.useState(state.loading)[1];
     const [ showBulkDialog, setShowBulkDialog ] = useState(false);
     const [ selectedRows, setSelectedRows ] = state.useState(state.selectedRows);
+    const setTransactions = state.useState(state.transactions)[1];
     const selectedLength = selectedRows?.ids.size;
     const selectedAccount = state.useState(state.selectedAccount)[0];
     const { deleteTransaction, listTransactions, showStatus, listAccounts } = api();
@@ -27,13 +29,7 @@ const TransactionsActionButtons = ({
 
         deleteTransaction([...selectedRows.ids], () =>
             listTransactions(selectedAccount.id, (response) => {
-                selectedRows.ids.forEach((id) => apiRef.current.updateRows([{ id, _action: 'delete' }]));
-                response
-                    .filter((updatedRow) => {
-                        const gridRow = apiRef.current.getRow(updatedRow.id);
-                        return gridRow !== null && updatedRow.balance !== gridRow.balance;
-                    })
-                    .forEach((updatedRow) => apiRef.current.updateRows([{ id: updatedRow.id, balance: updatedRow.balance }]));
+                setTransactions((rows) => refreshRows(rows.filter(({ id }) => !selectedRows.ids.has(id)), response));
                 const plural = selectedLength > 1 ? 's' : '';
                 showStatus('success', selectedLength + ` transaction${plural} deleted`);
                 setLoading(false);
@@ -79,7 +75,6 @@ const TransactionsActionButtons = ({
                     setShowBulkDialog,
                     transactionToEdit,
                     setTransactionToEdit,
-                    apiRef,
                 }} />
             )}
 

@@ -8,6 +8,7 @@ import TextField from '@mui/material/TextField';
 import api from '../core/api';
 import { useState } from 'react';
 import { numericProps } from '../util/formatters';
+import { refreshRows, withCategoryLabel } from './transaction-rows';
 
 const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSelectionModel, setTransactions }) => {
     const round = (val) => Number(Number(val).toFixed(2));
@@ -35,19 +36,15 @@ const SplitTransactionDialog = ({ mode, tx, setTx, apiRef, selectionModel, setSe
             postProcess(newTx);
         } else {
             const editTx = { ...tx, amount: splits[0] * multiplier };
-            apiRef.current.updateRows([ newTx ]);
+            setTransactions((rows) => [ ...rows, { ...newTx } ]);
             editTransaction([ editTx ], () => {
                 addTransaction([ newTx ], (newTxResponse) => {
                     newTx.id = newTxResponse[0].id;
-                    apiRef.current.updateRows([ { id: tempId, _action: 'delete' } ]);
-                    apiRef.current.updateRows([ newTxResponse[0] ]);
                     listTransactions(tx.accountId, (allTx) => {
-                        for (const row of apiRef.current.getRowModels().values()) {
-                            const newRow = allTx.find(({ id }) => id === row.id);
-                            if (newRow && row.balance !== newRow.balance) {
-                                apiRef.current.updateRows([ newRow ]);
-                            }
-                        }
+                        setTransactions((rows) => refreshRows(
+                            [ ...rows.filter(({ id }) => id !== tempId), withCategoryLabel(newTxResponse[0]) ],
+                            allTx,
+                        ));
                         postProcess(newTx);
                         showStatus('success', 'Transaction split successfully');
                     });

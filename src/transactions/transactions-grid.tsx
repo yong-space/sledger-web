@@ -35,6 +35,7 @@ import {
 } from '../util/formatters';
 import ContextMenu from './context-menu';
 import SplitTransactionDialog from './split-transaction-dialog';
+import { withCategoryLabel } from './transaction-rows';
 
 const FlexDataGrid = styled(DataGrid)`
     display: flex;
@@ -78,10 +79,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
 
     const listTransactionsCallback = (response) => {
         console.debug(`Loaded transactions for ${selectedAccount.id}`)
-        const processedResponse = response.map((o) => {
-            const category = o.subCategory && o.subCategory !== o.category ? `${o.category}: ${o.subCategory}` : o.category;
-            return { ...o, category };
-        });
+        const processedResponse = response.map(withCategoryLabel);
         setTransactions(processedResponse);
         setTansactionsAccountId(selectedAccount.id);
         setLoading(false);
@@ -333,6 +331,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
                 setContextMenuPosition={setContextMenuPosition}
                 setTxToSplit={setTxToSplit}
                 apiRef={apiRef}
+                setTransactions={setTransactions}
             />
             { txToSplit && (
                 <SplitTransactionDialog
@@ -342,6 +341,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
                     apiRef={apiRef}
                     selectionModel={selectedRows}
                     setSelectionModel={setSelectedRows}
+                    setTransactions={setTransactions}
                 />
             )}
         </>

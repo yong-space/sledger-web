@@ -8,6 +8,7 @@ import state from '../core/state';
 import styled from 'styled-components';
 import ImportGrid from './transactions-import-grid';
 import DropZone from './dropzone';
+import { withCategoryLabel } from './transaction-rows';
 
 const ImportRoot = styled.div`
     display: flex;
@@ -45,13 +46,7 @@ const TransactionsImport = ({ setImportMode, selectedAccount }) => {
 
         addTransaction(selectedTransactions, (response) => {
             listTransactions(selectedAccount?.id, (allTx) => {
-                const processedTx = allTx.map((o) => {
-                    const category = o.category && o.category.indexOf(':') === -1 && o.subCategory && o.subCategory !== o.category
-                        ? `${o.category}: ${o.subCategory}`
-                        : o.category;
-                    return { ...o, category };
-                });
-                setTransactions(processedTx);
+                setTransactions(allTx.map(withCategoryLabel));
                 setParentSelectedRows({ type: 'include', ids: new Set(response.map(({ id }) => id))});
                 setVisibleTransactionId(response[0].id);
                 setLoading(false);

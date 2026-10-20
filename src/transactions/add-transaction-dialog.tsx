@@ -29,6 +29,7 @@ import { cpfCodes } from '../util/cpf-codes';
 import { numericProps, numericPropsNegative } from '../util/formatters';
 import AutoFill from './auto-fill';
 import FxField from './fx-field';
+import { upsertRows } from './transaction-rows';
 import { isMultiCurrency, Transaction } from '../core/types';
 
 const DateBar = styled.div`
@@ -65,6 +66,7 @@ const AddTransactionDialog = ({
     });
     const [ loading, setLoading ] = state.useState(state.loading);
     const [ accounts, setAccounts ] = state.useState(state.accounts);
+    const setTransactions = state.useState(state.transactions)[1];
     const selectedAccount = !transactionToEdit ? state.useState(state.selectedAccount)[0]
         : accounts.find(({ id }) => id === transactionToEdit.accountId);
     const [ categories, setCategories ] = state.useState(state.categories);
@@ -173,16 +175,7 @@ const AddTransactionDialog = ({
             if (isMultiCurrency(selectedAccount)) {
                 setStickyCurrency(currency);
             }
-            const processedTx = tx.map((o) => {
-                const category = o.category && o.category.indexOf(':') === -1 && o.subCategory && o.subCategory !== o.category
-                    ? `${o.category}: ${o.subCategory}`
-                    : o.category;
-                return { ...o, category };
-            });
-
-            processedTx
-                .filter((row) => response.map(({ id }) => id).indexOf(row.id) > -1 || !apiRef.current.getRow(row.id) || row.balance !== apiRef.current.getRow(row.id).balance)
-                .forEach((row) => apiRef.current.updateRows([ row ]));
+            setTransactions((rows) => upsertRows(rows, tx));
 
             setSelectedRows({ type: 'include', ids: new Set(response.map(({ id }) => id)) });
             setShowAddDialog(false);

@@ -1,5 +1,6 @@
 import { test, expect } from 'playwright/test';
 import { seedAuth, mockApi } from './helpers';
+import { balanceHistory } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
     await seedAuth(page);
@@ -7,6 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('hovering dash nav button opens submenu and item navigates', async ({ page }) => {
+    await mockApi(page, { 'GET /api/dash/balance-history': balanceHistory });
     await page.goto('/dash/summary');
     await expect(page.getByRole('heading', { name: 'Summary' })).toBeVisible();
 

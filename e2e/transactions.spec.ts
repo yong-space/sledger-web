@@ -218,3 +218,122 @@ test('returning from the dashboard keeps the grid on the same page', async ({ pa
 
     await expect(page.getByRole('gridcell', { name: 'Entry 0', exact: true })).toBeVisible();
 });
+
+// Rows with sub-categories, so tests can check the "Category: Sub" label survives grid updates
+const labelled = [
+    { ...transactions[0], subCategory: 'Salary' },
+    { ...transactions[1], subCategory: 'Supermarket' },
+    { ...transactions[2], subCategory: 'Electricity' },
+];
+
+const routeListSequence = async (page, responses) => {
+    let calls = 0;
+    await page.route('**/api/transaction/1', async (route) => {
+        if (route.request().method() !== 'GET') {
+            return route.fallback();
+        }
+        const body = responses[Math.min(calls++, responses.length - 1)];
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+    });
+};
+
+const selectRow = (page, remarks) =>
+    page.getByRole('row').filter({ hasText: remarks }).getByRole('checkbox').check();
+
+test('deleting a transaction removes it and refreshes balances', async ({ page }) => {
+    await routeListSequence(page, [
+        labelled,
+        [ labelled[0], { ...labelled[2], balance: 900.00 } ],
+    ]);
+
+    await page.goto('/tx/1');
+    await selectRow(page, 'Groceries');
+    await page.getByRole('button', { name: /delete/i }).click();
+    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await expect(page.getByText(/1 transaction deleted/i)).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Groceries' })).toBeHidden();
+    await expect(page.getByRole('button', { name: /delete/i })).toBeHidden();
+    await expect(page.getByRole('gridcell', { name: '900.00' })).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Utilities: Electricity' })).toBeVisible();
+});
+
+test('bulk editing remarks updates every selected row', async ({ page }) => {
+    await mockApi(page, { 'PUT /api/transaction/bulk': {} });
+    await routeListSequence(page, [ labelled ]);
+
+    await page.goto('/tx/1');
+    await selectRow(page, 'Groceries');
+    await selectRow(page, 'Electricity');
+    await page.getByRole('button', { name: 'Edit' }).click();
+    await page.getByLabel('Remarks').fill('Household');
+    await page.getByRole('button', { name: 'Bulk Edit Transactions' }).click();
+
+    await expect(page.getByText('Transactions edited')).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Household' })).toHaveCount(2);
+    await expect(page.getByRole('gridcell', { name: 'Salary', exact: true })).toBeVisible();
+});
+
+test('merging transactions combines them and keeps category labels', async ({ page }) => {
+    const merged = { ...labelled[1], amount: -150.00, balance: 850.00, remarks: 'Groceries Electricity' };
+    await mockApi(page, { 'PUT /api/transaction': [ merged ] });
+    await routeListSequence(page, [ labelled, [ labelled[0], merged ] ]);
+
+    await page.goto('/tx/1');
+    await selectRow(page, 'Groceries');
+    await selectRow(page, 'Electricity');
+    await page.getByRole('gridcell', { name: 'Groceries' }).click({ button: 'right' });
+    await page.getByRole('menuitem', { name: 'Merge Transactions' }).click();
+
+    await expect(page.getByText('Transactions merged')).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Groceries Electricity' })).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Electricity', exact: true })).toBeHidden();
+    await expect(page.getByRole('gridcell', { name: 'Food: Supermarket' })).toBeVisible();
+});
+
+test('splitting a transaction adds the new row and keeps category labels', async ({ page }) => {
+    const editedSalary = { ...labelled[0], amount: 400.00, balance: 400.00 };
+    const splitPart = { ...labelled[0], id: 10, amount: 600.00, balance: 1000.00 };
+    await mockApi(page, {
+        'PUT /api/transaction': [ editedSalary ],
+        'POST /api/transaction': [ splitPart ],
+    });
+    await routeListSequence(page, [
+        labelled,
+        [ editedSalary, splitPart, { ...labelled[1], balance: 950.00 }, { ...labelled[2], balance: 850.00 } ],
+    ]);
+
+    await page.goto('/tx/1');
+    await page.getByRole('gridcell', { name: 'Salary', exact: true }).click({ button: 'right' });
+    await page.getByRole('menuitem', { name: 'Split Transaction' }).click();
+    await page.getByRole('dialog').getByRole('textbox').first().fill('400');
+    await page.getByRole('button', { name: 'Split Transaction' }).click();
+
+    await expect(page.getByText(/split successfully/i)).toBeVisible();
+    await expect(page.getByRole('gridcell', { name: 'Salary', exact: true })).toHaveCount(2);
+    await expect(page.getByRole('gridcell', { name: 'Income: Salary' })).toHaveCount(2);
+    await expect(page.getByRole('gridcell', { name: 'Food: Supermarket' })).toBeVisible();
+});
+
+test('adding a transaction while on an earlier page shows the new row', async ({ page }) => {
+    const many = Array.from({ length: 60 }, (_, i) => ({
+        ...transactions[0], id: 100 + i, remarks: `Entry ${i}`,
+        date: new Date(Date.UTC(2024, 0, 1 + i)).toISOString(),
+    }));
+    const newTx = { ...transactions[0], id: 500, remarks: 'Latest entry', date: new Date(Date.UTC(2024, 5, 1)).toISOString() };
+    await mockApi(page, { 'POST /api/transaction': [ newTx ] });
+    await routeListSequence(page, [ many ]);
+
+    await page.goto('/tx/1');
+    await page.getByRole('button', { name: 'Go to first page' }).click();
+    await expect(page.getByRole('gridcell', { name: 'Entry 0', exact: true })).toBeVisible();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await page.getByRole('button', { name: 'Credit' }).click();
+    await page.getByLabel('Amount').fill('10');
+    await page.getByLabel('Remarks').fill('Latest entry');
+    await page.getByLabel('Category').fill('Income');
+    await page.getByRole('button', { name: 'Add Transaction' }).click();
+
+    await expect(page.getByRole('gridcell', { name: 'Latest entry' })).toBeVisible();
+});
