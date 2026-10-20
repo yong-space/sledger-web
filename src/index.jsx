@@ -16,6 +16,7 @@ import '@fontsource/roboto/700.css';
 import './index.css';
 
 const darkTheme = createTheme({
+    focusVisible: true,
     palette: {
         mode: 'dark',
         primary: {

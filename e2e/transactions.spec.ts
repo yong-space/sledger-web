@@ -163,3 +163,58 @@ test('importing a file shows parsed rows and submits selected transactions', asy
     await submitRequest;
     await expect(page.getByText('1 Transactions imported')).toBeVisible();
 });
+
+test('Edit with one selected row opens a pre-filled edit dialog', async ({ page }) => {
+    await page.goto('/tx/1');
+    await page.getByRole('gridcell', { name: 'Groceries' }).click();
+    await page.getByRole('button', { name: 'Edit' }).click();
+
+    await expect(page.getByRole('dialog').getByRole('heading', { name: 'Edit Transaction' })).toBeVisible();
+    await expect(page.getByLabel('Remarks')).toHaveValue('Groceries');
+});
+
+test('Edit right after adding a transaction pre-fills the dialog', async ({ page }) => {
+    const newTx = { ...transactions[0], id: 10, remarks: 'Bonus', balance: 1950.00, date: '2024-01-18T00:00:00Z' };
+    await mockApi(page, { 'POST /api/transaction': [newTx] });
+
+    await page.goto('/tx/1');
+    await page.getByRole('button', { name: /add/i }).click();
+    await page.getByRole('button', { name: 'Credit' }).click();
+    await page.getByLabel('Amount').fill('1000');
+    await page.getByLabel('Remarks').fill('Bonus');
+    await page.getByLabel('Category').fill('Income');
+    await page.getByRole('button', { name: 'Add Transaction' }).click();
+    await expect(page.getByRole('dialog')).toBeHidden();
+
+    await page.getByRole('button', { name: 'Edit' }).click();
+    await expect(page.getByRole('dialog').getByRole('heading', { name: 'Edit Transaction' })).toBeVisible();
+    await expect(page.getByLabel('Remarks')).toHaveValue('Bonus');
+});
+
+test('selecting all rows with the header checkbox shows Delete', async ({ page }) => {
+    await page.goto('/tx/1');
+    await page.getByRole('checkbox', { name: /select all/i }).check();
+
+    await expect(page.getByRole('button', { name: 'Delete' })).toBeVisible();
+    await page.getByRole('button', { name: 'Delete' }).click();
+    await expect(page.getByText('This will permanently delete 3 transactions')).toBeVisible();
+});
+
+test('returning from the dashboard keeps the grid on the same page', async ({ page }) => {
+    const many = Array.from({ length: 60 }, (_, i) => ({
+        ...transactions[0], id: 100 + i, remarks: `Entry ${i}`,
+        date: new Date(Date.UTC(2024, 0, 1 + i)).toISOString(),
+    }));
+    await mockApi(page, { 'GET /api/transaction/1': many });
+
+    await page.goto('/tx/1');
+    await expect(page.getByRole('gridcell', { name: 'Entry 59', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Go to first page' }).click();
+    await expect(page.getByRole('gridcell', { name: 'Entry 0', exact: true })).toBeVisible();
+
+    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await expect(page.getByRole('heading', { name: 'Summary' })).toBeVisible();
+    await page.getByRole('link', { name: 'Transactions' }).click();
+
+    await expect(page.getByRole('gridcell', { name: 'Entry 0', exact: true })).toBeVisible();
+});

@@ -18,7 +18,7 @@ import {
     useGridSelector,
 } from '@mui/x-data-grid';
 import { GridApiCommunity } from '@mui/x-data-grid/models/api/gridApiCommunity';
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import api from '../core/api';
 import state from '../core/state';
@@ -64,6 +64,8 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
     const [ filterModel, setFilterModel ] = state.useState(state.filterModel);
     const [ visibleTransactionId, setVisibleTransactionId ] = state.useState<number>(state.visibleTransactionId);
     const [ txToSplit, setTxToSplit ] = useState();
+    // Effects re-run when the page is revealed by <Activity>; only jump to the last page on first show
+    const shownAccountId = useRef<number>(undefined);
 
     const gotoLastPage = (rows = transactions?.length) => {
         if (selectedRows.ids.size > 0) {
@@ -84,6 +86,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         setTansactionsAccountId(selectedAccount.id);
         setLoading(false);
         gotoLastPage(processedResponse.length);
+        shownAccountId.current = selectedAccount.id;
     };
 
     useEffect(() => {
@@ -93,7 +96,10 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
         }
         if (selectedAccount.id === transactionsAccountId) {
             setLoading(false);
-            gotoLastPage();
+            if (shownAccountId.current !== selectedAccount.id) {
+                gotoLastPage();
+                shownAccountId.current = selectedAccount.id;
+            }
             return;
         }
         console.debug(`Selected account ${selectedAccount.id} is not transactions account ${transactionsAccountId}`);
@@ -296,6 +302,7 @@ const TransactionsGrid = ({ accounts, query, selectedAccount, setShowAddDialog, 
             <FlexDataGrid
                 autoPageSize
                 checkboxSelection
+                disableRowSelectionExcludeModel
                 disableDensitySelector
                 disableColumnMenu
                 apiRef={apiRef}

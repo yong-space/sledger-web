@@ -34,7 +34,6 @@ const Transactions = () => {
     const [ transactionToEdit, setTransactionToEdit ] = useState<Transaction>();
     const [ query, setQuery ] = useState(null);
     const [ selectedAccount, setSelectedAccount ] = state.useState(state.selectedAccount);
-    const [ transactions, setTransactions ] = state.useState(state.transactions);
     const setSelectedRows = state.useState(state.selectedRows)[1];
     const setTansactionsAccountId = state.useState(state.transactionsAccountId)[1];
     const [ importMode, setImportMode ] = useState(false);
@@ -85,7 +84,7 @@ const Transactions = () => {
     }, [ accounts, selectedAccount ]);
 
     const actionProps = {
-        transactions, setTransactions, setAccounts, setShowAddDialog,
+        setAccounts, setShowAddDialog,
         transactionToEdit, setTransactionToEdit, setImportMode, canImport,
     };
 

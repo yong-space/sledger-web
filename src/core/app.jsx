@@ -1,6 +1,6 @@
 import { CircularLoader, NoConnectivity, NotFound } from './utils';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Activity, useEffect, useState } from 'react';
 import Admin from '../admin/admin';
 import api from './api';
 import Dashboard from '../dashboard/dashboard';
@@ -33,6 +33,11 @@ const App = () => {
     const { listIssuers, listAccounts } = api();
     const location = useLocation();
     const isNoConnectivity = location.pathname === '/no-connectivity';
+    const isTransactions = location.pathname.startsWith('/tx');
+    const [ transactionsVisited, setTransactionsVisited ] = useState(false);
+    if (isTransactions && !transactionsVisited) {
+        setTransactionsVisited(true);
+    }
 
     useEffect(() => {
         if (!issuers) {
@@ -51,9 +56,15 @@ const App = () => {
         <Root>
             <NavBar />
             <Main>
+                {/* Kept mounted once visited so grid page, sort and selection survive navigating away */}
+                { transactionsVisited && (
+                    <Activity mode={isTransactions ? 'visible' : 'hidden'}>
+                        <Transactions />
+                    </Activity>
+                )}
                 <Routes>
                     <Route path="dash/*" element={<Dashboard />} />
-                    <Route path="tx/*" element={<Transactions /> } />
+                    <Route path="tx/*" element={null} />
                     <Route path="admin/*" element={<Admin /> } />
                     <Route path="settings/*" element={<Settings /> } />
                     <Route path="profile" element={<Profile /> } />

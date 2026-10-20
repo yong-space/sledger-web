@@ -10,7 +10,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { GridRowId } from '@mui/x-data-grid';
 
 const TransactionsActionButtons = ({
-    transactions, setAccounts, setShowAddDialog,
+    setAccounts, setShowAddDialog,
     transactionToEdit, setTransactionToEdit, setImportMode, canImport, apiRef,
 }) => {
     const theme = useTheme();
@@ -50,7 +50,8 @@ const TransactionsActionButtons = ({
 
     const editTransaction = () => {
         if (selectedLength === 1) {
-            setTransactionToEdit(transactions.find(({ id }) => id === selectedRows[0]));
+            const [ selectedId ] = selectedRows.ids;
+            setTransactionToEdit(apiRef.current.getRow(selectedId));
             setShowAddDialog(true);
         } else {
             setTransactionToEdit([...selectedRows.ids]);

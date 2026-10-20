@@ -15,10 +15,6 @@ import AutoFill from './auto-fill';
 import ContextMenu from './context-menu';
 import SplitTransactionDialog from './split-transaction-dialog';
 
-const ImportGridRoot = styled.div`
-    height: calc(100vh - 16rem);
-`;
-
 const compactInput = css`
     .${inputBaseClasses.input} { padding: .4rem .7rem; font-size: 14px; }
 `;
@@ -200,6 +196,7 @@ const ImportGrid = ({ apiRef, transactions, setTransactions, accountType, select
     };
 
     const maxGridSize = {
+        flex: 'none', // let the height prop size the grid instead of flex-filling the import page
         maxWidth: `calc(100vw - 1rem)`,
         maxHeight: `calc(100vh - 14rem)`,
     };
@@ -227,58 +224,58 @@ const ImportGrid = ({ apiRef, transactions, setTransactions, accountType, select
     const handleProcessRowUpdateError = (error) => console.error('Row update error:', error);
 
     return (
-        <ImportGridRoot>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DataGrid
-                    apiRef={apiRef}
-                    checkboxSelection
-                    disableRowSelectionOnClick
-                    autoPageSize
-                    disableColumnMenu
-                    rows={transactions}
-                    columns={columnMap[accountType]}
-                    editMode="row"
-                    processRowUpdate={handleProcessRowUpdate}
-                    onProcessRowUpdateError={handleProcessRowUpdateError}
-                    sx={maxGridSize}
-                    rowSelectionModel={selectionModel}
-                    onRowSelectionModelChange={(n) => setSelectionModel(n)}
-                    slotProps={{
-                        row: {
-                            onContextMenu: handleContextMenu,
-                            style: { cursor: 'context-menu' },
-                        },
-                    }}
-                    initialState={{
-                        density: 'compact',
-                        sorting: {
-                            sortModel: [{ field: 'date', sort: 'asc' }],
-                        },
-                    }}
-                />
-                <ContextMenu
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DataGrid
+                apiRef={apiRef}
+                height="calc(100vh - 16rem)"
+                checkboxSelection
+                disableRowSelectionExcludeModel
+                disableRowSelectionOnClick
+                autoPageSize
+                disableColumnMenu
+                rows={transactions}
+                columns={columnMap[accountType]}
+                editMode="row"
+                processRowUpdate={handleProcessRowUpdate}
+                onProcessRowUpdateError={handleProcessRowUpdateError}
+                sx={maxGridSize}
+                rowSelectionModel={selectionModel}
+                onRowSelectionModelChange={(n) => setSelectionModel(n)}
+                slotProps={{
+                    row: {
+                        onContextMenu: handleContextMenu,
+                        style: { cursor: 'context-menu' },
+                    },
+                }}
+                initialState={{
+                    density: 'compact',
+                    sorting: {
+                        sortModel: [{ field: 'date', sort: 'asc' }],
+                    },
+                }}
+            />
+            <ContextMenu
+                mode="import"
+                contextRow={contextRow}
+                contextMenuPosition={contextMenuPosition}
+                setContextMenuPosition={setContextMenuPosition}
+                setTxToSplit={setTxToSplit}
+                apiRef={apiRef}
+                setTransactions={setTransactions}
+                setSelectionModel={setSelectionModel}
+            />
+            { txToSplit && (
+                <SplitTransactionDialog
                     mode="import"
-                    contextRow={contextRow}
-                    contextMenuPosition={contextMenuPosition}
-                    setContextMenuPosition={setContextMenuPosition}
-                    setTxToSplit={setTxToSplit}
+                    tx={txToSplit}
+                    setTx={setTxToSplit}
                     apiRef={apiRef}
-                    setTransactions={setTransactions}
+                    selectionModel={selectionModel}
                     setSelectionModel={setSelectionModel}
+                    setTransactions={setTransactions}
                 />
-                { txToSplit && (
-                    <SplitTransactionDialog
-                        mode="import"
-                        tx={txToSplit}
-                        setTx={setTxToSplit}
-                        apiRef={apiRef}
-                        selectionModel={selectionModel}
-                        setSelectionModel={setSelectionModel}
-                        setTransactions={setTransactions}
-                    />
-                )}
-            </LocalizationProvider>
-        </ImportGridRoot>
+            )}
+        </LocalizationProvider>
     );
 };
 export default ImportGrid;
