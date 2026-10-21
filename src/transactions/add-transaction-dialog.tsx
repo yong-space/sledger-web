@@ -103,6 +103,9 @@ const AddTransactionDialog = ({
             setCategory(transactionToEdit.category);
         }
         setCurrency(transactionToEdit.currency || 'SGD');
+        if (isMultiCurrency(selectedAccount)) {
+            setStickyCurrency(transactionToEdit.currency || 'SGD');
+        }
     }, [ selectedAccount, transactionToEdit ]);
 
     useEffect(() => {

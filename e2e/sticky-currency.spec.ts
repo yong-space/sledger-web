@@ -96,3 +96,22 @@ test('cancelling a currency change does not corrupt the sticky default for the n
     await page.getByRole('button', { name: /add/i }).click();
     await expect(page.getByLabel('Currency')).toHaveValue('USD');
 });
+
+test('opening an existing transaction makes its currency the sticky default even without saving', async ({ page }) => {
+    await page.goto('/tx/3');
+
+    await page.getByText('Foreign spend').first().dblclick();
+    await expect(page.getByLabel('Currency')).toHaveValue('USD');
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await expect(page.getByLabel('Currency')).toHaveValue('USD');
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await page.getByText('Local spend').first().dblclick();
+    await expect(page.getByLabel('Currency')).toHaveValue('SGD');
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await expect(page.getByLabel('Currency')).toHaveValue('SGD');
+});
