@@ -1,25 +1,22 @@
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { numericProps } from '../util/formatters';
 
 const ForeignCurrencyBar = styled.div`
     display: flex;
     gap: 1rem;
-    & :first-child { width: 8rem }
+    & > :first-child { width: 8rem }
 `;
 
 export default ({
-    transactionToEdit,
     originalAmount,
     setOriginalAmount,
     currency,
     setCurrency,
     amountValue,
 }) => {
-    const [ inputCurrency, setInputCurrency ] = useState(transactionToEdit?.currency || 'SGD');
-
     const usePrevious = (value) => {
         const ref = useRef();
         useEffect(() => {
@@ -39,12 +36,12 @@ export default ({
     return (
         <ForeignCurrencyBar key="fx">
             <Autocomplete
-                disableClearable
+                disableClearable={currency === 'SGD'}
                 freeSolo
-                inputValue={inputCurrency}
-                onInputChange={(e, v) => setInputCurrency(v)}
+                inputValue={currency}
+                onInputChange={(e, v, reason) => setCurrency(reason === 'clear' ? 'SGD' : v)}
                 value={currency}
-                onChange={(e, v) => setCurrency(v)}
+                onChange={(e, v) => setCurrency(v || 'SGD')}
                 options={[ 'SGD', 'USD', 'EUR', 'AUD', 'GBP', 'JPY', 'KRW', 'MYR', 'VND', 'CNY' ]}
                 renderInput={(params) => (
                     <TextField

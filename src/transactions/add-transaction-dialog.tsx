@@ -51,11 +51,12 @@ const AddTransactionDialog = ({
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [ side, setSide ] = useState(-1);
-    const [ date, setDate ] = state.useState(state.date);
     const [ month, setMonth ] = useState(dayjs.utc().startOf('day'));
 
-    const [ stickyCurrency, setStickyCurrency ] = state.useState(state.currency);
-    const [ currency, setCurrency ] = useState(stickyCurrency);
+    // Date and currency are bound to the last-used values so they stick across dialogs
+    const [ { date, currency }, setLastTx ] = state.useState(state.lastTx);
+    const setDate = (date) => setLastTx((last) => ({ ...last, date }));
+    const setCurrency = (currency) => setLastTx((last) => ({ ...last, currency }));
     const [ code, setCode ] = useState(transactionToEdit?.code || '');
     const [ amountValue, setAmountValue ] = useState(Math.abs(transactionToEdit?.amount) || 0);
     const [ originalAmount, setOriginalAmount ] = useState(Math.abs(transactionToEdit?.originalAmount) || 0);
@@ -102,13 +103,15 @@ const AddTransactionDialog = ({
         if (transactionToEdit.category) {
             setCategory(transactionToEdit.category);
         }
-        setCurrency(transactionToEdit.currency || 'SGD');
         if (isMultiCurrency(selectedAccount)) {
-            setStickyCurrency(transactionToEdit.currency || 'SGD');
+            setCurrency(transactionToEdit.currency || 'SGD');
         }
     }, [ selectedAccount, transactionToEdit ]);
 
     useEffect(() => {
+        if (!date?.isValid()) {
+            return;
+        }
         if (selectedAccount?.type === 'Credit') {
             if (transactionToEdit && date.isSame(dayjs.utc(transactionToEdit.date))) {
                 setMonth(dayjs.utc(transactionToEdit.billingMonth));
@@ -130,6 +133,10 @@ const AddTransactionDialog = ({
 
     const submit = (event) => {
         event.preventDefault();
+        if (!date?.isValid()) {
+            showStatus('error', 'Enter a valid date');
+            return;
+        }
         const tx : Transaction = {
             date: (transactionToEdit ? date : date.second(0)).toISOString(),
             accountId: selectedAccount?.id,
@@ -175,9 +182,6 @@ const AddTransactionDialog = ({
         const endpoint = transactionToEdit ? editTransaction : addTransaction;
 
         const postProcess = (response, tx) => {
-            if (isMultiCurrency(selectedAccount)) {
-                setStickyCurrency(currency);
-            }
             setTransactions((rows) => upsertRows(rows, tx));
 
             setSelectedRows({ type: 'include', ids: new Set(response.map(({ id }) => id)) });
@@ -256,7 +260,8 @@ const AddTransactionDialog = ({
         }
     };
 
-    const shiftDate = (amount, unit) => setDate(date.add(amount, unit).startOf('day'));
+    const shiftDate = (amount, unit) =>
+        setDate((date?.isValid() ? date : dayjs.utc()).add(amount, unit).startOf('day'));
 
     const fields = {
         date: (
@@ -329,7 +334,6 @@ const AddTransactionDialog = ({
         fx: (
             <FxField
                 key="fx"
-                transactionToEdit={transactionToEdit}
                 originalAmount={originalAmount}
                 setOriginalAmount={setOriginalAmount}
                 currency={currency}

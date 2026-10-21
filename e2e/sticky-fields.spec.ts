@@ -1,5 +1,6 @@
 import { test, expect } from 'playwright/test';
 import { seedAuth, mockApi } from './helpers';
+import type { Page } from 'playwright/test';
 import { issuers as baseIssuers, accounts as baseAccounts } from './fixtures';
 
 const multiCurrencyAccount = {
@@ -56,7 +57,7 @@ test('editing an SGD transaction resets the currency field to SGD after a previo
     await expect(page.getByLabel('Currency')).toHaveValue('SGD');
 });
 
-test('cancelling a currency change does not corrupt the sticky default for the next Add dialog', async ({ page }) => {
+test('a currency change sticks for the next Add dialog even when cancelled', async ({ page }) => {
     const newTx = { ...usdTx, id: 22, remarks: 'New USD spend' };
     await mockApi(page, {
         'GET /api/account-issuer': baseIssuers,
@@ -84,17 +85,15 @@ test('cancelling a currency change does not corrupt the sticky default for the n
     await postRequest;
     await expect(page.getByText(/transaction added/i)).toBeVisible();
 
-    // Open a fresh Add dialog, poke the currency dropdown to EUR, then cancel
-    // without saving.
+    // Open a fresh Add dialog, switch the currency to EUR, then cancel without saving.
     await page.getByRole('button', { name: /add/i }).click();
     await expect(page.getByLabel('Currency')).toHaveValue('USD');
     await page.getByLabel('Currency').click();
     await page.getByRole('option', { name: 'EUR' }).click();
     await page.getByRole('button', { name: 'Cancel' }).click();
 
-    // The abandoned EUR selection must not have overwritten the sticky value.
     await page.getByRole('button', { name: /add/i }).click();
-    await expect(page.getByLabel('Currency')).toHaveValue('USD');
+    await expect(page.getByLabel('Currency')).toHaveValue('EUR');
 });
 
 test('opening an existing transaction makes its currency the sticky default even without saving', async ({ page }) => {
@@ -110,6 +109,98 @@ test('opening an existing transaction makes its currency the sticky default even
 
     await page.getByText('Local spend').first().dblclick();
     await expect(page.getByLabel('Currency')).toHaveValue('SGD');
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await expect(page.getByLabel('Currency')).toHaveValue('SGD');
+});
+
+test('a typed (not picked) currency on a new transaction becomes the sticky default', async ({ page }) => {
+    const newTx = { ...usdTx, id: 22, remarks: 'New USD spend' };
+    await mockApi(page, {
+        'GET /api/account-issuer': baseIssuers,
+        'GET /api/account': accounts,
+        'GET /api/transaction/3': [ usdTx, sgdTx ],
+        'POST /api/transaction': [ newTx ],
+    });
+
+    await page.goto('/tx/3');
+
+    await page.getByText('Local spend').first().dblclick();
+    await expect(page.getByLabel('Currency')).toHaveValue('SGD');
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await page.getByLabel('Currency').fill('USD');
+    await page.locator('input[name="amount"]').fill('75');
+    await page.getByLabel('Original Amount').fill('50');
+    await page.getByLabel('Remarks').fill('New USD spend');
+    await page.getByLabel('Category').fill('Shopping');
+
+    const postRequest = page.waitForRequest((req) =>
+        req.url().includes('/api/transaction') && req.method() === 'POST'
+    );
+    await page.getByRole('button', { name: 'Add Transaction' }).click();
+    await postRequest;
+    await expect(page.getByText(/transaction added/i)).toBeVisible();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await expect(page.getByLabel('Currency')).toHaveValue('USD');
+});
+
+const dateField = (page: Page) => page.getByRole('group', { name: 'Date' });
+
+test('a date change sticks for the next Add dialog even when cancelled', async ({ page }) => {
+    await page.goto('/tx/3');
+
+    await page.getByText('Foreign spend').first().dblclick();
+    await expect(dateField(page)).toContainText('2024-02-01');
+    await page.locator('form button').nth(1).click(); // back one day
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await expect(dateField(page)).toContainText('2024-01-31');
+});
+
+test('a cleared date blocks submission instead of crashing', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await mockApi(page, {
+        'GET /api/account-issuer': baseIssuers,
+        'GET /api/account': accounts,
+        'GET /api/transaction/2': [],
+    });
+
+    // Credit account, so the billing month effect also sees the cleared date
+    await page.goto('/tx/2');
+    await page.getByRole('button', { name: /add/i }).click();
+    await page.getByRole('spinbutton', { name: 'Day' }).click();
+    await page.keyboard.press('Backspace');
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await page.getByRole('button', { name: /add/i }).click();
+    await page.locator('input[name="amount"]').fill('5');
+    await page.getByLabel('Remarks').fill('Snack');
+    await page.getByLabel('Category').fill('Food');
+    await page.getByRole('button', { name: 'Add Transaction' }).click();
+    await expect(page.getByText('Enter a valid date')).toBeVisible();
+
+    // The day arrows recover from an empty date
+    await page.locator('form button').nth(3).click(); // forward one day (nth(2) is the calendar button)
+    await expect(dateField(page)).not.toContainText('YYYY');
+    expect(errors).toEqual([]);
+});
+
+test('the currency clear button resets the sticky currency to SGD', async ({ page }) => {
+    await page.goto('/tx/3');
+
+    await page.getByText('Foreign spend').first().dblclick();
+    await expect(page.getByLabel('Currency')).toHaveValue('USD');
+    await page.getByLabel('Currency').hover();
+    await page.getByRole('button', { name: 'Clear' }).click();
+    await expect(page.getByLabel('Currency')).toHaveValue('SGD');
+    await expect(page.getByRole('button', { name: 'Clear' })).toHaveCount(0);
+    await page.screenshot({ path: 'test-results/currency-clear.png' });
     await page.getByRole('button', { name: 'Cancel' }).click();
 
     await page.getByRole('button', { name: /add/i }).click();
